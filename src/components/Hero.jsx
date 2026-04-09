@@ -18,108 +18,98 @@ export default function Hero() {
         backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://images.unsplash.com/photo-1562774053-701939374585?w=1400')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        height: '260px',
+        minHeight: '240px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '0 20px',
+        padding: '30px 16px',
         textAlign: 'center'
       }}>
         <h1 style={{
           color: 'white',
-          fontSize: '32px',
+          fontSize: 'clamp(20px, 5vw, 32px)',
           fontWeight: '700',
-          marginBottom: '24px',
-          textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+          marginBottom: '20px',
+          textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+          maxWidth: '600px'
         }}>
           Find Services, Jobs & Deals on Your Campus
         </h1>
 
-        {/* Search + Post Listing — separated */}
+        {/* Search Box */}
         <div style={{
           display: 'flex',
           width: '100%',
-          maxWidth: '800px',
-          gap: '12px',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          justifyContent: 'center'
+          maxWidth: '600px',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          marginBottom: '12px'
         }}>
-          {/* Search Box */}
-          <div style={{
-            display: 'flex',
-            flex: 1,
-            minWidth: '280px',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-          }}>
-            <input
-              type="text"
-              placeholder="Search for items, services, jobs..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              style={{
-                flex: 1,
-                padding: '14px 18px',
-                fontSize: '14px',
-                border: 'none',
-                outline: 'none',
-                color: '#374151'
-              }}
-            />
-            <button
-              onClick={handleSearch}
-              style={{
-                backgroundColor: '#1a56db',
-                color: 'white',
-                border: 'none',
-                padding: '14px 20px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-              🔍 Search
-            </button>
-          </div>
-
-          {/* Post Listing Button — separated */}
-          <button
-            onClick={() => navigate('/create')}
+          <input
+            type="text"
+            placeholder="Search for items, services, jobs..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
             style={{
-              backgroundColor: '#fbbf24',
-              color: '#1e3a8a',
-              border: 'none',
-              padding: '14px 22px',
+              flex: 1,
+              padding: '13px 16px',
               fontSize: '14px',
-              fontWeight: '700',
-              borderRadius: '8px',
+              border: 'none',
+              outline: 'none',
+              color: '#374151',
+              minWidth: 0
+            }}
+          />
+          <button
+            onClick={handleSearch}
+            style={{
+              backgroundColor: '#1a56db',
+              color: 'white',
+              border: 'none',
+              padding: '13px 18px',
+              fontSize: '14px',
+              fontWeight: '600',
               cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
+              whiteSpace: 'nowrap'
             }}>
-            📌 Post Listing
+            🔍 Search
           </button>
         </div>
+
+        {/* Post Listing Button */}
+        <button
+          onClick={() => navigate('/create')}
+          style={{
+            backgroundColor: '#fbbf24',
+            color: '#1e3a8a',
+            border: 'none',
+            padding: '12px 28px',
+            fontSize: '14px',
+            fontWeight: '700',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+          📌 Post Listing
+        </button>
       </div>
 
       {/* Category Tabs */}
       <div style={{
         backgroundColor: 'white',
         boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-        padding: '14px 40px',
+        padding: '12px 16px',
         display: 'flex',
         justifyContent: 'center',
-        gap: '20px',
-        overflowX: 'auto'
+        gap: '8px',
+        overflowX: 'auto',
+        flexWrap: 'wrap'
       }}>
         {[
           { label: '🛍️ Marketplace', color: '#1a56db' },
@@ -131,10 +121,10 @@ export default function Hero() {
             backgroundColor: tab.color,
             color: 'white',
             border: 'none',
-            padding: '10px 28px',
+            padding: '8px 16px',
             borderRadius: '6px',
             fontWeight: '600',
-            fontSize: '13px',
+            fontSize: '12px',
             whiteSpace: 'nowrap',
             cursor: 'pointer'
           }}>{tab.label}</button>

@@ -23,3 +23,29 @@ button {
 img {
   max-width: 100%;
 }
+
+/* Desktop — show nav, hide hamburger */
+@media (min-width: 769px) {
+  .hamburger {
+    display: none !important;
+  }
+  .desktop-nav {
+    display: flex !important;
+  }
+  .desktop-auth {
+    display: flex !important;
+  }
+}
+
+/* Mobile — hide nav, show hamburger */
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+  }
+  .desktop-auth {
+    display: none !important;
+  }
+  .hamburger {
+    display: block !important;
+  }
+}
