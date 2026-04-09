@@ -23,6 +23,12 @@ export default function ListingDetail() {
     fetch()
   }, [id])
 
+  const getImageUrl = (img) => {
+    if (!img) return null
+    if (img.startsWith('http')) return img
+    return `https://swiftkart2-backend.onrender.com/${img.replace(/\\/g, '/')}`
+  }
+
   if (loading) return (
     <p style={{ textAlign: 'center', padding: '80px 0', color: '#9ca3af' }}>Loading...</p>
   )
@@ -74,7 +80,7 @@ export default function ListingDetail() {
           }}>
             {listing.images?.length > 0 ? (
               <img
-                src={`http://localhost:5000/${listing.images[activeImage]?.replace(/\\/g, '/')}`}
+                src={getImageUrl(listing.images[activeImage])}
                 alt={listing.title}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
@@ -93,7 +99,7 @@ export default function ListingDetail() {
               {listing.images.map((img, i) => (
                 <img
                   key={i}
-                  src={`http://localhost:5000/${img.replace(/\\/g, '/')}`}
+                  src={getImageUrl(img)}
                   alt={`thumb-${i}`}
                   onClick={() => setActiveImage(i)}
                   style={{
