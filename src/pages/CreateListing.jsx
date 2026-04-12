@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
+const CATEGORIES = ['Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehicles', 'Furniture', 'Electronics', 'Food', 'Other']
+
 export default function CreateListing() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -17,6 +19,7 @@ export default function CreateListing() {
     title: '',
     description: '',
     price: '',
+    category: 'Other',
     pricePerHour: '',
     company: '',
     date: '',
@@ -48,6 +51,7 @@ export default function CreateListing() {
         formData.append('title', form.title)
         formData.append('description', form.description)
         formData.append('price', form.price)
+        formData.append('category', form.category)
         formData.append('phone', form.phone)
         formData.append('location[country]', form.location.country)
         formData.append('location[city]', form.location.city)
@@ -85,23 +89,16 @@ export default function CreateListing() {
   }
 
   const inputStyle = {
-    width: '100%',
-    padding: '11px 14px',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    fontSize: '14px',
-    outline: 'none',
-    boxSizing: 'border-box',
-    fontFamily: 'inherit',
+    width: '100%', padding: '11px 14px',
+    border: '1px solid #d1d5db', borderRadius: '8px',
+    fontSize: '14px', outline: 'none',
+    boxSizing: 'border-box', fontFamily: 'inherit',
     backgroundColor: 'white'
   }
 
   const labelStyle = {
-    display: 'block',
-    fontSize: '13px',
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: '6px'
+    display: 'block', fontSize: '13px',
+    fontWeight: '600', color: '#374151', marginBottom: '6px'
   }
 
   const fieldStyle = { marginBottom: '16px' }
@@ -128,7 +125,6 @@ export default function CreateListing() {
     <div style={{ backgroundColor: '#f4f6f8', minHeight: '80vh', padding: '40px 20px' }}>
       <div style={{ maxWidth: '580px', margin: '0 auto' }}>
 
-        {/* Back Button */}
         <button onClick={() => navigate(-1)} style={{
           backgroundColor: 'transparent',
           border: '1px solid #d1d5db',
@@ -204,12 +200,34 @@ export default function CreateListing() {
 
             {type === 'listing' && (
               <>
+                {/* Category Selector */}
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Category *</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {CATEGORIES.map(cat => (
+                      <button
+                        key={cat} type="button"
+                        onClick={() => setForm({ ...form, category: cat })}
+                        style={{
+                          padding: '10px 8px', borderRadius: '8px',
+                          border: form.category === cat ? '2px solid #1a56db' : '2px solid #e5e7eb',
+                          backgroundColor: form.category === cat ? '#eff6ff' : 'white',
+                          color: form.category === cat ? '#1a56db' : '#374151',
+                          fontWeight: '500', fontSize: '12px', cursor: 'pointer',
+                          textAlign: 'left'
+                        }}
+                      >{cat}</button>
+                    ))}
+                  </div>
+                </div>
+
                 <div style={fieldStyle}>
                   <label style={labelStyle}>Price ($) *</label>
                   <input type="number" name="price" value={form.price}
                     onChange={handleChange} placeholder="0.00" required
                     style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
                 </div>
+
                 <div style={fieldStyle}>
                   <label style={labelStyle}>Images (up to 5)</label>
                   <input type="file" multiple accept="image/*"
@@ -246,7 +264,6 @@ export default function CreateListing() {
               </div>
             )}
 
-            {/* WhatsApp Phone */}
             <div style={fieldStyle}>
               <label style={labelStyle}>WhatsApp Phone Number *</label>
               <input type="tel" name="phone" value={form.phone}
@@ -258,34 +275,24 @@ export default function CreateListing() {
               </p>
             </div>
 
-            {/* Location — fully flexible text inputs */}
             <div style={fieldStyle}>
               <label style={labelStyle}>Location *</label>
               <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '8px' }}>
                 Enter your country, city and area — you can type anything
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <input
-                  type="text" name="country" value={form.location.country}
+                <input type="text" name="country" value={form.location.country}
                   onChange={handleLocation}
                   placeholder="Country (e.g. Zimbabwe, South Africa, Kenya)"
-                  required style={inputStyle}
-                  onFocus={focusInput} onBlur={blurInput}
-                />
-                <input
-                  type="text" name="city" value={form.location.city}
+                  required style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+                <input type="text" name="city" value={form.location.city}
                   onChange={handleLocation}
                   placeholder="City (e.g. Harare, Johannesburg, Nairobi)"
-                  required style={inputStyle}
-                  onFocus={focusInput} onBlur={blurInput}
-                />
-                <input
-                  type="text" name="area" value={form.location.area}
+                  required style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+                <input type="text" name="area" value={form.location.area}
                   onChange={handleLocation}
                   placeholder="Area / Campus / Neighbourhood (optional)"
-                  style={inputStyle}
-                  onFocus={focusInput} onBlur={blurInput}
-                />
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
               </div>
             </div>
 
@@ -295,7 +302,7 @@ export default function CreateListing() {
               color: 'white', border: 'none', padding: '13px',
               borderRadius: '8px', fontSize: '15px', fontWeight: '600',
               cursor: loading ? 'not-allowed' : 'pointer',
-              marginTop: '8px', transition: 'background 0.2s'
+              marginTop: '8px'
             }}>
               {loading ? 'Publishing...' : '🚀 Publish Listing'}
             </button>
