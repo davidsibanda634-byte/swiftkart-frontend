@@ -88,6 +88,13 @@ export default function MyListings() {
     fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap'
   }
 
+  const editBtn = {
+    backgroundColor: '#eff6ff', color: '#1a56db',
+    border: '1px solid #bfdbfe', padding: '6px 14px',
+    borderRadius: '6px', fontSize: '12px',
+    fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap'
+  }
+
   const renderItems = (items, type) => {
     if (items.length === 0) return (
       <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
@@ -144,19 +151,30 @@ export default function MyListings() {
               </p>
             </div>
 
-            {/* Delete Buttons for all types */}
-            {type === 'listings' && (
-              <button onClick={() => deleteListing(item._id)} style={deleteBtn}>🗑️ Delete</button>
-            )}
-            {type === 'services' && (
-              <button onClick={() => deleteService(item._id)} style={deleteBtn}>🗑️ Delete</button>
-            )}
-            {type === 'jobs' && (
-              <button onClick={() => deleteJob(item._id)} style={deleteBtn}>🗑️ Delete</button>
-            )}
-            {type === 'events' && (
-              <button onClick={() => deleteEvent(item._id)} style={deleteBtn}>🗑️ Delete</button>
-            )}
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {/* Edit only for listings */}
+              {type === 'listings' && (
+                <button
+                  onClick={() => navigate(`/listings/edit/${item._id}`)}
+                  style={editBtn}
+                >✏️ Edit</button>
+              )}
+
+              {/* Delete for all types */}
+              {type === 'listings' && (
+                <button onClick={() => deleteListing(item._id)} style={deleteBtn}>🗑️ Delete</button>
+              )}
+              {type === 'services' && (
+                <button onClick={() => deleteService(item._id)} style={deleteBtn}>🗑️ Delete</button>
+              )}
+              {type === 'jobs' && (
+                <button onClick={() => deleteJob(item._id)} style={deleteBtn}>🗑️ Delete</button>
+              )}
+              {type === 'events' && (
+                <button onClick={() => deleteEvent(item._id)} style={deleteBtn}>🗑️ Delete</button>
+              )}
+            </div>
           </div>
         ))}
       </div>
