@@ -11,6 +11,7 @@ import Register from './pages/Register'
 import MyListings from './pages/MyListings'
 import ListingDetail from './pages/ListingDetail'
 import Search from './pages/Search'
+import EditListing from './pages/EditListing'
 
 export default function AppRoutes() {
   return (
@@ -26,6 +27,7 @@ export default function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/my-listings" element={<MyListings />} />
         <Route path="/listings/:id" element={<ListingDetail />} />
+        <Route path="/listings/edit/:id" element={<EditListing />} />
         <Route path="/search" element={<Search />} />
       </Route>
     </Routes>
