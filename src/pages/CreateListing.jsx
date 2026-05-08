@@ -60,25 +60,43 @@ export default function CreateListing() {
         await api.post('/listings', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
+
       } else if (type === 'service') {
-        await api.post('/services', {
-          title: form.title, description: form.description,
-          pricePerHour: form.pricePerHour, phone: form.phone,
-          location: form.location
+        const formData = new FormData()
+        formData.append('title', form.title)
+        formData.append('description', form.description)
+        formData.append('pricePerHour', form.pricePerHour)
+        formData.append('phone', form.phone)
+        formData.append('location[country]', form.location.country)
+        formData.append('location[city]', form.location.city)
+        formData.append('location[area]', form.location.area)
+        Array.from(images).forEach(img => formData.append('images', img))
+        await api.post('/services', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         })
+
       } else if (type === 'job') {
         await api.post('/jobs', {
           title: form.title, description: form.description,
           company: form.company, phone: form.phone,
           location: form.location
         })
+
       } else if (type === 'event') {
-        await api.post('/events', {
-          title: form.title, description: form.description,
-          date: form.date, phone: form.phone,
-          location: form.location
+        const formData = new FormData()
+        formData.append('title', form.title)
+        formData.append('description', form.description)
+        formData.append('date', form.date)
+        formData.append('phone', form.phone)
+        formData.append('location[country]', form.location.country)
+        formData.append('location[city]', form.location.city)
+        formData.append('location[area]', form.location.area)
+        Array.from(images).forEach(img => formData.append('images', img))
+        await api.post('/events', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         })
       }
+
       setSuccess('Posted successfully! Redirecting...')
       setTimeout(() => navigate('/'), 1500)
     } catch (err) {
@@ -183,6 +201,7 @@ export default function CreateListing() {
 
           <form onSubmit={handleSubmit}>
 
+            {/* Title */}
             <div style={fieldStyle}>
               <label style={labelStyle}>Title *</label>
               <input type="text" name="title" value={form.title}
@@ -190,6 +209,7 @@ export default function CreateListing() {
                 style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
             </div>
 
+            {/* Description */}
             <div style={fieldStyle}>
               <label style={labelStyle}>Description</label>
               <textarea name="description" value={form.description}
@@ -198,15 +218,14 @@ export default function CreateListing() {
                 onFocus={focusInput} onBlur={blurInput} />
             </div>
 
+            {/* LISTING specific fields */}
             {type === 'listing' && (
               <>
-                {/* Category Selector */}
                 <div style={fieldStyle}>
                   <label style={labelStyle}>Category *</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     {CATEGORIES.map(cat => (
-                      <button
-                        key={cat} type="button"
+                      <button key={cat} type="button"
                         onClick={() => setForm({ ...form, category: cat })}
                         style={{
                           padding: '10px 8px', borderRadius: '8px',
@@ -222,7 +241,7 @@ export default function CreateListing() {
                 </div>
 
                 <div style={fieldStyle}>
-                  <label style={labelStyle}>Price ($) *</label>
+                  <label style={labelStyle}>Price (R) *</label>
                   <input type="number" name="price" value={form.price}
                     onChange={handleChange} placeholder="0.00" required
                     style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
@@ -237,15 +256,28 @@ export default function CreateListing() {
               </>
             )}
 
+            {/* SERVICE specific fields */}
             {type === 'service' && (
-              <div style={fieldStyle}>
-                <label style={labelStyle}>Price per Hour ($)</label>
-                <input type="number" name="pricePerHour" value={form.pricePerHour}
-                  onChange={handleChange} placeholder="0.00"
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-              </div>
+              <>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Price per Hour (R)</label>
+                  <input type="number" name="pricePerHour" value={form.pricePerHour}
+                    onChange={handleChange} placeholder="0.00"
+                    style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Images (up to 5)</label>
+                  <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '6px' }}>
+                    Upload photos of your work or portfolio
+                  </p>
+                  <input type="file" multiple accept="image/*"
+                    onChange={handleImages}
+                    style={{ ...inputStyle, padding: '8px' }} />
+                </div>
+              </>
             )}
 
+            {/* JOB specific fields */}
             {type === 'job' && (
               <div style={fieldStyle}>
                 <label style={labelStyle}>Company / Organization</label>
@@ -255,15 +287,28 @@ export default function CreateListing() {
               </div>
             )}
 
+            {/* EVENT specific fields */}
             {type === 'event' && (
-              <div style={fieldStyle}>
-                <label style={labelStyle}>Event Date *</label>
-                <input type="date" name="date" value={form.date}
-                  onChange={handleChange} required
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-              </div>
+              <>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Event Date *</label>
+                  <input type="date" name="date" value={form.date}
+                    onChange={handleChange} required
+                    style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Event Image / Poster</label>
+                  <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '6px' }}>
+                    Upload an event poster or flyer
+                  </p>
+                  <input type="file" multiple accept="image/*"
+                    onChange={handleImages}
+                    style={{ ...inputStyle, padding: '8px' }} />
+                </div>
+              </>
             )}
 
+            {/* WhatsApp Phone */}
             <div style={fieldStyle}>
               <label style={labelStyle}>WhatsApp Phone Number *</label>
               <input type="tel" name="phone" value={form.phone}
@@ -275,6 +320,7 @@ export default function CreateListing() {
               </p>
             </div>
 
+            {/* Location */}
             <div style={fieldStyle}>
               <label style={labelStyle}>Location *</label>
               <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '8px' }}>
@@ -301,8 +347,7 @@ export default function CreateListing() {
               backgroundColor: loading ? '#93c5fd' : '#1a56db',
               color: 'white', border: 'none', padding: '13px',
               borderRadius: '8px', fontSize: '15px', fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              marginTop: '8px'
+              cursor: loading ? 'not-allowed' : 'pointer', marginTop: '8px'
             }}>
               {loading ? 'Publishing...' : '🚀 Publish Listing'}
             </button>
