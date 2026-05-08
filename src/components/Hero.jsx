@@ -4,20 +4,12 @@ import { useNavigate } from 'react-router-dom'
 export default function Hero() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const [activeTab, setActiveTab] = useState('Marketplace')
 
   const handleSearch = () => {
     if (search.trim()) {
       navigate(`/search?q=${encodeURIComponent(search.trim())}`)
     }
   }
-
-  const tabs = [
-    { label: '🛍️ Marketplace', key: 'Marketplace', to: '/marketplace' },
-    { label: '🧑‍💼 Student Services', key: 'Services', to: '/services' },
-    { label: '💼 Campus Jobs', key: 'Jobs', to: '/jobs' },
-    { label: '🎉 Events', key: 'Events', to: '/events' },
-  ]
 
   return (
     <>
@@ -147,48 +139,8 @@ export default function Hero() {
           transform: translateY(-2px);
           box-shadow: 0 10px 28px rgba(245,158,11,0.5);
         }
-        .sk-tabs-bar {
-          background: white;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-          padding: 14px 20px;
-          display: flex;
-          justify-content: center;
-          gap: 8px;
-          flex-wrap: wrap;
-          border-bottom: 2px solid #f1f5f9;
-        }
-        .sk-tab-pill {
-          padding: 9px 20px;
-          border-radius: 24px;
-          border: 1.5px solid #e5e7eb;
-          background: white;
-          color: #4b5563;
-          font-size: 13px;
-          font-weight: 600;
-          cursor: pointer;
-          white-space: nowrap;
-          transition: all 0.2s ease;
-          font-family: inherit;
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-        }
-        .sk-tab-pill:hover {
-          border-color: #1a3a8f;
-          color: #1a3a8f;
-          background: #eff6ff;
-          transform: translateY(-1px);
-        }
-        .sk-tab-pill.active {
-          background: linear-gradient(135deg, #1a3a8f, #1e4db7);
-          color: white;
-          border-color: transparent;
-          box-shadow: 0 4px 14px rgba(26,58,143,0.35);
-        }
         @media (max-width: 600px) {
           .sk-hero { min-height: 280px; padding: 36px 16px 44px; }
-          .sk-tabs-bar { gap: 6px; padding: 12px; }
-          .sk-tab-pill { padding: 8px 14px; font-size: 12px; }
         }
       `}</style>
 
@@ -216,18 +168,6 @@ export default function Hero() {
         <button className="sk-post-btn" onClick={() => navigate('/create')}>
           📌 Post a Listing
         </button>
-      </div>
-
-      <div className="sk-tabs-bar">
-        {tabs.map(tab => (
-          <button
-            key={tab.key}
-            className={`sk-tab-pill ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => { setActiveTab(tab.key); navigate(tab.to) }}
-          >
-            {tab.label}
-          </button>
-        ))}
       </div>
     </>
   )
