@@ -71,7 +71,7 @@ export default function ListingDetail() {
 
   const phone = listing.phone?.replace(/\D/g, '')
   const message = `Hi, I am interested in your listing: R{listing.title}`
-  const whatsappLink = `https://wa.me/R{phone}?text=R{encodeURIComponent(message)}`
+  const whatsappLink = `https://wa.me/R{phone}?text= R{encodeURIComponent(message)}`
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
