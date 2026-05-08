@@ -20,103 +20,244 @@ export default function Home() {
     api.get('/events').then(r => setEvents(r.data.slice(0, 2))).catch(() => {})
   }, [])
 
-  const sectionStyle = { marginBottom: '40px' }
-
-  const sectionHeader = {
-    display: 'flex', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: '16px'
-  }
-
-  const sectionTitle = { fontSize: '20px', fontWeight: '700', color: '#111827' }
-  const viewAll = { color: '#1a56db', fontSize: '13px', fontWeight: '500' }
-  const empty = { color: '#9ca3af', fontSize: '14px' }
-
   return (
-    <div>
-      <Hero />
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px' }}>
+        .sk-home { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fb; min-height: 100vh; }
 
-        {/* Marketplace */}
-        <section style={sectionStyle}>
-          <div style={sectionHeader}>
-            <h2 style={sectionTitle}>Marketplace</h2>
-            <Link to="/marketplace" style={viewAll}>View All ›</Link>
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-            gap: '12px'
-          }}>
-            {listings.length > 0
-              ? listings.map(l => <ListingCard key={l._id} listing={l} />)
-              : <p style={empty}>No listings yet.</p>}
-          </div>
-        </section>
+        .sk-trust-strip {
+          background: linear-gradient(135deg, #0f2167, #1e4db7);
+          padding: 10px 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 32px;
+          flex-wrap: wrap;
+        }
+        .sk-trust-item {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          color: rgba(255,255,255,0.88);
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+        .sk-content {
+          max-width: 1240px;
+          margin: 0 auto;
+          padding: 36px 20px 60px;
+        }
+        .sk-section { margin-bottom: 48px; }
+        .sk-section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        .sk-section-left { display: flex; align-items: center; gap: 10px; }
+        .sk-section-dot {
+          width: 6px;
+          height: 28px;
+          background: linear-gradient(180deg, #1e4db7, #10b981);
+          border-radius: 3px;
+          flex-shrink: 0;
+        }
+        .sk-section-title {
+          font-size: 21px;
+          font-weight: 800;
+          color: #0f172a;
+          letter-spacing: -0.4px;
+        }
+        .sk-section-sub {
+          font-size: 13px;
+          color: #94a3b8;
+          font-weight: 500;
+          margin-top: 1px;
+        }
+        .sk-view-all {
+          color: #1e4db7;
+          font-size: 13px;
+          font-weight: 700;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 7px 16px;
+          border-radius: 20px;
+          border: 1.5px solid #c7d7ff;
+          transition: all 0.2s ease;
+          background: white;
+        }
+        .sk-view-all:hover {
+          background: #eff6ff;
+          border-color: #1e4db7;
+        }
+        .sk-listing-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 18px;
+        }
+        .sk-service-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 18px;
+        }
+        .sk-two-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 18px;
+        }
+        .sk-empty {
+          color: #94a3b8;
+          font-size: 14px;
+          font-weight: 500;
+          padding: 32px;
+          background: white;
+          border-radius: 14px;
+          text-align: center;
+          border: 2px dashed #e2e8f0;
+        }
+        .sk-filter-pill {
+          padding: 7px 16px;
+          border-radius: 20px;
+          border: 1.5px solid #e2e8f0;
+          background: white;
+          color: #4b5563;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-family: inherit;
+        }
+        .sk-filter-pill.active,
+        .sk-filter-pill:hover {
+          background: linear-gradient(135deg, #1a3a8f, #1e4db7);
+          color: white;
+          border-color: transparent;
+          box-shadow: 0 4px 12px rgba(26,58,143,0.25);
+        }
+        .sk-service-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
 
-        {/* Services */}
-        <section style={sectionStyle}>
-          <div style={sectionHeader}>
-            <h2 style={sectionTitle}>Student Services</h2>
-            <Link to="/services" style={viewAll}>View All ›</Link>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            {['All', 'Tutoring', 'Design', 'Tech Help', 'Photography'].map(tab => (
-              <button key={tab} style={{
-                padding: '5px 14px', borderRadius: '20px',
-                border: '1px solid #d1d5db',
-                backgroundColor: tab === 'All' ? '#1a56db' : 'white',
-                color: tab === 'All' ? 'white' : '#374151',
-                fontSize: '12px', fontWeight: '500', cursor: 'pointer'
-              }}>{tab}</button>
-            ))}
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-            gap: '12px'
-          }}>
-            {services.length > 0
-              ? services.map(s => <ServiceCard key={s._id} service={s} />)
-              : <p style={empty}>No services yet.</p>}
-          </div>
-        </section>
+        @media (max-width: 1024px) {
+          .sk-listing-grid { grid-template-columns: repeat(3, 1fr); }
+          .sk-service-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+          .sk-listing-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .sk-service-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .sk-two-grid { grid-template-columns: 1fr; gap: 12px; }
+          .sk-content { padding: 24px 14px 60px; }
+          .sk-trust-strip { gap: 16px; padding: 10px 16px; }
+          .sk-section-title { font-size: 17px; }
+        }
+        @media (max-width: 480px) {
+          .sk-listing-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+          .sk-service-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
+      `}</style>
 
-        {/* Jobs */}
-        <section style={sectionStyle}>
-          <div style={sectionHeader}>
-            <h2 style={sectionTitle}>Campus Jobs</h2>
-            <Link to="/jobs" style={viewAll}>View All ›</Link>
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '12px'
-          }}>
-            {jobs.length > 0
-              ? jobs.map(j => <JobCard key={j._id} job={j} />)
-              : <p style={empty}>No jobs yet.</p>}
-          </div>
-        </section>
+      <div className="sk-home">
+        <Hero />
 
-        {/* Events */}
-        <section style={sectionStyle}>
-          <div style={sectionHeader}>
-            <h2 style={sectionTitle}>Upcoming Events</h2>
-            <Link to="/events" style={viewAll}>View All ›</Link>
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '12px'
-          }}>
-            {events.length > 0
-              ? events.map(e => <EventCard key={e._id} event={e} />)
-              : <p style={empty}>No events yet.</p>}
-          </div>
-        </section>
+        <div className="sk-trust-strip">
+          {[
+            { icon: '✔', label: 'Verified Vendors' },
+            { icon: '💬', label: 'WhatsApp Support' },
+            { icon: '⚡', label: 'Fast Delivery' },
+            { icon: '🔒', label: 'Safe & Secure' },
+          ].map(item => (
+            <div key={item.label} className="sk-trust-item">
+              <span>{item.icon}</span> {item.label}
+            </div>
+          ))}
+        </div>
 
+        <div className="sk-content">
+
+          <section className="sk-section">
+            <div className="sk-section-header">
+              <div className="sk-section-left">
+                <div className="sk-section-dot" />
+                <div>
+                  <div className="sk-section-title">🛍️ Marketplace</div>
+                  <div className="sk-section-sub">Fresh listings from campus sellers</div>
+                </div>
+              </div>
+              <Link to="/marketplace" className="sk-view-all">View All →</Link>
+            </div>
+            <div className="sk-listing-grid">
+              {listings.length > 0
+                ? listings.map(l => <ListingCard key={l._id} listing={l} />)
+                : <p className="sk-empty">No listings yet. Be the first to post!</p>}
+            </div>
+          </section>
+
+          <section className="sk-section">
+            <div className="sk-section-header">
+              <div className="sk-section-left">
+                <div className="sk-section-dot" style={{ background: 'linear-gradient(180deg, #7c3aed, #a855f7)' }} />
+                <div>
+                  <div className="sk-section-title">🧑‍💼 Student Services</div>
+                  <div className="sk-section-sub">Skills & services offered by students</div>
+                </div>
+              </div>
+              <Link to="/services" className="sk-view-all">View All →</Link>
+            </div>
+            <div className="sk-service-filters">
+              {['All', 'Tutoring', 'Design', 'Tech Help', 'Photography'].map(tab => (
+                <button key={tab} className={`sk-filter-pill ${tab === 'All' ? 'active' : ''}`}>
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="sk-service-grid">
+              {services.length > 0
+                ? services.map(s => <ServiceCard key={s._id} service={s} />)
+                : <p className="sk-empty">No services yet.</p>}
+            </div>
+          </section>
+
+          <section className="sk-section">
+            <div className="sk-section-header">
+              <div className="sk-section-left">
+                <div className="sk-section-dot" style={{ background: 'linear-gradient(180deg, #f59e0b, #d97706)' }} />
+                <div>
+                  <div className="sk-section-title">💼 Campus Jobs</div>
+                  <div className="sk-section-sub">Part-time & full-time opportunities</div>
+                </div>
+              </div>
+              <Link to="/jobs" className="sk-view-all">View All →</Link>
+            </div>
+            <div className="sk-two-grid">
+              {jobs.length > 0
+                ? jobs.map(j => <JobCard key={j._id} job={j} />)
+                : <p className="sk-empty">No jobs posted yet.</p>}
+            </div>
+          </section>
+
+          <section className="sk-section">
+            <div className="sk-section-header">
+              <div className="sk-section-left">
+                <div className="sk-section-dot" style={{ background: 'linear-gradient(180deg, #ef4444, #f97316)' }} />
+                <div>
+                  <div className="sk-section-title">🎉 Upcoming Events</div>
+                  <div className="sk-section-sub">Don't miss what's happening on campus</div>
+                </div>
+              </div>
+              <Link to="/events" className="sk-view-all">View All →</Link>
+            </div>
+            <div className="sk-two-grid">
+              {events.length > 0
+                ? events.map(e => <EventCard key={e._id} event={e} />)
+                : <p className="sk-empty">No events posted yet.</p>}
+            </div>
+          </section>
+
+        </div>
       </div>
-    </div>
+    </>
   )
 }

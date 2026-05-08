@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,9 +7,10 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f6f8;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  background-color: #f4f7fb;
   color: #1f2937;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -22,30 +25,10 @@ button {
 
 img {
   max-width: 100%;
+  display: block;
 }
 
-/* Desktop — show nav, hide hamburger */
-@media (min-width: 769px) {
-  .hamburger {
-    display: none !important;
-  }
-  .desktop-nav {
-    display: flex !important;
-  }
-  .desktop-auth {
-    display: flex !important;
-  }
-}
-
-/* Mobile — hide nav, show hamburger */
-@media (max-width: 768px) {
-  .desktop-nav {
-    display: none !important;
-  }
-  .desktop-auth {
-    display: none !important;
-  }
-  .hamburger {
-    display: block !important;
-  }
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
