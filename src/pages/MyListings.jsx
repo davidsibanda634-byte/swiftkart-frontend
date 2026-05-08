@@ -130,7 +130,7 @@ export default function MyListings() {
             <div style={{ flex: 1 }}>
               <p style={{ fontWeight: '600', fontSize: '15px', color: '#111827' }}>{item.title}</p>
               {type === 'listings' && (
-                <p style={{ color: '#1a56db', fontWeight: '700', fontSize: '14px', marginTop: '2px' }}>${item.price}</p>
+                <p style={{ color: '#1a56db', fontWeight: '700', fontSize: '14px', marginTop: '2px' }}>R{item.price}</p>
               )}
               {type === 'services' && item.pricePerHour && (
                 <p style={{ color: '#1a56db', fontWeight: '700', fontSize: '14px', marginTop: '2px' }}>${item.pricePerHour}/hr</p>
