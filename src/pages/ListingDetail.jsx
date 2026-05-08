@@ -70,8 +70,8 @@ export default function ListingDetail() {
   if (!listing) return null
 
   const phone = listing.phone?.replace(/\D/g, '')
-  const message = `Hi, I am interested in your listing: ${listing.title}`
-  const whatsappLink = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+  const message = `Hi, I am interested in your listing: R{listing.title}`
+  const whatsappLink = `https://wa.me/R{phone}?text=R{encodeURIComponent(message)}`
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
@@ -143,7 +143,7 @@ export default function ListingDetail() {
           </h1>
 
           <p style={{ fontSize: '28px', fontWeight: '700', color: '#1a56db', marginBottom: '16px' }}>
-            ${listing.price}
+            R{listing.price}
           </p>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#6b7280', fontSize: '13px', marginBottom: '16px' }}>
