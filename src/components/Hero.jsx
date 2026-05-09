@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom'
 const CATEGORIES = [
   { icon: '📱', label: 'Electronics', to: '/marketplace?category=Electronics' },
   { icon: '👗', label: 'Fashion', to: '/marketplace?category=Fashion' },
-  { icon: '📚', label: 'Books', to: '/marketplace?category=Books' },
-  { icon: '🛋️', label: 'Home & Living', to: '/marketplace?category=Furniture' },
-  { icon: '🔧', label: 'Services', to: '/services' },
-  { icon: '💼', label: 'Jobs', to: '/jobs' },
+  { icon: '💄', label: 'Cosmetics & Hair', to: '/marketplace?category=Cosmetics & Hair' },
+  { icon: '🚗', label: 'Vehicles', to: '/marketplace?category=Vehicles' },
+  { icon: '🛋️', label: 'Furniture', to: '/marketplace?category=Furniture' },
+  { icon: '🍔', label: 'Food', to: '/marketplace?category=Food' },
+  { icon: '📦', label: 'Other', to: '/marketplace?category=Other' },
 ]
 
 export default function Hero() {
@@ -18,6 +19,12 @@ export default function Hero() {
 
   const handleSearch = () => {
     if (search.trim()) navigate(`/search?q=${encodeURIComponent(search.trim())}`)
+  }
+
+  const handleCatSelect = (cat) => {
+    setSelectedCat(cat.label)
+    setCatOpen(false)
+    navigate(cat.to)
   }
 
   return (
@@ -78,8 +85,6 @@ export default function Hero() {
           margin-bottom: 26px;
           font-weight: 400;
         }
-
-        /* Search bar */
         .sk-search-wrap {
           width: 100%;
           max-width: 620px;
@@ -128,18 +133,21 @@ export default function Hero() {
           border-radius: 11px;
           box-shadow: 0 10px 36px rgba(0,0,0,0.16);
           padding: 6px;
-          min-width: 175px;
+          min-width: 200px;
           z-index: 200;
           border: 1px solid #f1f5f9;
         }
         .sk-cat-option {
-          padding: 8px 13px;
+          padding: 9px 13px;
           border-radius: 7px;
           font-size: 12.5px;
           font-weight: 600;
           color: #374151;
           cursor: pointer;
           transition: background 0.15s;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
         .sk-cat-option:hover { background: #f0fdf4; color: #059669; }
         .sk-search-input {
@@ -171,8 +179,6 @@ export default function Hero() {
           flex-shrink: 0;
         }
         .sk-search-btn:hover { background: linear-gradient(135deg, #0f2167, #1a3a8f); }
-
-        /* Post button */
         .sk-post-btn {
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: #1e3a5f;
@@ -188,15 +194,12 @@ export default function Hero() {
           font-family: inherit;
           box-shadow: 0 5px 18px rgba(245,158,11,0.42);
           transition: all 0.2s ease;
-          position: relative;
-          z-index: 2;
         }
         .sk-post-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.52); }
 
-        /* Trust strip */
+        /* Trust Strip */
         .sk-trust-strip {
           background: white;
-          padding: 0;
           display: flex;
           align-items: stretch;
           justify-content: center;
@@ -211,7 +214,7 @@ export default function Hero() {
           padding: 14px 28px;
           border-right: 1px solid #f1f5f9;
           flex: 1;
-          min-width: 160px;
+          min-width: 150px;
           max-width: 260px;
         }
         .sk-trust-item:last-child { border-right: none; }
@@ -228,17 +231,14 @@ export default function Hero() {
         .sk-trust-label { font-size: 12.5px; font-weight: 700; color: #111827; }
         .sk-trust-sub { font-size: 11px; color: #9ca3af; font-weight: 500; margin-top: 1px; }
 
-        /* Category section */
+        /* Category Section */
         .sk-cat-section {
           background: white;
           padding: 20px 20px;
           border-bottom: 1px solid #f1f5f9;
           font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .sk-cat-section-inner {
-          max-width: 1240px;
-          margin: 0 auto;
-        }
+        .sk-cat-section-inner { max-width: 1240px; margin: 0 auto; }
         .sk-cat-sec-header {
           display: flex;
           justify-content: space-between;
@@ -251,6 +251,10 @@ export default function Hero() {
           font-weight: 700;
           color: #1e4db7;
           text-decoration: none;
+          cursor: pointer;
+          background: none;
+          border: none;
+          font-family: inherit;
         }
         .sk-cat-sec-viewall:hover { text-decoration: underline; }
         .sk-cat-icons-row {
@@ -298,14 +302,14 @@ export default function Hero() {
 
         @media (max-width: 640px) {
           .sk-hero { min-height: 300px; padding: 36px 16px 36px; }
-          .sk-trust-item { padding: 12px 14px; min-width: 120px; }
+          .sk-trust-item { padding: 10px 12px; min-width: 120px; }
           .sk-trust-sub { display: none; }
-          .sk-cat-btn { max-width: 110px; font-size: 11px; padding: 0 8px; }
+          .sk-cat-btn { max-width: 100px; font-size: 11px; padding: 0 8px; }
           .sk-search-btn { padding: 0 13px; font-size: 12px; }
         }
       `}</style>
 
-      {/* Hero */}
+      {/* Hero Banner */}
       <div className="sk-hero">
         <div className="sk-hero-badge">🌍 Campus Marketplace · Zimbabwe</div>
         <h1>Find Deals, Services &<br /><span>Jobs on Campus</span></h1>
@@ -318,10 +322,14 @@ export default function Hero() {
             </button>
             {catOpen && (
               <div className="sk-cat-dropdown">
-                {['All Categories', ...CATEGORIES.map(c => c.label)].map(c => (
-                  <div key={c} className="sk-cat-option"
-                    onClick={() => { setSelectedCat(c); setCatOpen(false) }}>
-                    {c}
+                <div className="sk-cat-option"
+                  onClick={() => { setSelectedCat('All Categories'); setCatOpen(false); navigate('/marketplace') }}>
+                  🛍️ All Categories
+                </div>
+                {CATEGORIES.map(c => (
+                  <div key={c.label} className="sk-cat-option"
+                    onClick={() => handleCatSelect(c)}>
+                    {c.icon} {c.label}
                   </div>
                 ))}
               </div>
@@ -346,8 +354,8 @@ export default function Hero() {
       {/* Trust Strip */}
       <div className="sk-trust-strip">
         {[
-          { icon: '🛡️', bg: '#f0fdf4', label: 'Verified Students', sub: 'Trusted community' },
-          { icon: '💬', bg: '#f0fdf4', label: 'WhatsApp Support', sub: "We're here to help" },
+          { icon: '🛡️', bg: '#f0fdf4', label: 'Verified Sellers', sub: 'Trusted community' },
+          { icon: '💬', bg: '#f0fdf4', label: 'WhatsApp Contact', sub: 'Direct communication' },
           { icon: '⚡', bg: '#fffbeb', label: 'Fast & Reliable', sub: 'Quick responses' },
           { icon: '🔒', bg: '#eff6ff', label: 'Safe & Secure', sub: 'Your safety first' },
         ].map(item => (
@@ -361,12 +369,14 @@ export default function Hero() {
         ))}
       </div>
 
-      {/* Shop by Category */}
+      {/* Shop by Category — Marketplace only */}
       <div className="sk-cat-section">
         <div className="sk-cat-section-inner">
           <div className="sk-cat-sec-header">
-            <span className="sk-cat-sec-title">Shop by Category</span>
-            <a href="/marketplace" className="sk-cat-sec-viewall">View All →</a>
+            <span className="sk-cat-sec-title">🛍️ Shop by Category</span>
+            <button className="sk-cat-sec-viewall" onClick={() => navigate('/marketplace')}>
+              View All →
+            </button>
           </div>
           <div className="sk-cat-icons-row">
             {CATEGORIES.map(cat => (

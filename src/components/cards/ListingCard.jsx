@@ -26,6 +26,12 @@ export default function ListingCard({ listing }) {
   const whatsappLink = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
   const catStyle = CATEGORY_COLORS[listing.category] || CATEGORY_COLORS['Other']
 
+  // Currency display — sellers enter their own currency in price field
+  const formatPrice = (price) => {
+    if (!price && price !== 0) return 'Price on request'
+    return `R ${Number(price).toLocaleString()}`
+  }
+
   return (
     <>
       <style>{`
@@ -198,7 +204,7 @@ export default function ListingCard({ listing }) {
             </span>
           )}
           <p className="sk-card-title">{listing.title}</p>
-          <p className="sk-card-price">${listing.price}</p>
+          <p className="sk-card-price">{formatPrice(listing.price)}</p>
           <p className="sk-card-location">
             📍 {listing.location?.city}{listing.location?.area ? `, ${listing.location.area}` : ''}
           </p>
