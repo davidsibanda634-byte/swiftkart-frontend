@@ -76,8 +76,6 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
           transform: translateY(-5px);
           box-shadow: 0 20px 48px rgba(0,0,0,0.13);
         }
-
-        /* IMAGE — 80% of card */
         .sk-card-img-wrap {
           width: 100%;
           aspect-ratio: 4 / 5;
@@ -104,8 +102,6 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
           font-size: 52px;
           background: linear-gradient(135deg, #f8fafc, #e2e8f0);
         }
-
-        /* Category badge overlaid on image */
         .sk-img-cat-badge {
           position: absolute;
           bottom: 10px;
@@ -117,8 +113,6 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
           backdrop-filter: blur(8px);
           z-index: 5;
         }
-
-        /* Heart — glassmorphism */
         .sk-heart-btn {
           position: absolute;
           top: 10px;
@@ -140,8 +134,6 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
         }
         .sk-heart-btn:hover { transform: scale(1.18); background: white; }
         .sk-heart-btn.saved { background: #fef2f2; }
-
-        /* WhatsApp floating icon on image */
         .sk-wa-float {
           position: absolute;
           bottom: 10px;
@@ -158,9 +150,7 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
           transition: all 0.2s;
           z-index: 10;
         }
-        .sk-wa-float:hover { transform: scale(1.12); box-shadow: 0 5px 18px rgba(37,211,102,0.6); }
-
-        /* INFO — 20% of card */
+        .sk-wa-float:hover { transform: scale(1.12); }
         .sk-card-info {
           padding: 10px 12px 12px;
           display: flex;
@@ -211,14 +201,12 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
       `}</style>
 
       <div className="sk-card">
-        {/* Image Section — 80% */}
         <div className="sk-card-img-wrap" onClick={() => navigate(`/listings/${listing._id}`)}>
           {imageUrl
             ? <img src={imageUrl} alt={listing.title} loading="lazy" />
             : <div className="sk-card-no-img">🛍️</div>
           }
 
-          {/* Category badge on image */}
           {listing.category && (
             <span className="sk-img-cat-badge"
               style={{ backgroundColor: catStyle.bg, color: catStyle.color }}>
@@ -226,7 +214,6 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
             </span>
           )}
 
-          {/* Heart button — glassmorphism */}
           <button
             className={`sk-heart-btn ${saved ? 'saved' : ''}`}
             onClick={handleSave}
@@ -235,7 +222,6 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
             {saved ? '❤️' : '🤍'}
           </button>
 
-          {/* WhatsApp floating icon */}
           
             href={whatsappLink}
             target="_blank"
@@ -249,7 +235,6 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
           </a>
         </div>
 
-        {/* Info Section — 20% */}
         <div className="sk-card-info" onClick={() => navigate(`/listings/${listing._id}`)}>
           <p className="sk-card-title">{listing.title}</p>
           <p className="sk-card-price">{formatPrice(listing.price)}</p>
