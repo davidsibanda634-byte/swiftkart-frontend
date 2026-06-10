@@ -28,11 +28,11 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
   const getImageUrl = (img) => {
     if (!img) return null
     if (img.startsWith('http')) return img
-    return `https://swiftkart2-backend.onrender.com/${img.replace(/\\/g, '/')}`
+    return `https://swiftkart2-backend.onrender.com/${img.replace(/[\\]/g, '/')}`
   }
 
   const imageUrl = getImageUrl(listing.images?.[0])
-  const phone = listing.phone?.replace(/\D/g, '')
+  const phone = listing.phone?.replace(/[^0-9]/g, '')
   const message = `Hi, I am interested in your listing: ${listing.title}`
   const whatsappLink = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
   const catStyle = CATEGORY_COLORS[listing.category] || CATEGORY_COLORS['Other']
