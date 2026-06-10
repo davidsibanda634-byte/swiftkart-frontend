@@ -232,18 +232,16 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
           >
             {saved ? '❤️' : '🤍'}
           </button>
+{/* WhatsApp — bottom right */}
 
-          {/* WhatsApp — bottom right */}
-          
-            className="skc-wa"
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {WA_ICON}
-          </a>
-
+  className="skc-wa"
+  href={waLink}
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={(e) => e.stopPropagation()}
+>
+  {WA_ICON}
+</a>
         </div>
 
         {/* ── INFO ZONE (20%) ── */}
