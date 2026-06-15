@@ -51,19 +51,20 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
   const goDetail = () => navigate('/listings/' + listing._id)
 
   return (
-    <div style={{
-      fontFamily: "'Plus Jakarta Sans', sans-serif",
-      background: 'white',
-      borderRadius: '20px',
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column',
-      transition: 'transform .25s ease, box-shadow .25s ease',
-      cursor: 'pointer',
-      position: 'relative',
-      boxShadow: '0 2px 16px rgba(0,0,0,.08)',
-      border: '1px solid rgba(0,0,0,.04)',
-    }}
+    <div
+      style={{
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        background: 'white',
+        borderRadius: '20px',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'transform .25s ease, box-shadow .25s ease',
+        cursor: 'pointer',
+        position: 'relative',
+        boxShadow: '0 2px 16px rgba(0,0,0,.08)',
+        border: '1px solid rgba(0,0,0,.04)',
+      }}
       onMouseEnter={e => {
         e.currentTarget.style.transform = 'translateY(-5px)'
         e.currentTarget.style.boxShadow = '0 20px 48px rgba(0,0,0,.13)'
