@@ -3,14 +3,14 @@ import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 
 const CATEGORY_COLORS = {
-  'Fashion': { bg: '#fdf2f8', color: '#9d174d' },
-  'Cosmetics & Hair': { bg: '#fef9c3', color: '#854d0e' },
+  'Fashion':              { bg: '#fdf2f8', color: '#9d174d' },
+  'Cosmetics & Hair':     { bg: '#fef9c3', color: '#854d0e' },
   'Mobile & Accessories': { bg: '#eff6ff', color: '#1e40af' },
-  'Vehicles': { bg: '#f0fdf4', color: '#166534' },
-  'Furniture': { bg: '#fff7ed', color: '#9a3412' },
-  'Electronics': { bg: '#eef2ff', color: '#3730a3' },
-  'Food': { bg: '#fef2f2', color: '#991b1b' },
-  'Other': { bg: '#f9fafb', color: '#374151' },
+  'Vehicles':             { bg: '#f0fdf4', color: '#166534' },
+  'Furniture':            { bg: '#fff7ed', color: '#9a3412' },
+  'Electronics':          { bg: '#eef2ff', color: '#3730a3' },
+  'Food':                 { bg: '#fef2f2', color: '#991b1b' },
+  'Other':                { bg: '#f9fafb', color: '#374151' },
 }
 
 export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
@@ -32,7 +32,7 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
 
   const formatPrice = (price) => {
     if (!price && price !== 0) return 'Price on request'
-    return 'R ' + Number(price).toLocaleString()
+    return '$' + Number(price).toLocaleString()
   }
 
   const handleSave = (e) => {
@@ -41,7 +41,7 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
     const key = 'sk_saved_' + user._id
     const existing = JSON.parse(localStorage.getItem(key) || '[]')
     const next = saved
-      ? existing.filter(function(id) { return id !== listing._id })
+      ? existing.filter(id => id !== listing._id)
       : existing.concat([listing._id])
     localStorage.setItem(key, JSON.stringify(next))
     setSaved(!saved)
@@ -74,7 +74,7 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
         e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,.08)'
       }}
     >
-      {/* IMAGE ZONE — 80% */}
+      {/* IMAGE ZONE */}
       <div
         onClick={goDetail}
         style={{
@@ -139,12 +139,12 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
           {saved ? '❤️' : '🤍'}
         </button>
 
-        {/* WhatsApp — bottom right */}
+        {/* WhatsApp — bottom right ✅ FIXED */}
         
           href={waLink}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={function(e) { e.stopPropagation() }}
+          onClick={e => e.stopPropagation()}
           style={{
             position: 'absolute', bottom: '10px', right: '10px',
             width: '34px', height: '34px', borderRadius: '50%',
@@ -160,7 +160,7 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
         </a>
       </div>
 
-      {/* INFO ZONE — 20% */}
+      {/* INFO ZONE */}
       <div
         onClick={goDetail}
         style={{ padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: '2px' }}
@@ -179,7 +179,10 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
         }}>
           {formatPrice(listing.price)}
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px', gap: '4px' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', marginTop: '4px', gap: '4px',
+        }}>
           <span style={{
             color: '#9ca3af', fontSize: '10.5px', fontWeight: 500,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
@@ -190,7 +193,8 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
             <span style={{
               background: '#ecfdf5', color: '#059669',
               fontSize: '9px', fontWeight: 700,
-              padding: '2px 6px', borderRadius: '8px', whiteSpace: 'nowrap', flexShrink: 0,
+              padding: '2px 6px', borderRadius: '8px',
+              whiteSpace: 'nowrap', flexShrink: 0,
             }}>
               ✔ Verified
             </span>
