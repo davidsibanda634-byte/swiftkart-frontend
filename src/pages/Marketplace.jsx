@@ -1,151 +1,547 @@
 import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import ListingCard from '../components/cards/ListingCard'
 import api from '../services/api'
 
 const CATEGORIES = ['All', 'Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehicles', 'Furniture', 'Electronics', 'Food', 'Other']
 
 const CATEGORY_ICONS = {
-  'All': '🛍️',
-  'Fashion': '👗',
-  'Cosmetics & Hair': '💄',
-  'Mobile & Accessories': '📱',
-  'Vehicles': '🚗',
-  'Furniture': '🛋️',
-  'Electronics': '💻',
-  'Food': '🍔',
-  'Other': '📦'
+  'All': '🛍️', 'Fashion': '👗', 'Cosmetics & Hair': '💄',
+  'Mobile & Accessories': '📱', 'Vehicles': '🚗', 'Furniture': '🛋️',
+  'Electronics': '💻', 'Food': '🍔', 'Other': '📦',
 }
 
+const SORT_OPTIONS = [
+  { value: 'newest', label: '🕐 Newest First' },
+  { value: 'price_low', label: '💰 Price: Low → High' },
+  { value: 'price_high', label: '💎 Price: High → Low' },
+]
+
 export default function Marketplace() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const [allListings, setAllListings] = useState([])
   const [listings, setListings] = useState([])
   const [search, setSearch] = useState('')
   const [city, setCity] = useState('')
   const [category, setCategory] = useState('All')
+  const [sort, setSort] = useState('newest')
   const [loading, setLoading] = useState(true)
 
-  const fetchListings = async (cat = category) => {
+  // Read category from URL params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const cat = params.get('category')
+    if (cat) setCategory(cat)
+  }, [location.search])
+
+  useEffect(() => {
+    fetchListings()
+  }, [])
+
+  useEffect(() => {
+    applyFilters(allListings, category, search, city, sort)
+  }, [category, sort])
+
+  const fetchListings = async () => {
     setLoading(true)
     try {
-      const params = {}
-      if (search) params.search = search
-      if (city) params.city = city
-      if (cat && cat !== 'All') params.category = cat
-      const { data } = await api.get('/listings', { params })
-      setListings(data)
+      const { data } = await api.get('/listings')
+      setAllListings(data)
+      applyFilters(data, category, search, city, sort)
     } catch {
+      setAllListings([])
       setListings([])
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    fetchListings()
-  }, [])
+  const applyFilters = (data, cat, q, c, s) => {
+    let result = [...data]
+    if (cat && cat !== 'All') result = result.filter(l => l.category === cat)
+    if (q) result = result.filter(l => l.title?.toLowerCase().includes(q.toLowerCase()) || l.description?.toLowerCase().includes(q.toLowerCase()))
+    if (c) result = result.filter(l => l.location?.city?.toLowerCase().includes(c.toLowerCase()))
+    if (s === 'price_low') result.sort((a, b) => (a.price || 0) - (b.price || 0))
+    else if (s === 'price_high') result.sort((a, b) => (b.price || 0) - (a.price || 0))
+    else result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    setListings(result)
+  }
 
-  const handleCategoryClick = (cat) => {
+  const handleSearch = () => applyFilters(allListings, category, search, city, sort)
+
+  const handleCategory = (cat) => {
     setCategory(cat)
-    fetchListings(cat)
+    applyFilters(allListings, cat, search, city, sort)
+  }
+
+  const handleSort = (s) => {
+    setSort(s)
+    applyFilters(allListings, category, search, city, s)
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px' }}>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-      {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827' }}>Marketplace</h1>
-        <p style={{ color: '#6b7280', fontSize: '14px', marginTop: '4px' }}>
-          Buy and sell items within your campus community
-        </p>
-      </div>
+        .mp-wrap {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          background: #f4f7fb;
+          min-height: 100vh;
+        }
 
-      {/* Search & Filter Bar */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        <input
-          type="text"
-          placeholder="Search listings..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && fetchListings()}
-          style={{
-            flex: 1, minWidth: '200px', padding: '11px 16px',
-            border: '1px solid #d1d5db', borderRadius: '8px',
-            fontSize: '14px', outline: 'none'
-          }}
-        />
-        <input
-          type="text"
-          placeholder="Filter by city..."
-          value={city}
-          onChange={e => setCity(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && fetchListings()}
-          style={{
-            width: '180px', padding: '11px 16px',
-            border: '1px solid #d1d5db', borderRadius: '8px',
-            fontSize: '14px', outline: 'none'
-          }}
-        />
-        <button onClick={() => fetchListings()} style={{
-          backgroundColor: '#1a56db', color: 'white',
-          border: 'none', padding: '11px 24px',
-          borderRadius: '8px', fontWeight: '600',
-          fontSize: '14px', cursor: 'pointer'
-        }}>Search</button>
-      </div>
+        /* Page header */
+        .mp-header {
+          background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
+          padding: 28px 24px 32px;
+        }
+        .mp-header-inner {
+          max-width: 1240px;
+          margin: 0 auto;
+        }
+        .mp-back {
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.18);
+          color: rgba(255,255,255,0.8);
+          padding: 6px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          margin-bottom: 16px;
+          transition: all 0.2s;
+        }
+        .mp-back:hover { background: rgba(255,255,255,0.18); color: white; }
 
-      {/* Category Tabs */}
-      <div style={{
-        display: 'flex', gap: '8px',
-        marginBottom: '28px', flexWrap: 'wrap'
-      }}>
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat}
-            onClick={() => handleCategoryClick(cat)}
-            style={{
-              padding: '8px 16px', borderRadius: '20px',
-              border: '1px solid #d1d5db',
-              backgroundColor: category === cat ? '#1a56db' : 'white',
-              color: category === cat ? 'white' : '#374151',
-              fontSize: '13px', fontWeight: '500',
-              cursor: 'pointer', transition: 'all 0.2s',
-              display: 'flex', alignItems: 'center', gap: '6px'
-            }}
-          >
-            <span>{CATEGORY_ICONS[cat]}</span>
-            <span>{cat}</span>
-          </button>
-        ))}
-      </div>
+        .mp-title {
+          font-size: 26px;
+          font-weight: 800;
+          color: white;
+          margin: 0 0 5px;
+          letter-spacing: -0.5px;
+        }
+        .mp-sub {
+          color: rgba(255,255,255,0.55);
+          font-size: 13.5px;
+          margin: 0 0 22px;
+        }
 
-      {/* Results Count */}
-      {!loading && (
-        <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '16px' }}>
-          {listings.length} listing{listings.length !== 1 ? 's' : ''} found
-          {category !== 'All' ? ` in ${category}` : ''}
-        </p>
-      )}
+        /* Search row inside header */
+        .mp-search-row {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+        .mp-search-bar {
+          flex: 1;
+          min-width: 200px;
+          display: flex;
+          align-items: center;
+          background: rgba(255,255,255,0.1);
+          border: 1.5px solid rgba(255,255,255,0.18);
+          border-radius: 11px;
+          height: 44px;
+          padding: 0 14px;
+          gap: 8px;
+          transition: all 0.2s;
+        }
+        .mp-search-bar:focus-within {
+          background: rgba(255,255,255,0.15);
+          border-color: #00C896;
+          box-shadow: 0 0 0 3px rgba(0,200,150,0.15);
+        }
+        .mp-search-input {
+          flex: 1;
+          border: none;
+          outline: none;
+          font-size: 13px;
+          color: white;
+          font-family: inherit;
+          background: transparent;
+        }
+        .mp-search-input::placeholder { color: rgba(255,255,255,0.4); }
 
-      {/* Results */}
-      {loading ? (
-        <p style={{ color: '#9ca3af', textAlign: 'center', padding: '60px 0' }}>Loading listings...</p>
-      ) : listings.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 0' }}>
-          <p style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</p>
-          <p style={{ color: '#9ca3af', fontSize: '16px' }}>No listings found.</p>
-          <p style={{ color: '#9ca3af', fontSize: '13px', marginTop: '8px' }}>
-            Try a different category or search term
-          </p>
+        .mp-city-bar {
+          width: 180px;
+          display: flex;
+          align-items: center;
+          background: rgba(255,255,255,0.1);
+          border: 1.5px solid rgba(255,255,255,0.18);
+          border-radius: 11px;
+          height: 44px;
+          padding: 0 14px;
+          gap: 8px;
+          transition: all 0.2s;
+        }
+        .mp-city-bar:focus-within {
+          background: rgba(255,255,255,0.15);
+          border-color: #00C896;
+        }
+        .mp-city-input {
+          flex: 1;
+          border: none;
+          outline: none;
+          font-size: 13px;
+          color: white;
+          font-family: inherit;
+          background: transparent;
+          width: 100%;
+        }
+        .mp-city-input::placeholder { color: rgba(255,255,255,0.4); }
+
+        .mp-search-btn {
+          height: 44px;
+          padding: 0 22px;
+          background: linear-gradient(135deg, #00C896, #059669);
+          color: white;
+          border: none;
+          border-radius: 11px;
+          font-size: 13.5px;
+          font-weight: 700;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.2s;
+          white-space: nowrap;
+          flex-shrink: 0;
+          box-shadow: 0 4px 14px rgba(0,200,150,0.35);
+        }
+        .mp-search-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+
+        /* Content area */
+        .mp-content {
+          max-width: 1240px;
+          margin: 0 auto;
+          padding: 20px 20px 60px;
+        }
+
+        /* Filter bar */
+        .mp-filter-bar {
+          background: white;
+          border-radius: 14px;
+          padding: 14px 16px;
+          margin-bottom: 16px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          border: 1px solid #f1f5f9;
+        }
+
+        .mp-filter-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .mp-cat-pills {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          flex: 1;
+        }
+
+        .mp-cat-pill {
+          padding: 7px 14px;
+          border-radius: 20px;
+          border: 1.5px solid #e2e8f0;
+          background: white;
+          color: #4b5563;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-family: inherit;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          white-space: nowrap;
+        }
+        .mp-cat-pill:hover {
+          border-color: #00C896;
+          color: #059669;
+          background: #f0fdf4;
+        }
+        .mp-cat-pill.active {
+          background: linear-gradient(135deg, #00C896, #059669);
+          color: white;
+          border-color: transparent;
+          box-shadow: 0 3px 10px rgba(0,200,150,0.3);
+        }
+
+        /* Sort dropdown */
+        .mp-sort-wrap {
+          position: relative;
+          flex-shrink: 0;
+        }
+        .mp-sort-select {
+          appearance: none;
+          background: #f8fafc;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 10px;
+          padding: 8px 32px 8px 12px;
+          font-size: 12.5px;
+          font-weight: 600;
+          color: #374151;
+          cursor: pointer;
+          font-family: inherit;
+          outline: none;
+          transition: all 0.2s;
+          min-width: 170px;
+        }
+        .mp-sort-select:focus { border-color: #00C896; box-shadow: 0 0 0 3px rgba(0,200,150,0.1); }
+        .mp-sort-arrow {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 10px;
+          color: #9ca3af;
+          pointer-events: none;
+        }
+
+        /* Results row */
+        .mp-results-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .mp-count-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 20px;
+          padding: 5px 14px;
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #374151;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .mp-count-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #00C896;
+          flex-shrink: 0;
+        }
+
+        .mp-active-filter {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          background: #f0fdf4;
+          border: 1px solid #bbf7d0;
+          color: #059669;
+          border-radius: 20px;
+          padding: 4px 10px;
+          font-size: 11.5px;
+          font-weight: 700;
+        }
+
+        /* Grid */
+        .mp-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+        }
+
+        /* Skeleton loader */
+        .mp-skeleton {
+          background: white;
+          border-radius: 14px;
+          overflow: hidden;
+          border: 1px solid #f1f5f9;
+        }
+        .mp-skeleton-img {
+          width: 100%;
+          aspect-ratio: 4/5;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: mp-shimmer 1.4s infinite;
+        }
+        .mp-skeleton-line {
+          height: 12px;
+          margin: 12px 12px 8px;
+          border-radius: 6px;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: mp-shimmer 1.4s infinite;
+        }
+        .mp-skeleton-line.short { width: 55%; }
+        @keyframes mp-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+
+        /* Empty state */
+        .mp-empty {
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: 60px 20px;
+          background: white;
+          border-radius: 16px;
+          border: 2px dashed #e2e8f0;
+        }
+        .mp-empty-icon { font-size: 52px; margin-bottom: 14px; }
+        .mp-empty-title { font-size: 17px; font-weight: 700; color: #374151; margin-bottom: 6px; }
+        .mp-empty-sub { font-size: 13px; color: #9ca3af; }
+        .mp-empty-btn {
+          margin-top: 16px;
+          background: linear-gradient(135deg, #00C896, #059669);
+          color: white;
+          border: none;
+          padding: 10px 24px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.2s;
+        }
+        .mp-empty-btn:hover { transform: translateY(-1px); }
+
+        @media (max-width: 1024px) {
+          .mp-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+          .mp-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .mp-content { padding: 16px 14px 60px; }
+          .mp-header { padding: 20px 16px 24px; }
+          .mp-city-bar { width: 140px; }
+          .mp-title { font-size: 22px; }
+        }
+        @media (max-width: 480px) {
+          .mp-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+          .mp-city-bar { display: none; }
+        }
+      `}</style>
+
+      <div className="mp-wrap">
+
+        {/* Dark header */}
+        <div className="mp-header">
+          <div className="mp-header-inner">
+            <button className="mp-back" onClick={() => navigate(-1)}>← Back</button>
+            <h1 className="mp-title">🛍️ Marketplace</h1>
+            <p className="mp-sub">Buy and sell items within your campus community</p>
+
+            <div className="mp-search-row">
+              <div className="mp-search-bar">
+                <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)' }}>🔍</span>
+                <input
+                  className="mp-search-input"
+                  type="text"
+                  placeholder="Search listings…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                />
+              </div>
+              <div className="mp-city-bar">
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>📍</span>
+                <input
+                  className="mp-city-input"
+                  type="text"
+                  placeholder="Filter by city…"
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                />
+              </div>
+              <button className="mp-search-btn" onClick={handleSearch}>Search</button>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-          gap: '20px'
-        }}>
-          {listings.map(l => <ListingCard key={l._id} listing={l} />)}
+
+        <div className="mp-content">
+
+          {/* Filter bar */}
+          <div className="mp-filter-bar">
+            <div className="mp-filter-top">
+              <div className="mp-cat-pills">
+                {CATEGORIES.map(cat => (
+                  <button
+                    key={cat}
+                    className={'mp-cat-pill' + (category === cat ? ' active' : '')}
+                    onClick={() => handleCategory(cat)}
+                  >
+                    <span>{CATEGORY_ICONS[cat]}</span>
+                    <span>{cat}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="mp-sort-wrap">
+                <select
+                  className="mp-sort-select"
+                  value={sort}
+                  onChange={e => handleSort(e.target.value)}
+                >
+                  {SORT_OPTIONS.map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+                <span className="mp-sort-arrow">▼</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Results row */}
+          {!loading && (
+            <div className="mp-results-row">
+              <div className="mp-count-badge">
+                <div className="mp-count-dot" />
+                {listings.length} listing{listings.length !== 1 ? 's' : ''} found
+              </div>
+              {category !== 'All' && (
+                <div className="mp-active-filter">
+                  {CATEGORY_ICONS[category]} {category}
+                  <button
+                    onClick={() => handleCategory('All')}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#059669', fontSize: '13px', padding: 0, marginLeft: '2px' }}
+                  >✕</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Grid */}
+          <div className="mp-grid">
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="mp-skeleton">
+                  <div className="mp-skeleton-img" />
+                  <div className="mp-skeleton-line" />
+                  <div className="mp-skeleton-line short" />
+                </div>
+              ))
+            ) : listings.length === 0 ? (
+              <div className="mp-empty">
+                <div className="mp-empty-icon">🔍</div>
+                <div className="mp-empty-title">No listings found</div>
+                <div className="mp-empty-sub">Try a different category, city or search term</div>
+                <button className="mp-empty-btn" onClick={() => { setSearch(''); setCity(''); handleCategory('All') }}>
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              listings.map(l => <ListingCard key={l._id} listing={l} />)
+            )}
+          </div>
+
         </div>
-      )}
-    </div>
+      </div>
+    </>
   )
 }

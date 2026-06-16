@@ -56,14 +56,23 @@ export default function Hero() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [slide, setSlide] = useState(0)
+  const [animating, setAnimating] = useState(false)
 
-  // Auto-rotate slides
   useEffect(() => {
     const timer = setInterval(() => {
-      setSlide(prev => (prev + 1) % SLIDES.length)
+      setAnimating(true)
+      setTimeout(() => {
+        setSlide(prev => (prev + 1) % SLIDES.length)
+        setAnimating(false)
+      }, 300)
     }, 5000)
     return () => clearInterval(timer)
   }, [])
+
+  const goSlide = (i) => {
+    setAnimating(true)
+    setTimeout(() => { setSlide(i); setAnimating(false) }, 300)
+  }
 
   const handleSearch = () => {
     if (search.trim()) navigate(`/search?q=${encodeURIComponent(search.trim())}`)
@@ -81,16 +90,28 @@ export default function Hero() {
         /* Carousel */
         .sk-carousel {
           position: relative;
-          min-height: 360px;
+          min-height: 340px;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
           justify-content: center;
-          padding: 48px 60px;
+          padding: 48px 60px 56px;
           text-align: left;
           overflow: hidden;
-          transition: background 0.6s ease;
+          background-size: cover !important;
+          background-position: center !important;
+          transition: background-image 0.5s ease;
         }
+
+        .sk-carousel-content {
+          transition: opacity 0.3s ease, transform 0.3s ease;
+          max-width: 540px;
+        }
+        .sk-carousel-content.fade {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+
         .sk-slide-badge {
           display: inline-flex;
           align-items: center;
@@ -103,94 +124,127 @@ export default function Hero() {
           text-transform: uppercase;
           margin-bottom: 14px;
           border: 1px solid;
-          opacity: 0.9;
         }
+
         .sk-carousel h1 {
           color: white;
-          font-size: clamp(26px, 4vw, 46px);
+          font-size: clamp(24px, 4vw, 44px);
           font-weight: 800;
           line-height: 1.1;
-          margin-bottom: 12px;
+          margin: 0 0 12px;
           letter-spacing: -1px;
           text-shadow: 0 2px 20px rgba(0,0,0,0.4);
           white-space: pre-line;
-          max-width: 520px;
         }
+
         .sk-carousel-sub {
-          color: rgba(255,255,255,0.72);
+          color: rgba(255,255,255,0.7);
           font-size: 14px;
-          margin-bottom: 28px;
-          max-width: 440px;
+          margin: 0 0 26px;
           line-height: 1.6;
         }
+
         .sk-carousel-cta {
           border: none;
-          padding: 12px 28px;
-          font-size: 14px;
+          padding: 11px 26px;
+          font-size: 13.5px;
           font-weight: 800;
           border-radius: 50px;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
           font-family: inherit;
           transition: all 0.2s ease;
           color: #08162F;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         }
-        .sk-carousel-cta:hover { transform: translateY(-2px); filter: brightness(1.05); }
+        .sk-carousel-cta:hover { transform: translateY(-2px); filter: brightness(1.06); }
 
-        /* Slide indicators */
+        /* Slide indicators — modernized pill style */
         .sk-slide-dots {
           position: absolute;
-          bottom: 20px;
-          left: 60px;
+          bottom: 18px;
+          right: 24px;
           display: flex;
-          gap: 6px;
+          align-items: center;
+          gap: 5px;
+          background: rgba(0,0,0,0.25);
+          backdrop-filter: blur(6px);
+          padding: 5px 10px;
+          border-radius: 20px;
         }
+
         .sk-slide-dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.35);
+          background: rgba(255,255,255,0.4);
           cursor: pointer;
           transition: all 0.3s;
           border: none;
           padding: 0;
         }
         .sk-slide-dot.active {
-          width: 22px;
+          width: 20px;
           border-radius: 3px;
           background: white;
         }
 
-        /* Slide counter */
+        /* Slide counter top right */
         .sk-slide-counter {
           position: absolute;
-          top: 20px;
-          left: 60px;
-          background: rgba(255,255,255,0.15);
-          color: white;
+          top: 16px;
+          right: 20px;
+          background: rgba(0,0,0,0.3);
+          backdrop-filter: blur(6px);
+          color: rgba(255,255,255,0.85);
           font-size: 11px;
           font-weight: 700;
           padding: 4px 10px;
           border-radius: 10px;
-          backdrop-filter: blur(4px);
+          letter-spacing: 0.5px;
         }
+
+        /* Left/right nav arrows */
+        .sk-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.15);
+          backdrop-filter: blur(6px);
+          border: 1px solid rgba(255,255,255,0.25);
+          color: white;
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+          z-index: 10;
+        }
+        .sk-arrow:hover { background: rgba(255,255,255,0.28); }
+        .sk-arrow-left { right: 70px; bottom: 10px; top: auto; transform: none; }
+        .sk-arrow-right { right: 24px; bottom: 10px; top: auto; transform: none; }
 
         /* Search Section */
         .sk-search-section {
           background: white;
-          padding: 16px 20px;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+          padding: 14px 20px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.07);
           position: sticky;
           top: 60px;
           z-index: 90;
+          border-bottom: 1px solid #f1f5f9;
         }
         .sk-search-inner {
-          max-width: 700px;
+          max-width: 720px;
           margin: 0 auto;
           display: flex;
-          gap: 10px;
+          gap: 8px;
           align-items: center;
         }
         .sk-search-bar {
@@ -199,35 +253,35 @@ export default function Hero() {
           align-items: center;
           background: #f8fafc;
           border: 1.5px solid #e2e8f0;
-          border-radius: 12px;
-          height: 44px;
+          border-radius: 11px;
+          height: 42px;
           padding: 0 14px;
           gap: 8px;
-          transition: border 0.2s;
+          transition: all 0.2s;
         }
         .sk-search-bar:focus-within {
           border-color: #00C896;
           background: white;
           box-shadow: 0 0 0 3px rgba(0,200,150,0.1);
         }
-        .sk-search-icon { font-size: 16px; flex-shrink: 0; }
+        .sk-search-icon { font-size: 15px; flex-shrink: 0; color: #9ca3af; }
         .sk-search-input {
           flex: 1;
           border: none;
           outline: none;
-          font-size: 13.5px;
+          font-size: 13px;
           color: #1f2937;
           font-family: inherit;
           background: transparent;
         }
         .sk-search-input::placeholder { color: #9ca3af; }
         .sk-search-submit {
-          height: 44px;
-          padding: 0 22px;
+          height: 42px;
+          padding: 0 20px;
           background: linear-gradient(135deg, #08162F, #1e3a8a);
           color: white;
           border: none;
-          border-radius: 12px;
+          border-radius: 11px;
           font-size: 13px;
           font-weight: 700;
           cursor: pointer;
@@ -236,14 +290,14 @@ export default function Hero() {
           white-space: nowrap;
           flex-shrink: 0;
         }
-        .sk-search-submit:hover { transform: translateY(-1px); filter: brightness(1.1); }
+        .sk-search-submit:hover { transform: translateY(-1px); filter: brightness(1.12); }
         .sk-post-quick {
-          height: 44px;
-          padding: 0 18px;
+          height: 42px;
+          padding: 0 16px;
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: #1e3a5f;
           border: none;
-          border-radius: 12px;
+          border-radius: 11px;
           font-size: 13px;
           font-weight: 800;
           cursor: pointer;
@@ -253,7 +307,8 @@ export default function Hero() {
           flex-shrink: 0;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 5px;
+          box-shadow: 0 3px 10px rgba(245,158,11,0.3);
         }
         .sk-post-quick:hover { transform: translateY(-1px); }
 
@@ -269,7 +324,7 @@ export default function Hero() {
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 14px 28px;
+          padding: 13px 28px;
           border-right: 1px solid rgba(255,255,255,0.07);
           flex: 1;
           min-width: 150px;
@@ -277,22 +332,22 @@ export default function Hero() {
         }
         .sk-trust-item:last-child { border-right: none; }
         .sk-trust-icon-wrap {
-          width: 36px;
-          height: 36px;
+          width: 34px;
+          height: 34px;
           border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 17px;
+          font-size: 16px;
           flex-shrink: 0;
         }
-        .sk-trust-label { font-size: 12.5px; font-weight: 700; color: white; }
-        .sk-trust-sub { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 500; margin-top: 1px; }
+        .sk-trust-label { font-size: 12px; font-weight: 700; color: white; }
+        .sk-trust-sub { font-size: 10.5px; color: rgba(255,255,255,0.45); font-weight: 500; margin-top: 1px; }
 
         /* Category Section */
         .sk-cat-section {
           background: white;
-          padding: 20px 20px 24px;
+          padding: 18px 20px 22px;
           border-bottom: 1px solid #f1f5f9;
         }
         .sk-cat-section-inner { max-width: 1240px; margin: 0 auto; }
@@ -300,9 +355,9 @@ export default function Hero() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
+          margin-bottom: 14px;
         }
-        .sk-cat-sec-title { font-size: 15px; font-weight: 800; color: #0f172a; }
+        .sk-cat-sec-title { font-size: 14.5px; font-weight: 800; color: #0f172a; }
         .sk-cat-sec-viewall {
           font-size: 12px;
           font-weight: 700;
@@ -312,16 +367,20 @@ export default function Hero() {
           background: none;
           border: none;
           font-family: inherit;
+          transition: opacity 0.2s;
         }
+        .sk-cat-sec-viewall:hover { opacity: 0.75; }
+
         .sk-cat-icons-row {
           display: flex;
-          gap: 8px;
+          gap: 6px;
           justify-content: space-between;
           overflow-x: auto;
           padding-bottom: 4px;
           scrollbar-width: none;
         }
         .sk-cat-icons-row::-webkit-scrollbar { display: none; }
+
         .sk-cat-icon-item {
           display: flex;
           flex-direction: column;
@@ -333,30 +392,31 @@ export default function Hero() {
           font-family: inherit;
           padding: 0;
           flex-shrink: 0;
-          min-width: 60px;
+          min-width: 58px;
           transition: transform 0.2s;
         }
         .sk-cat-icon-item:hover { transform: translateY(-3px); }
+
         .sk-cat-icon-circle {
-          width: 52px;
-          height: 52px;
-          border-radius: 16px;
+          width: 50px;
+          height: 50px;
+          border-radius: 14px;
           background: linear-gradient(135deg, #f8fafc, #f1f5f9);
           border: 1.5px solid #e2e8f0;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 22px;
+          font-size: 21px;
           transition: all 0.2s;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .sk-cat-icon-item:hover .sk-cat-icon-circle {
           background: linear-gradient(135deg, #ecfdf5, #d1fae5);
           border-color: #00C896;
-          box-shadow: 0 4px 16px rgba(0,200,150,0.2);
+          box-shadow: 0 4px 14px rgba(0,200,150,0.18);
         }
         .sk-cat-icon-label {
-          font-size: 10.5px;
+          font-size: 10px;
           font-weight: 700;
           color: #374151;
           text-align: center;
@@ -364,43 +424,54 @@ export default function Hero() {
         }
 
         @media (max-width: 768px) {
-          .sk-carousel { padding: 36px 20px 48px; min-height: 300px; }
-          .sk-slide-dots { left: 20px; }
-          .sk-slide-counter { left: 20px; }
-          .sk-trust-item { padding: 10px 14px; min-width: 120px; }
+          .sk-carousel { padding: 32px 20px 52px; min-height: 280px; }
+          .sk-trust-item { padding: 10px 12px; min-width: 110px; }
           .sk-trust-sub { display: none; }
-          .sk-search-inner { gap: 8px; }
           .sk-post-quick { display: none; }
+          .sk-search-inner { gap: 7px; }
         }
       `}</style>
 
       <div className="sk-hero-wrap">
 
         {/* Hero Carousel */}
-        <div className="sk-carousel" style={{ backgroundImage: current.bg, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div
+          className="sk-carousel"
+          style={{ backgroundImage: current.bg }}
+        >
           <div className="sk-slide-counter">{slide + 1} / {SLIDES.length}</div>
 
-          <div className="sk-slide-badge" style={{ color: current.accent, borderColor: `${current.accent}44`, background: `${current.accent}18` }}>
-            {current.badge}
+          <div className={`sk-carousel-content ${animating ? 'fade' : ''}`}>
+            <div
+              className="sk-slide-badge"
+              style={{
+                color: current.accent,
+                borderColor: `${current.accent}44`,
+                background: `${current.accent}18`,
+              }}
+            >
+              {current.badge}
+            </div>
+
+            <h1>{current.title}</h1>
+            <p className="sk-carousel-sub">{current.sub}</p>
+
+            <button
+              className="sk-carousel-cta"
+              style={{ background: `linear-gradient(135deg, ${current.accent}, ${current.accent}bb)` }}
+              onClick={() => navigate(current.to)}
+            >
+              {current.cta} →
+            </button>
           </div>
 
-          <h1>{current.title}</h1>
-          <p className="sk-carousel-sub">{current.sub}</p>
-
-          <button
-            className="sk-carousel-cta"
-            style={{ background: `linear-gradient(135deg, ${current.accent}, ${current.accent}cc)` }}
-            onClick={() => navigate(current.to)}
-          >
-            {current.cta} →
-          </button>
-
+          {/* Modern dot indicators bottom right */}
           <div className="sk-slide-dots">
             {SLIDES.map((_, i) => (
               <button
                 key={i}
                 className={`sk-slide-dot ${i === slide ? 'active' : ''}`}
-                onClick={() => setSlide(i)}
+                onClick={() => goSlide(i)}
               />
             ))}
           </div>
