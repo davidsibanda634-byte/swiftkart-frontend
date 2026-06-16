@@ -20,8 +20,12 @@ export default function ListingDetail() {
   const [copied, setCopied] = useState(false)
 
   useEffect(function() {
+    window.scrollTo(0, 0)
     api.get('/listings/' + id)
-      .then(function(res) { setListing(res.data) })
+      .then(function(res) {
+        setListing(res.data)
+        window.scrollTo(0, 0)
+      })
       .catch(function() { navigate('/') })
       .finally(function() { setLoading(false) })
   }, [id])
@@ -81,7 +85,6 @@ export default function ListingDetail() {
   const waLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(waText)
   const price = 'R ' + Number(listing.price).toLocaleString()
   const REPORTS = ['Scam or fraud', 'Fake listing', 'Inappropriate content', 'Wrong price', 'Duplicate listing', 'Other']
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
 
   return (
     <>
@@ -214,7 +217,6 @@ export default function ListingDetail() {
 
       <div className="skd-root">
 
-        {/* Sticky top bar */}
         <div className="skd-topbar">
           <button className="skd-back" onClick={function() { navigate(-1) }}>
             ← Back
@@ -232,10 +234,8 @@ export default function ListingDetail() {
           </div>
         </div>
 
-        {/* Desktop grid wrapper */}
         <div className="skd-desktop-grid" style={{ display: 'block' }}>
 
-          {/* Image section */}
           <div className="skd-img-section">
             <div className="skd-main-img">
               {listing.images && listing.images.length > 0 ? (
@@ -268,7 +268,6 @@ export default function ListingDetail() {
             )}
           </div>
 
-          {/* Info section */}
           <div>
             <div className="skd-info-section">
 
@@ -319,7 +318,6 @@ export default function ListingDetail() {
 
             </div>
 
-            {/* CTA buttons */}
             <div className="skd-cta-section">
               <a href={waLink} target="_blank" rel="noopener noreferrer" className="skd-wa-cta">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
@@ -332,7 +330,6 @@ export default function ListingDetail() {
               </button>
             </div>
 
-            {/* Report form */}
             {showReport && (
               <div className="skd-report-box">
                 <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
