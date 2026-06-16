@@ -8,36 +8,20 @@ const CATEGORIES = ['Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehi
 export default function CreateListing() {
   const { user } = useAuth()
   const navigate = useNavigate()
-
   const [type, setType] = useState('listing')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [images, setImages] = useState([])
-
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    price: '',
-    category: 'Other',
-    pricePerHour: '',
-    company: '',
-    date: '',
-    phone: '',
+    title: '', description: '', price: '', category: 'Other',
+    pricePerHour: '', company: '', date: '', phone: '',
     location: { country: '', city: '', area: '' }
   })
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  const handleLocation = (e) => {
-    setForm({ ...form, location: { ...form.location, [e.target.name]: e.target.value } })
-  }
-
-  const handleImages = (e) => {
-    setImages(e.target.files)
-  }
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const handleLocation = (e) => setForm({ ...form, location: { ...form.location, [e.target.name]: e.target.value } })
+  const handleImages = (e) => setImages(e.target.files)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -47,56 +31,45 @@ export default function CreateListing() {
     setLoading(true)
     try {
       if (type === 'listing') {
-        const formData = new FormData()
-        formData.append('title', form.title)
-        formData.append('description', form.description)
-        formData.append('price', form.price)
-        formData.append('category', form.category)
-        formData.append('phone', form.phone)
-        formData.append('location[country]', form.location.country)
-        formData.append('location[city]', form.location.city)
-        formData.append('location[area]', form.location.area)
-        Array.from(images).forEach(img => formData.append('images', img))
-        await api.post('/listings', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
-
+        const fd = new FormData()
+        fd.append('title', form.title)
+        fd.append('description', form.description)
+        fd.append('price', form.price)
+        fd.append('category', form.category)
+        fd.append('phone', form.phone)
+        fd.append('location[country]', form.location.country)
+        fd.append('location[city]', form.location.city)
+        fd.append('location[area]', form.location.area)
+        Array.from(images).forEach(img => fd.append('images', img))
+        await api.post('/listings', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       } else if (type === 'service') {
-        const formData = new FormData()
-        formData.append('title', form.title)
-        formData.append('description', form.description)
-        formData.append('pricePerHour', form.pricePerHour)
-        formData.append('phone', form.phone)
-        formData.append('location[country]', form.location.country)
-        formData.append('location[city]', form.location.city)
-        formData.append('location[area]', form.location.area)
-        Array.from(images).forEach(img => formData.append('images', img))
-        await api.post('/services', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
-
+        const fd = new FormData()
+        fd.append('title', form.title)
+        fd.append('description', form.description)
+        fd.append('pricePerHour', form.pricePerHour)
+        fd.append('phone', form.phone)
+        fd.append('location[country]', form.location.country)
+        fd.append('location[city]', form.location.city)
+        fd.append('location[area]', form.location.area)
+        Array.from(images).forEach(img => fd.append('images', img))
+        await api.post('/services', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       } else if (type === 'job') {
         await api.post('/jobs', {
           title: form.title, description: form.description,
-          company: form.company, phone: form.phone,
-          location: form.location
+          company: form.company, phone: form.phone, location: form.location
         })
-
       } else if (type === 'event') {
-        const formData = new FormData()
-        formData.append('title', form.title)
-        formData.append('description', form.description)
-        formData.append('date', form.date)
-        formData.append('phone', form.phone)
-        formData.append('location[country]', form.location.country)
-        formData.append('location[city]', form.location.city)
-        formData.append('location[area]', form.location.area)
-        Array.from(images).forEach(img => formData.append('images', img))
-        await api.post('/events', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        const fd = new FormData()
+        fd.append('title', form.title)
+        fd.append('description', form.description)
+        fd.append('date', form.date)
+        fd.append('phone', form.phone)
+        fd.append('location[country]', form.location.country)
+        fd.append('location[city]', form.location.city)
+        fd.append('location[area]', form.location.area)
+        Array.from(images).forEach(img => fd.append('images', img))
+        await api.post('/events', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       }
-
       setSuccess('Posted successfully! Redirecting...')
       setTimeout(() => navigate('/'), 1500)
     } catch (err) {
@@ -106,255 +79,408 @@ export default function CreateListing() {
     }
   }
 
-  const inputStyle = {
-    width: '100%', padding: '11px 14px',
-    border: '1px solid #d1d5db', borderRadius: '8px',
-    fontSize: '14px', outline: 'none',
-    boxSizing: 'border-box', fontFamily: 'inherit',
-    backgroundColor: 'white'
-  }
-
-  const labelStyle = {
-    display: 'block', fontSize: '13px',
-    fontWeight: '600', color: '#374151', marginBottom: '6px'
-  }
-
-  const fieldStyle = { marginBottom: '16px' }
-  const focusInput = (e) => e.target.style.border = '1px solid #1a56db'
-  const blurInput = (e) => e.target.style.border = '1px solid #d1d5db'
-
   if (!user) {
     return (
-      <div style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <p style={{ fontSize: '18px', color: '#374151', marginBottom: '16px' }}>
-          You must be logged in to post a listing.
-        </p>
-        <button onClick={() => navigate('/login')} style={{
-          backgroundColor: '#1a56db', color: 'white',
-          border: 'none', padding: '12px 28px',
-          borderRadius: '8px', fontWeight: '600',
-          fontSize: '14px', cursor: 'pointer'
-        }}>Go to Login</button>
-      </div>
+      <>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+          .cl-bg { min-height:100vh; font-family:'Plus Jakarta Sans',sans-serif; display:flex; align-items:center; justify-content:center; padding:24px; background-image: linear-gradient(to bottom,rgba(8,14,40,0.82) 0%,rgba(10,20,55,0.75) 50%,rgba(8,14,40,0.90) 100%), url('https://images.unsplash.com/photo-1562774053-701939374585?w=1600&q=80'); background-size:cover; background-position:center; }
+        `}</style>
+        <div className="cl-bg">
+          <div style={{ textAlign:'center', color:'white' }}>
+            <div style={{ fontSize:'48px', marginBottom:'16px' }}>🔒</div>
+            <p style={{ fontSize:'18px', fontWeight:700, marginBottom:'16px' }}>Login required to post</p>
+            <button onClick={() => navigate('/login')} style={{ background:'linear-gradient(135deg,#10b981,#059669)', color:'white', border:'none', padding:'12px 28px', borderRadius:'12px', fontWeight:700, fontSize:'14px', cursor:'pointer', fontFamily:'inherit' }}>
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </>
     )
   }
 
   return (
-    <div style={{ backgroundColor: '#f4f6f8', minHeight: '80vh', padding: '40px 20px' }}>
-      <div style={{ maxWidth: '580px', margin: '0 auto' }}>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-        <button onClick={() => navigate(-1)} style={{
-          backgroundColor: 'transparent',
-          border: '1px solid #d1d5db',
-          padding: '8px 16px', borderRadius: '8px',
-          fontSize: '13px', color: '#374151',
-          cursor: 'pointer', marginBottom: '20px',
-          display: 'flex', alignItems: 'center', gap: '6px'
-        }}>← Back</button>
+        .cl-bg {
+          min-height: 100vh;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          position: relative;
+          padding: 24px 16px 60px;
+          background-image:
+            linear-gradient(to bottom, rgba(8,14,40,0.88) 0%, rgba(10,20,55,0.82) 50%, rgba(8,14,40,0.92) 100%),
+            url('https://images.unsplash.com/photo-1562774053-701939374585?w=1600&q=80');
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+        }
 
-        <div style={{
-          backgroundColor: 'white', borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)', padding: '40px'
-        }}>
-          <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#111827', marginBottom: '6px' }}>
-            Post a Listing
-          </h1>
-          <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '28px' }}>
-            Fill in the details below to publish your post
-          </p>
+        .cl-inner {
+          max-width: 560px;
+          margin: 0 auto;
+        }
 
-          {/* Type Selector */}
-          <div style={{ marginBottom: '24px' }}>
-            <label style={labelStyle}>What are you posting?</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px' }}>
+        .cl-back {
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 10px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          margin-bottom: 20px;
+          transition: all 0.2s;
+          backdrop-filter: blur(8px);
+        }
+        .cl-back:hover { background: rgba(255,255,255,0.18); }
+
+        .cl-card {
+          background: rgba(255,255,255,0.07);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-radius: 24px;
+          border: 1px solid rgba(255,255,255,0.14);
+          padding: 32px 28px;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+        }
+
+        .cl-header {
+          text-align: center;
+          margin-bottom: 28px;
+        }
+
+        .cl-header-icon {
+          width: 52px;
+          height: 52px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          margin: 0 auto 14px;
+          box-shadow: 0 8px 24px rgba(16,185,129,0.4);
+        }
+
+        .cl-title {
+          font-size: 21px;
+          font-weight: 800;
+          color: white;
+          margin: 0 0 5px;
+          letter-spacing: -0.4px;
+        }
+
+        .cl-sub {
+          font-size: 13px;
+          color: rgba(255,255,255,0.55);
+          margin: 0;
+        }
+
+        .cl-label {
+          display: block;
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.72);
+          margin-bottom: 7px;
+        }
+
+        .cl-input {
+          width: 100%;
+          padding: 11px 14px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.16);
+          border-radius: 11px;
+          font-size: 13.5px;
+          color: white;
+          outline: none;
+          box-sizing: border-box;
+          font-family: inherit;
+          transition: all 0.2s;
+        }
+        .cl-input::placeholder { color: rgba(255,255,255,0.32); }
+        .cl-input:focus {
+          border-color: #10b981;
+          background: rgba(255,255,255,0.14);
+          box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+
+        .cl-field { margin-bottom: 15px; }
+
+        .cl-hint {
+          font-size: 10.5px;
+          color: rgba(255,255,255,0.38);
+          margin-top: 4px;
+        }
+
+        /* Type selector */
+        .cl-type-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr 1fr;
+          gap: 8px;
+          margin-bottom: 22px;
+        }
+
+        .cl-type-btn {
+          padding: 10px 6px;
+          border-radius: 11px;
+          border: 1.5px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.07);
+          color: rgba(255,255,255,0.65);
+          font-weight: 600;
+          font-size: 11.5px;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.2s;
+          text-align: center;
+        }
+        .cl-type-btn.active {
+          border-color: #10b981;
+          background: rgba(16,185,129,0.15);
+          color: #34d399;
+        }
+        .cl-type-btn:hover { border-color: rgba(255,255,255,0.3); color: white; }
+
+        /* Category grid */
+        .cl-cat-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 7px;
+          margin-bottom: 4px;
+        }
+
+        .cl-cat-btn {
+          padding: 9px 10px;
+          border-radius: 9px;
+          border: 1.5px solid rgba(255,255,255,0.13);
+          background: rgba(255,255,255,0.07);
+          color: rgba(255,255,255,0.6);
+          font-weight: 500;
+          font-size: 12px;
+          cursor: pointer;
+          font-family: inherit;
+          text-align: left;
+          transition: all 0.2s;
+        }
+        .cl-cat-btn.active {
+          border-color: #10b981;
+          background: rgba(16,185,129,0.15);
+          color: #34d399;
+        }
+        .cl-cat-btn:hover { border-color: rgba(255,255,255,0.28); color: white; }
+
+        .cl-section-label {
+          font-size: 11px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.4);
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
+          margin: 18px 0 10px;
+        }
+
+        .cl-location-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .cl-submit {
+          width: 100%;
+          padding: 14px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          border: none;
+          border-radius: 13px;
+          font-size: 15px;
+          font-weight: 800;
+          cursor: pointer;
+          font-family: inherit;
+          margin-top: 22px;
+          box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+          transition: all 0.2s;
+          letter-spacing: 0.1px;
+        }
+        .cl-submit:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(16,185,129,0.5); }
+        .cl-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .cl-error {
+          background: rgba(239,68,68,0.15);
+          border: 1px solid rgba(239,68,68,0.35);
+          color: #fca5a5;
+          padding: 10px 14px;
+          border-radius: 9px;
+          font-size: 13px;
+          margin-bottom: 16px;
+        }
+
+        .cl-success {
+          background: rgba(16,185,129,0.15);
+          border: 1px solid rgba(16,185,129,0.35);
+          color: #6ee7b7;
+          padding: 10px 14px;
+          border-radius: 9px;
+          font-size: 13px;
+          margin-bottom: 16px;
+        }
+
+        @media (max-width: 480px) {
+          .cl-card { padding: 24px 16px; }
+          .cl-type-grid { grid-template-columns: 1fr 1fr; }
+        }
+      `}</style>
+
+      <div className="cl-bg">
+        <div className="cl-inner">
+          <button className="cl-back" onClick={() => navigate(-1)}>← Back</button>
+
+          <div className="cl-card">
+            <div className="cl-header">
+              <div className="cl-header-icon">📌</div>
+              <h1 className="cl-title">Post a Listing</h1>
+              <p className="cl-sub">Fill in the details to publish your post</p>
+            </div>
+
+            {/* Type selector */}
+            <label className="cl-label">What are you posting?</label>
+            <div className="cl-type-grid">
               {[
                 { key: 'listing', label: '🛍️ Item' },
                 { key: 'service', label: '🧑‍💼 Service' },
                 { key: 'job', label: '💼 Job' },
                 { key: 'event', label: '🎉 Event' },
               ].map(t => (
-                <button key={t.key} type="button" onClick={() => setType(t.key)} style={{
-                  padding: '10px 6px', borderRadius: '8px',
-                  border: type === t.key ? '2px solid #1a56db' : '2px solid #e5e7eb',
-                  backgroundColor: type === t.key ? '#eff6ff' : 'white',
-                  color: type === t.key ? '#1a56db' : '#374151',
-                  fontWeight: '600', fontSize: '12px', cursor: 'pointer'
-                }}>{t.label}</button>
+                <button
+                  key={t.key}
+                  type="button"
+                  className={'cl-type-btn' + (type === t.key ? ' active' : '')}
+                  onClick={() => setType(t.key)}
+                >
+                  {t.label}
+                </button>
               ))}
             </div>
-          </div>
 
-          {error && (
-            <div style={{
-              backgroundColor: '#fef2f2', border: '1px solid #fecaca',
-              color: '#dc2626', padding: '10px 14px',
-              borderRadius: '8px', fontSize: '13px', marginBottom: '16px'
-            }}>{error}</div>
-          )}
-          {success && (
-            <div style={{
-              backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0',
-              color: '#16a34a', padding: '10px 14px',
-              borderRadius: '8px', fontSize: '13px', marginBottom: '16px'
-            }}>{success}</div>
-          )}
+            {error && <div className="cl-error">{error}</div>}
+            {success && <div className="cl-success">{success}</div>}
 
-          <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
 
-            {/* Title */}
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Title *</label>
-              <input type="text" name="title" value={form.title}
-                onChange={handleChange} placeholder="Enter a clear title" required
-                style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-            </div>
+              <div className="cl-field">
+                <label className="cl-label">Title *</label>
+                <input className="cl-input" type="text" name="title"
+                  value={form.title} onChange={handleChange}
+                  placeholder="Enter a clear title" required />
+              </div>
 
-            {/* Description */}
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Description</label>
-              <textarea name="description" value={form.description}
-                onChange={handleChange} placeholder="Describe your listing in detail..."
-                rows={4} style={{ ...inputStyle, resize: 'vertical' }}
-                onFocus={focusInput} onBlur={blurInput} />
-            </div>
+              <div className="cl-field">
+                <label className="cl-label">Description</label>
+                <textarea className="cl-input" name="description"
+                  value={form.description} onChange={handleChange}
+                  placeholder="Describe your listing in detail..."
+                  rows={3} style={{ resize: 'vertical' }} />
+              </div>
 
-            {/* LISTING specific fields */}
-            {type === 'listing' && (
-              <>
-                <div style={fieldStyle}>
-                  <label style={labelStyle}>Category *</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                    {CATEGORIES.map(cat => (
-                      <button key={cat} type="button"
-                        onClick={() => setForm({ ...form, category: cat })}
-                        style={{
-                          padding: '10px 8px', borderRadius: '8px',
-                          border: form.category === cat ? '2px solid #1a56db' : '2px solid #e5e7eb',
-                          backgroundColor: form.category === cat ? '#eff6ff' : 'white',
-                          color: form.category === cat ? '#1a56db' : '#374151',
-                          fontWeight: '500', fontSize: '12px', cursor: 'pointer',
-                          textAlign: 'left'
-                        }}
-                      >{cat}</button>
-                    ))}
+              {type === 'listing' && (
+                <>
+                  <div className="cl-field">
+                    <label className="cl-label">Category *</label>
+                    <div className="cl-cat-grid">
+                      {CATEGORIES.map(cat => (
+                        <button key={cat} type="button"
+                          className={'cl-cat-btn' + (form.category === cat ? ' active' : '')}
+                          onClick={() => setForm({ ...form, category: cat })}>
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                  <div className="cl-field">
+                    <label className="cl-label">Price ($) *</label>
+                    <input className="cl-input" type="number" name="price"
+                      value={form.price} onChange={handleChange}
+                      placeholder="0.00" required />
+                  </div>
+                  <div className="cl-field">
+                    <label className="cl-label">Images (up to 5)</label>
+                    <input className="cl-input" type="file" multiple accept="image/*"
+                      onChange={handleImages} style={{ padding: '8px' }} />
+                  </div>
+                </>
+              )}
 
-                <div style={fieldStyle}>
-                  <label style={labelStyle}>Price (R) *</label>
-                  <input type="number" name="price" value={form.price}
-                    onChange={handleChange} placeholder="0.00" required
-                    style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-                </div>
+              {type === 'service' && (
+                <>
+                  <div className="cl-field">
+                    <label className="cl-label">Price per Hour ($)</label>
+                    <input className="cl-input" type="number" name="pricePerHour"
+                      value={form.pricePerHour} onChange={handleChange} placeholder="0.00" />
+                  </div>
+                  <div className="cl-field">
+                    <label className="cl-label">Portfolio Images</label>
+                    <input className="cl-input" type="file" multiple accept="image/*"
+                      onChange={handleImages} style={{ padding: '8px' }} />
+                  </div>
+                </>
+              )}
 
-                <div style={fieldStyle}>
-                  <label style={labelStyle}>Images (up to 5)</label>
-                  <input type="file" multiple accept="image/*"
-                    onChange={handleImages}
-                    style={{ ...inputStyle, padding: '8px' }} />
+              {type === 'job' && (
+                <div className="cl-field">
+                  <label className="cl-label">Company / Organization</label>
+                  <input className="cl-input" type="text" name="company"
+                    value={form.company} onChange={handleChange} placeholder="Company name" />
                 </div>
-              </>
-            )}
+              )}
 
-            {/* SERVICE specific fields */}
-            {type === 'service' && (
-              <>
-                <div style={fieldStyle}>
-                  <label style={labelStyle}>Price per Hour (R)</label>
-                  <input type="number" name="pricePerHour" value={form.pricePerHour}
-                    onChange={handleChange} placeholder="0.00"
-                    style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-                </div>
-                <div style={fieldStyle}>
-                  <label style={labelStyle}>Images (up to 5)</label>
-                  <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '6px' }}>
-                    Upload photos of your work or portfolio
-                  </p>
-                  <input type="file" multiple accept="image/*"
-                    onChange={handleImages}
-                    style={{ ...inputStyle, padding: '8px' }} />
-                </div>
-              </>
-            )}
+              {type === 'event' && (
+                <>
+                  <div className="cl-field">
+                    <label className="cl-label">Event Date *</label>
+                    <input className="cl-input" type="date" name="date"
+                      value={form.date} onChange={handleChange} required />
+                  </div>
+                  <div className="cl-field">
+                    <label className="cl-label">Event Poster / Image</label>
+                    <input className="cl-input" type="file" multiple accept="image/*"
+                      onChange={handleImages} style={{ padding: '8px' }} />
+                  </div>
+                </>
+              )}
 
-            {/* JOB specific fields */}
-            {type === 'job' && (
-              <div style={fieldStyle}>
-                <label style={labelStyle}>Company / Organization</label>
-                <input type="text" name="company" value={form.company}
-                  onChange={handleChange} placeholder="Company name"
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+              <div className="cl-field">
+                <label className="cl-label">WhatsApp Number *</label>
+                <input className="cl-input" type="tel" name="phone"
+                  value={form.phone} onChange={handleChange}
+                  placeholder="+263771234567" required />
+                <p className="cl-hint">Include country code e.g. +263 Zimbabwe, +27 South Africa</p>
               </div>
-            )}
 
-            {/* EVENT specific fields */}
-            {type === 'event' && (
-              <>
-                <div style={fieldStyle}>
-                  <label style={labelStyle}>Event Date *</label>
-                  <input type="date" name="date" value={form.date}
-                    onChange={handleChange} required
-                    style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-                </div>
-                <div style={fieldStyle}>
-                  <label style={labelStyle}>Event Image / Poster</label>
-                  <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '6px' }}>
-                    Upload an event poster or flyer
-                  </p>
-                  <input type="file" multiple accept="image/*"
-                    onChange={handleImages}
-                    style={{ ...inputStyle, padding: '8px' }} />
-                </div>
-              </>
-            )}
-
-            {/* WhatsApp Phone */}
-            <div style={fieldStyle}>
-              <label style={labelStyle}>WhatsApp Phone Number *</label>
-              <input type="tel" name="phone" value={form.phone}
-                onChange={handleChange}
-                placeholder="e.g. +263771234567 or +27831234567" required
-                style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-              <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
-                Include your country code e.g. +263 for Zimbabwe, +27 for South Africa
-              </p>
-            </div>
-
-            {/* Location */}
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Location *</label>
-              <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '8px' }}>
-                Enter your country, city and area — you can type anything
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <input type="text" name="country" value={form.location.country}
-                  onChange={handleLocation}
-                  placeholder="Country (e.g. Zimbabwe, South Africa, Kenya)"
-                  required style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-                <input type="text" name="city" value={form.location.city}
-                  onChange={handleLocation}
-                  placeholder="City (e.g. Harare, Johannesburg, Nairobi)"
-                  required style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-                <input type="text" name="area" value={form.location.area}
-                  onChange={handleLocation}
-                  placeholder="Area / Campus / Neighbourhood (optional)"
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+              <p className="cl-section-label">Location</p>
+              <div className="cl-location-group">
+                <input className="cl-input" type="text" name="country"
+                  value={form.location.country} onChange={handleLocation}
+                  placeholder="Country (e.g. Zimbabwe)" required />
+                <input className="cl-input" type="text" name="city"
+                  value={form.location.city} onChange={handleLocation}
+                  placeholder="City (e.g. Harare)" required />
+                <input className="cl-input" type="text" name="area"
+                  value={form.location.area} onChange={handleLocation}
+                  placeholder="Area / Campus (optional)" />
               </div>
-            </div>
 
-            <button type="submit" disabled={loading} style={{
-              width: '100%',
-              backgroundColor: loading ? '#93c5fd' : '#1a56db',
-              color: 'white', border: 'none', padding: '13px',
-              borderRadius: '8px', fontSize: '15px', fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer', marginTop: '8px'
-            }}>
-              {loading ? 'Publishing...' : '🚀 Publish Listing'}
-            </button>
+              <button className="cl-submit" type="submit" disabled={loading}>
+                {loading ? 'Publishing...' : '🚀 Publish Listing'}
+              </button>
 
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

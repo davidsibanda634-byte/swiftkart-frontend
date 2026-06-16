@@ -6,9 +6,8 @@ import api from '../services/api'
 export default function Register() {
   const { login } = useAuth()
   const navigate = useNavigate()
-
   const [form, setForm] = useState({
-    name: '', email: '', password: '', phone: '',
+    name: '', email: '', password: '', confirmPassword: '', phone: '',
     location: { country: '', city: '', area: '' }
   })
   const [error, setError] = useState('')
@@ -20,6 +19,10 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
     setLoading(true)
     try {
       const { data } = await api.post('/auth/register', form)
@@ -32,125 +35,262 @@ export default function Register() {
     }
   }
 
-  const inputStyle = {
-    width: '100%', padding: '11px 14px',
-    border: '1px solid #d1d5db', borderRadius: '8px',
-    fontSize: '14px', outline: 'none',
-    boxSizing: 'border-box', backgroundColor: 'white'
-  }
-  const labelStyle = {
-    display: 'block', fontSize: '13px',
-    fontWeight: '600', color: '#374151', marginBottom: '6px'
-  }
-  const fieldStyle = { marginBottom: '16px' }
-  const focusInput = (e) => e.target.style.border = '1px solid #1a56db'
-  const blurInput = (e) => e.target.style.border = '1px solid #d1d5db'
-
   return (
-    <div style={{
-      minHeight: '80vh', display: 'flex',
-      alignItems: 'center', justifyContent: 'center',
-      padding: '40px 20px', backgroundColor: '#f4f6f8'
-    }}>
-      <div style={{ width: '100%', maxWidth: '480px' }}>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-        <button onClick={() => navigate('/')} style={{
-          backgroundColor: 'transparent', border: '1px solid #d1d5db',
-          padding: '8px 16px', borderRadius: '8px', fontSize: '13px',
-          color: '#374151', cursor: 'pointer', marginBottom: '20px',
-          display: 'flex', alignItems: 'center', gap: '6px'
-        }}>← Back to Home</button>
+        .auth-bg {
+          min-height: 100vh;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px 16px;
+          background-image:
+            linear-gradient(to bottom, rgba(8,14,40,0.82) 0%, rgba(10,20,55,0.75) 50%, rgba(8,14,40,0.90) 100%),
+            url('https://images.unsplash.com/photo-1562774053-701939374585?w=1600&q=80');
+          background-size: cover;
+          background-position: center;
+        }
 
-        <div style={{
-          backgroundColor: 'white', borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)', padding: '40px'
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <span style={{ fontSize: '32px' }}>🛒</span>
-            <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#1a56db', marginTop: '8px' }}>
-              Create Account
-            </h1>
-            <p style={{ color: '#6b7280', fontSize: '14px', marginTop: '4px' }}>Join SwiftKart today</p>
+        .auth-card {
+          width: 100%;
+          max-width: 420px;
+          background: rgba(255,255,255,0.07);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-radius: 24px;
+          border: 1px solid rgba(255,255,255,0.15);
+          padding: 36px 32px;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+        }
+
+        .auth-logo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 26px;
+        }
+
+        .auth-logo-icon {
+          width: 52px;
+          height: 52px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          margin-bottom: 14px;
+          box-shadow: 0 8px 24px rgba(16,185,129,0.4);
+        }
+
+        .auth-title {
+          font-size: 21px;
+          font-weight: 800;
+          color: white;
+          margin: 0 0 4px;
+          letter-spacing: -0.5px;
+        }
+
+        .auth-sub {
+          font-size: 13px;
+          color: rgba(255,255,255,0.55);
+          margin: 0;
+        }
+
+        .auth-label {
+          display: block;
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.72);
+          margin-bottom: 6px;
+        }
+
+        .auth-input {
+          width: 100%;
+          padding: 11px 14px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.16);
+          border-radius: 11px;
+          font-size: 13.5px;
+          color: white;
+          outline: none;
+          box-sizing: border-box;
+          font-family: inherit;
+          transition: all 0.2s;
+        }
+        .auth-input::placeholder { color: rgba(255,255,255,0.32); }
+        .auth-input:focus {
+          border-color: #10b981;
+          background: rgba(255,255,255,0.13);
+          box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+
+        .auth-field { margin-bottom: 13px; }
+
+        .auth-hint {
+          font-size: 10.5px;
+          color: rgba(255,255,255,0.4);
+          margin-top: 4px;
+        }
+
+        .auth-section-label {
+          font-size: 11px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.45);
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
+          margin: 18px 0 12px;
+        }
+
+        .auth-location-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .auth-submit {
+          width: 100%;
+          padding: 13px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 14.5px;
+          font-weight: 700;
+          cursor: pointer;
+          font-family: inherit;
+          margin-top: 18px;
+          box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+          transition: all 0.2s;
+        }
+        .auth-submit:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(16,185,129,0.5); }
+        .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .auth-error {
+          background: rgba(239,68,68,0.15);
+          border: 1px solid rgba(239,68,68,0.35);
+          color: #fca5a5;
+          padding: 10px 14px;
+          border-radius: 9px;
+          font-size: 13px;
+          margin-bottom: 16px;
+        }
+
+        .auth-footer {
+          text-align: center;
+          font-size: 13px;
+          color: rgba(255,255,255,0.5);
+          margin-top: 18px;
+        }
+        .auth-footer a {
+          color: #34d399;
+          font-weight: 700;
+          text-decoration: none;
+        }
+        .auth-footer a:hover { text-decoration: underline; }
+
+        .auth-back {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 10px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          transition: all 0.2s;
+          backdrop-filter: blur(8px);
+        }
+        .auth-back:hover { background: rgba(255,255,255,0.18); }
+
+        @media (max-width: 480px) {
+          .auth-card { padding: 26px 18px; }
+        }
+      `}</style>
+
+      <div className="auth-bg">
+        <button className="auth-back" onClick={() => navigate('/')}>← Home</button>
+
+        <div className="auth-card">
+          <div className="auth-logo">
+            <div className="auth-logo-icon">🛒</div>
+            <h1 className="auth-title">Create Your Account</h1>
+            <p className="auth-sub">Join thousands of students on SwiftKart</p>
           </div>
 
-          {error && (
-            <div style={{
-              backgroundColor: '#fef2f2', border: '1px solid #fecaca',
-              color: '#dc2626', padding: '10px 14px',
-              borderRadius: '8px', fontSize: '13px', marginBottom: '20px'
-            }}>{error}</div>
-          )}
+          {error && <div className="auth-error">{error}</div>}
 
           <form onSubmit={handleSubmit}>
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Full Name</label>
-              <input type="text" name="name" value={form.name}
-                onChange={handleChange} placeholder="John Doe" required
-                style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+            <div className="auth-field">
+              <label className="auth-label">Full Name</label>
+              <input className="auth-input" type="text" name="name"
+                value={form.name} onChange={handleChange}
+                placeholder="John Doe" required />
             </div>
 
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Email Address</label>
-              <input type="email" name="email" value={form.email}
-                onChange={handleChange} placeholder="you@example.com" required
-                style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+            <div className="auth-field">
+              <label className="auth-label">Email Address</label>
+              <input className="auth-input" type="email" name="email"
+                value={form.email} onChange={handleChange}
+                placeholder="you@example.com" required />
             </div>
 
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Phone Number (for WhatsApp)</label>
-              <input type="tel" name="phone" value={form.phone}
-                onChange={handleChange}
-                placeholder="e.g. +263771234567 or +27831234567" required
-                style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-              <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
-                Include your country code — this is used for WhatsApp contact
-              </p>
+            <div className="auth-field">
+              <label className="auth-label">Phone Number</label>
+              <input className="auth-input" type="tel" name="phone"
+                value={form.phone} onChange={handleChange}
+                placeholder="+263771234567" required />
+              <p className="auth-hint">Include country code — used for WhatsApp</p>
             </div>
 
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Password</label>
-              <input type="password" name="password" value={form.password}
-                onChange={handleChange} placeholder="••••••••" required
-                style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+            <div className="auth-field">
+              <label className="auth-label">Password</label>
+              <input className="auth-input" type="password" name="password"
+                value={form.password} onChange={handleChange}
+                placeholder="••••••••" required />
             </div>
 
-            {/* Flexible Location */}
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Your Location</label>
-              <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '8px' }}>
-                Type your country, city and area freely
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <input type="text" name="country" value={form.location.country}
-                  onChange={handleLocation}
-                  placeholder="Country (e.g. Zimbabwe, South Africa, Kenya)"
-                  required style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-                <input type="text" name="city" value={form.location.city}
-                  onChange={handleLocation}
-                  placeholder="City (e.g. Harare, Cape Town, Nairobi)"
-                  required style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-                <input type="text" name="area" value={form.location.area}
-                  onChange={handleLocation}
-                  placeholder="Area / Campus / Neighbourhood (optional)"
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-              </div>
+            <div className="auth-field">
+              <label className="auth-label">Confirm Password</label>
+              <input className="auth-input" type="password" name="confirmPassword"
+                value={form.confirmPassword} onChange={handleChange}
+                placeholder="••••••••" required />
             </div>
 
-            <button type="submit" disabled={loading} style={{
-              width: '100%',
-              backgroundColor: loading ? '#93c5fd' : '#1a56db',
-              color: 'white', border: 'none', padding: '12px',
-              borderRadius: '8px', fontSize: '15px', fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer', marginTop: '8px'
-            }}>{loading ? 'Creating Account...' : 'Create Account'}</button>
+            <p className="auth-section-label">Your Location</p>
+            <div className="auth-location-group">
+              <input className="auth-input" type="text" name="country"
+                value={form.location.country} onChange={handleLocation}
+                placeholder="Country (e.g. Zimbabwe)" required />
+              <input className="auth-input" type="text" name="city"
+                value={form.location.city} onChange={handleLocation}
+                placeholder="City (e.g. Harare)" required />
+              <input className="auth-input" type="text" name="area"
+                value={form.location.area} onChange={handleLocation}
+                placeholder="Area / Campus (optional)" />
+            </div>
+
+            <button className="auth-submit" type="submit" disabled={loading}>
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
           </form>
 
-          <p style={{ textAlign: 'center', fontSize: '13px', color: '#6b7280', marginTop: '20px' }}>
-            Already have an account?{' '}
-            <Link to="/login" style={{ color: '#1a56db', fontWeight: '600' }}>Sign In</Link>
+          <p className="auth-footer">
+            Already have an account? <Link to="/login">Login</Link>
           </p>
         </div>
       </div>
-    </div>
+    </>
   )
 }
