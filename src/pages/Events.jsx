@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import EventCard from '../components/cards/EventCard'
 import api from '../services/api'
 
 export default function Events() {
+  const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
@@ -27,44 +29,135 @@ export default function Events() {
   )
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px' }}>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-      {/* Header */}
-      <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827' }}>Upcoming Events</h1>
-        <p style={{ color: '#6b7280', fontSize: '14px', marginTop: '4px' }}>
-          Discover workshops, meetups and campus activities
-        </p>
-      </div>
+        .ev-wrap { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fb; min-height: 100vh; }
 
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search events..."
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        style={{
-          width: '100%', padding: '11px 16px',
-          border: '1px solid #d1d5db', borderRadius: '8px',
-          fontSize: '14px', outline: 'none',
-          marginBottom: '24px', boxSizing: 'border-box'
-        }}
-      />
+        .ev-header {
+          background: linear-gradient(135deg, #7c2d12 0%, #be185d 100%);
+          padding: 28px 24px 32px;
+        }
+        .ev-header-inner { max-width: 1240px; margin: 0 auto; }
+        .ev-back {
+          background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.22);
+          color: white; padding: 6px 14px; border-radius: 8px; font-size: 12px;
+          font-weight: 600; cursor: pointer; font-family: inherit;
+          display: inline-flex; align-items: center; gap: 5px; margin-bottom: 16px;
+          transition: all 0.2s;
+        }
+        .ev-back:hover { background: rgba(255,255,255,0.25); }
+        .ev-title { font-size: 26px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.5px; }
+        .ev-sub { color: rgba(255,255,255,0.75); font-size: 13.5px; margin: 0 0 22px; }
 
-      {/* Results */}
-      {loading ? (
-        <p style={{ color: '#9ca3af', textAlign: 'center', padding: '60px 0' }}>Loading events...</p>
-      ) : filtered.length === 0 ? (
-        <p style={{ color: '#9ca3af', textAlign: 'center', padding: '60px 0' }}>No events found.</p>
-      ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '20px'
-        }}>
-          {filtered.map(e => <EventCard key={e._id} event={e} />)}
+        .ev-search-bar {
+          display: flex; align-items: center; background: rgba(255,255,255,0.15);
+          border: 1.5px solid rgba(255,255,255,0.25); border-radius: 12px;
+          height: 46px; padding: 0 16px; gap: 9px; max-width: 600px; transition: all 0.2s;
+        }
+        .ev-search-bar:focus-within { background: rgba(255,255,255,0.22); box-shadow: 0 0 0 3px rgba(255,255,255,0.15); }
+        .ev-search-input {
+          flex: 1; border: none; outline: none; font-size: 13.5px; color: white;
+          font-family: inherit; background: transparent;
+        }
+        .ev-search-input::placeholder { color: rgba(255,255,255,0.55); }
+
+        .ev-content { max-width: 1240px; margin: 0 auto; padding: 24px 20px 60px; }
+
+        .ev-count-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        .ev-count-badge {
+          display: inline-flex; align-items: center; gap: 7px; background: white;
+          border: 1px solid #fbcfe8; border-radius: 20px; padding: 5px 14px;
+          font-size: 12.5px; font-weight: 700; color: #9d174d;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .ev-count-dot { width: 7px; height: 7px; border-radius: 50%; background: #be185d; flex-shrink: 0; }
+
+        .ev-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+        .ev-skeleton { background: white; border-radius: 14px; overflow: hidden; border: 1px solid #f1f5f9; }
+        .ev-skeleton-img {
+          width: 100%; aspect-ratio: 16/10;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%; animation: ev-shimmer 1.4s infinite;
+        }
+        .ev-skeleton-line {
+          height: 12px; margin: 12px 12px 8px; border-radius: 6px;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%; animation: ev-shimmer 1.4s infinite;
+        }
+        @keyframes ev-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .ev-empty {
+          grid-column: 1 / -1; text-align: center; padding: 60px 20px;
+          background: white; border-radius: 16px; border: 2px dashed #e2e8f0;
+        }
+        .ev-empty-icon { font-size: 52px; margin-bottom: 14px; }
+        .ev-empty-title { font-size: 17px; font-weight: 700; color: #374151; margin-bottom: 6px; }
+        .ev-empty-sub { font-size: 13px; color: #9ca3af; }
+
+        @media (max-width: 1024px) {
+          .ev-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+          .ev-grid { grid-template-columns: 1fr; gap: 12px; }
+          .ev-header { padding: 20px 16px 24px; }
+          .ev-content { padding: 18px 14px 60px; }
+        }
+      `}</style>
+
+      <div className="ev-wrap">
+        <div className="ev-header">
+          <div className="ev-header-inner">
+            <button className="ev-back" onClick={() => navigate(-1)}>← Back</button>
+            <h1 className="ev-title">🎉 Upcoming Events</h1>
+            <p className="ev-sub">Discover workshops, meetups and campus activities</p>
+
+            <div className="ev-search-bar">
+              <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)' }}>🔍</span>
+              <input
+                className="ev-search-input"
+                type="text"
+                placeholder="Search events…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
-      )}
-    </div>
+
+        <div className="ev-content">
+          {!loading && (
+            <div className="ev-count-row">
+              <div className="ev-count-badge">
+                <div className="ev-count-dot" />
+                {filtered.length} event{filtered.length !== 1 ? 's' : ''} coming up
+              </div>
+            </div>
+          )}
+
+          <div className="ev-grid">
+            {loading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="ev-skeleton">
+                  <div className="ev-skeleton-img" />
+                  <div className="ev-skeleton-line" />
+                  <div className="ev-skeleton-line" style={{ width: '60%' }} />
+                </div>
+              ))
+            ) : filtered.length === 0 ? (
+              <div className="ev-empty">
+                <div className="ev-empty-icon">🎉</div>
+                <div className="ev-empty-title">No events found</div>
+                <div className="ev-empty-sub">Check back soon for upcoming events</div>
+              </div>
+            ) : (
+              filtered.map(e => <EventCard key={e._id} event={e} />)
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
