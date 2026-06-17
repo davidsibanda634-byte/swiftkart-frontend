@@ -1,0 +1,32 @@
+{
+  "name": "SwiftKart",
+  "short_name": "SwiftKart",
+  "description": "Campus Marketplace Zimbabwe",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08162F",
+  "theme_color": "#00C896",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshot.png",
+      "sizes": "390x844",
+      "type": "image/png"
+    }
+  ]
+}

@@ -2,19 +2,25 @@ import { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext()
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem('swiftkart_user')) || null
-  )
+const KEY = 'swiftkart_user'
 
-  const login = (userData) => {
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(function() {
+    try {
+      return JSON.parse(localStorage.getItem(KEY)) || null
+    } catch {
+      return null
+    }
+  })
+
+  const login = function(userData) {
     setUser(userData)
-    localStorage.setItem('swiftkart_user', JSON.stringify(userData))
+    localStorage.setItem(KEY, JSON.stringify(userData))
   }
 
-  const logout = () => {
+  const logout = function() {
     setUser(null)
-    localStorage.removeItem('swiftkart_user')
+    localStorage.removeItem(KEY)
   }
 
   return (
