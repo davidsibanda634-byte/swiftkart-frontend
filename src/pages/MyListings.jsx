@@ -13,6 +13,7 @@ export default function MyListings() {
   const [events, setEvents] = useState([])
   const [activeTab, setActiveTab] = useState('listings')
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState(null)
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
@@ -32,210 +33,292 @@ export default function MyListings() {
       setServices(s.data.filter(i => i.user?._id === user._id || i.user === user._id))
       setJobs(j.data.filter(i => i.user?._id === user._id || i.user === user._id))
       setEvents(e.data.filter(i => i.user?._id === user._id || i.user === user._id))
-    } catch {}
-    finally { setLoading(false) }
+    } catch {} finally { setLoading(false) }
   }
 
   const getImageUrl = (img) => {
     if (!img) return null
     if (img.startsWith('http')) return img
-    return `https://swiftkart2-backend.onrender.com/${img.replace(/\\/g, '/')}`
+    return 'https://swiftkart2-backend.onrender.com/' + img.replace(/\\/g, '/')
   }
 
-  const deleteListing = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this listing?')) return
+  const deleteItem = async (type, id) => {
+    if (!window.confirm('Are you sure you want to delete this?')) return
+    setDeletingId(id)
     try {
-      await api.delete(`/listings/${id}`)
-      setListings(listings.filter(l => l._id !== id))
-    } catch { alert('Failed to delete listing.') }
+      await api.delete('/' + type + '/' + id)
+      if (type === 'listings') setListings(listings.filter(x => x._id !== id))
+      if (type === 'services') setServices(services.filter(x => x._id !== id))
+      if (type === 'jobs') setJobs(jobs.filter(x => x._id !== id))
+      if (type === 'events') setEvents(events.filter(x => x._id !== id))
+    } catch {
+      alert('Failed to delete. Please try again.')
+    } finally {
+      setDeletingId(null)
+    }
   }
 
-  const deleteService = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this service?')) return
-    try {
-      await api.delete(`/services/${id}`)
-      setServices(services.filter(s => s._id !== id))
-    } catch { alert('Failed to delete service.') }
-  }
-
-  const deleteJob = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this job?')) return
-    try {
-      await api.delete(`/jobs/${id}`)
-      setJobs(jobs.filter(j => j._id !== id))
-    } catch { alert('Failed to delete job.') }
-  }
-
-  const deleteEvent = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) return
-    try {
-      await api.delete(`/events/${id}`)
-      setEvents(events.filter(e => e._id !== id))
-    } catch { alert('Failed to delete event.') }
-  }
+  const total = listings.length + services.length + jobs.length + events.length
 
   const tabs = [
-    { key: 'listings', label: '🛍️ Items', count: listings.length },
-    { key: 'services', label: '🧑‍💼 Services', count: services.length },
-    { key: 'jobs', label: '💼 Jobs', count: jobs.length },
-    { key: 'events', label: '🎉 Events', count: events.length },
+    { key: 'listings', label: '🛍️ Items', count: listings.length, color: '#00C896' },
+    { key: 'services', label: '🧑‍💼 Services', count: services.length, color: '#7c3aed' },
+    { key: 'jobs', label: '💼 Jobs', count: jobs.length, color: '#d97706' },
+    { key: 'events', label: '🎉 Events', count: events.length, color: '#be185d' },
   ]
 
-  const deleteBtn = {
-    backgroundColor: '#fef2f2', color: '#dc2626',
-    border: '1px solid #fecaca', padding: '6px 14px',
-    borderRadius: '6px', fontSize: '12px',
-    fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap'
-  }
-
-  const editBtn = {
-    backgroundColor: '#eff6ff', color: '#1a56db',
-    border: '1px solid #bfdbfe', padding: '6px 14px',
-    borderRadius: '6px', fontSize: '12px',
-    fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap'
-  }
-
-  const renderItems = (items, type) => {
-    if (items.length === 0) return (
-      <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
-        <p style={{ fontSize: '16px', marginBottom: '12px' }}>No {type} posted yet.</p>
-        <button onClick={() => navigate('/create')} style={{
-          backgroundColor: '#1a56db', color: 'white',
-          border: 'none', padding: '10px 24px',
-          borderRadius: '8px', fontWeight: '600',
-          fontSize: '14px', cursor: 'pointer'
-        }}>+ Post One Now</button>
-      </div>
-    )
-
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {items.map(item => (
-          <div key={item._id} style={{
-            backgroundColor: 'white', borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '16px',
-            display: 'flex', justifyContent: 'space-between',
-            alignItems: 'flex-start', gap: '12px'
-          }}>
-            {/* Image for listings */}
-            {type === 'listings' && item.images?.[0] && (
-              <img
-                src={getImageUrl(item.images[0])}
-                alt={item.title}
-                style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
-              />
-            )}
-
-            {/* Info */}
-            <div style={{ flex: 1 }}>
-              <p style={{ fontWeight: '600', fontSize: '15px', color: '#111827' }}>{item.title}</p>
-              {type === 'listings' && (
-                <p style={{ color: '#1a56db', fontWeight: '700', fontSize: '14px', marginTop: '2px' }}>R{item.price}</p>
-              )}
-              {type === 'services' && item.pricePerHour && (
-                <p style={{ color: '#1a56db', fontWeight: '700', fontSize: '14px', marginTop: '2px' }}>${item.pricePerHour}/hr</p>
-              )}
-              {type === 'jobs' && item.company && (
-                <p style={{ color: '#6b7280', fontSize: '13px', marginTop: '2px' }}>{item.company}</p>
-              )}
-              {type === 'events' && item.date && (
-                <p style={{ color: '#1a56db', fontSize: '13px', marginTop: '2px' }}>
-                  {new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </p>
-              )}
-              <p style={{ color: '#9ca3af', fontSize: '12px', marginTop: '4px' }}>
-                {item.location?.city}{item.location?.area ? `, ${item.location.area}` : ''}
-              </p>
-              <p style={{ color: '#9ca3af', fontSize: '11px', marginTop: '2px' }}>
-                Posted {new Date(item.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {/* Edit only for listings */}
-              {type === 'listings' && (
-                <button
-                  onClick={() => navigate(`/listings/edit/${item._id}`)}
-                  style={editBtn}
-                >✏️ Edit</button>
-              )}
-
-              {/* Delete for all types */}
-              {type === 'listings' && (
-                <button onClick={() => deleteListing(item._id)} style={deleteBtn}>🗑️ Delete</button>
-              )}
-              {type === 'services' && (
-                <button onClick={() => deleteService(item._id)} style={deleteBtn}>🗑️ Delete</button>
-              )}
-              {type === 'jobs' && (
-                <button onClick={() => deleteJob(item._id)} style={deleteBtn}>🗑️ Delete</button>
-              )}
-              {type === 'events' && (
-                <button onClick={() => deleteEvent(item._id)} style={deleteBtn}>🗑️ Delete</button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
   const currentItems = { listings, services, jobs, events }
+  const currentTabMeta = tabs.find(t => t.key === activeTab)
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px' }}>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-      {/* Back Button */}
-      <button onClick={() => navigate('/')} style={{
-        backgroundColor: 'transparent',
-        border: '1px solid #d1d5db',
-        padding: '8px 16px', borderRadius: '8px',
-        fontSize: '13px', color: '#374151',
-        cursor: 'pointer', marginBottom: '20px',
-        display: 'flex', alignItems: 'center', gap: '6px'
-      }}>← Back to Home</button>
+        .ml-wrap { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fb; min-height: 100vh; }
 
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-        <div>
-          <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#111827' }}>My Listings</h1>
-          <p style={{ color: '#6b7280', fontSize: '14px', marginTop: '4px' }}>Manage everything you have posted</p>
+        .ml-header { background: linear-gradient(135deg, #08162F 0%, #0f2167 100%); padding: 28px 24px 32px; }
+        .ml-header-inner { max-width: 900px; margin: 0 auto; }
+        .ml-back {
+          background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
+          color: rgba(255,255,255,0.8); padding: 6px 14px; border-radius: 8px; font-size: 12px;
+          font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex;
+          align-items: center; gap: 5px; margin-bottom: 16px; transition: all 0.2s;
+        }
+        .ml-back:hover { background: rgba(255,255,255,0.18); color: white; }
+
+        .ml-header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; }
+        .ml-title { font-size: 26px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.5px; }
+        .ml-sub { color: rgba(255,255,255,0.55); font-size: 13.5px; margin: 0; }
+
+        .ml-new-btn {
+          background: linear-gradient(135deg, #00C896, #059669); color: white; border: none;
+          padding: 11px 22px; border-radius: 12px; font-size: 13.5px; font-weight: 700;
+          cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap;
+          box-shadow: 0 4px 14px rgba(0,200,150,0.35); display: flex; align-items: center; gap: 6px;
+        }
+        .ml-new-btn:hover { transform: translateY(-1px); }
+
+        /* Stats row */
+        .ml-stats-row {
+          display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap;
+        }
+        .ml-stat-card {
+          background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 12px; padding: 12px 18px; flex: 1; min-width: 100px;
+        }
+        .ml-stat-num { font-size: 20px; font-weight: 800; color: white; }
+        .ml-stat-label { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; margin-top: 2px; }
+
+        .ml-content { max-width: 900px; margin: 0 auto; padding: 20px 20px 60px; }
+
+        .ml-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .ml-tab {
+          padding: 8px 16px; border-radius: 20px; border: 1.5px solid #e2e8f0; background: white;
+          color: #4b5563; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+          font-family: inherit; display: flex; align-items: center; gap: 6px;
+        }
+        .ml-tab.active { color: white; border-color: transparent; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+        .ml-tab-count {
+          font-size: 10.5px; padding: 1px 7px; border-radius: 10px; font-weight: 800;
+          background: rgba(0,0,0,0.08);
+        }
+        .ml-tab.active .ml-tab-count { background: rgba(255,255,255,0.25); color: white; }
+
+        .ml-item-card {
+          background: white; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+          padding: 16px; margin-bottom: 12px; display: flex; gap: 14px;
+          border: 1px solid #f1f5f9; transition: box-shadow 0.2s;
+        }
+        .ml-item-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+
+        .ml-item-img {
+          width: 76px; height: 76px; object-fit: cover; border-radius: 12px; flex-shrink: 0;
+        }
+        .ml-item-img-placeholder {
+          width: 76px; height: 76px; border-radius: 12px; flex-shrink: 0;
+          background: linear-gradient(135deg, #f1f5f9, #e2e8f0); display: flex;
+          align-items: center; justify-content: center; font-size: 28px;
+        }
+
+        .ml-item-info { flex: 1; min-width: 0; }
+        .ml-item-title {
+          font-weight: 700; font-size: 14.5px; color: #111827; margin: 0 0 4px;
+          overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .ml-item-price { font-weight: 800; font-size: 15px; color: #08162F; margin: 0 0 4px; }
+        .ml-item-meta { font-size: 12px; color: #9ca3af; margin: 0; }
+        .ml-item-date { font-size: 11px; color: #c4c9d4; margin: 3px 0 0; }
+
+        .ml-item-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        .ml-edit-btn {
+          background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 6px 14px;
+          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+          font-family: inherit; transition: all 0.2s;
+        }
+        .ml-edit-btn:hover { background: #dbeafe; }
+        .ml-delete-btn {
+          background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 14px;
+          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+          font-family: inherit; transition: all 0.2s;
+        }
+        .ml-delete-btn:hover { background: #fee2e2; }
+        .ml-delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .ml-empty {
+          text-align: center; padding: 60px 20px; background: white; border-radius: 16px;
+          border: 2px dashed #e2e8f0;
+        }
+        .ml-empty-icon { font-size: 48px; margin-bottom: 14px; }
+        .ml-empty-title { font-size: 16px; font-weight: 700; color: #374151; margin-bottom: 16px; }
+        .ml-empty-btn {
+          background: linear-gradient(135deg, #00C896, #059669); color: white; border: none;
+          padding: 10px 24px; border-radius: 10px; font-size: 13px; font-weight: 700;
+          cursor: pointer; font-family: inherit;
+        }
+
+        .ml-skeleton {
+          background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px;
+          display: flex; gap: 14px; border: 1px solid #f1f5f9;
+        }
+        .ml-skel-box {
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%; animation: ml-shimmer 1.4s infinite; border-radius: 8px;
+        }
+        @keyframes ml-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        @media (max-width: 600px) {
+          .ml-header { padding: 20px 16px 24px; }
+          .ml-content { padding: 16px 14px 60px; }
+          .ml-item-card { flex-wrap: wrap; }
+          .ml-item-actions { flex-direction: row; width: 100%; }
+          .ml-edit-btn, .ml-delete-btn { flex: 1; }
+          .ml-stats-row { gap: 8px; }
+        }
+      `}</style>
+
+      <div className="ml-wrap">
+        <div className="ml-header">
+          <div className="ml-header-inner">
+            <button className="ml-back" onClick={() => navigate('/')}>← Home</button>
+            <div className="ml-header-top">
+              <div>
+                <h1 className="ml-title">📋 My Listings</h1>
+                <p className="ml-sub">Manage everything you've posted on SwiftKart</p>
+              </div>
+              <button className="ml-new-btn" onClick={() => navigate('/create')}>➕ New Post</button>
+            </div>
+
+            <div className="ml-stats-row">
+              <div className="ml-stat-card">
+                <div className="ml-stat-num">{total}</div>
+                <div className="ml-stat-label">Total Posts</div>
+              </div>
+              <div className="ml-stat-card">
+                <div className="ml-stat-num">{listings.length}</div>
+                <div className="ml-stat-label">Items</div>
+              </div>
+              <div className="ml-stat-card">
+                <div className="ml-stat-num">{services.length}</div>
+                <div className="ml-stat-label">Services</div>
+              </div>
+              <div className="ml-stat-card">
+                <div className="ml-stat-num">{jobs.length + events.length}</div>
+                <div className="ml-stat-label">Jobs & Events</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <button onClick={() => navigate('/create')} style={{
-          backgroundColor: '#1a56db', color: 'white',
-          border: 'none', padding: '10px 20px',
-          borderRadius: '8px', fontWeight: '600',
-          fontSize: '14px', cursor: 'pointer'
-        }}>+ New Post</button>
-      </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {tabs.map(tab => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-            padding: '8px 18px', borderRadius: '20px',
-            border: '1px solid #d1d5db',
-            backgroundColor: activeTab === tab.key ? '#1a56db' : 'white',
-            color: activeTab === tab.key ? 'white' : '#374151',
-            fontSize: '13px', fontWeight: '600', cursor: 'pointer'
-          }}>
-            {tab.label}
-            <span style={{
-              marginLeft: '6px',
-              backgroundColor: activeTab === tab.key ? 'rgba(255,255,255,0.3)' : '#f3f4f6',
-              color: activeTab === tab.key ? 'white' : '#6b7280',
-              padding: '1px 7px', borderRadius: '10px', fontSize: '11px'
-            }}>{tab.count}</span>
-          </button>
-        ))}
-      </div>
+        <div className="ml-content">
+          <div className="ml-tabs">
+            {tabs.map(tab => (
+              <button
+                key={tab.key}
+                className={'ml-tab' + (activeTab === tab.key ? ' active' : '')}
+                style={activeTab === tab.key ? { background: tab.color } : {}}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+                <span className="ml-tab-count">{tab.count}</span>
+              </button>
+            ))}
+          </div>
 
-      {/* Content */}
-      {loading
-        ? <p style={{ textAlign: 'center', color: '#9ca3af', padding: '60px 0' }}>Loading your listings...</p>
-        : renderItems(currentItems[activeTab], activeTab)
-      }
-    </div>
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="ml-skeleton">
+                <div className="ml-skel-box" style={{ width: '76px', height: '76px' }} />
+                <div style={{ flex: 1 }}>
+                  <div className="ml-skel-box" style={{ height: '14px', width: '60%', marginBottom: '8px' }} />
+                  <div className="ml-skel-box" style={{ height: '12px', width: '30%' }} />
+                </div>
+              </div>
+            ))
+          ) : currentItems[activeTab].length === 0 ? (
+            <div className="ml-empty">
+              <div className="ml-empty-icon">{currentTabMeta.label.split(' ')[0]}</div>
+              <div className="ml-empty-title">No {activeTab} posted yet</div>
+              <button className="ml-empty-btn" onClick={() => navigate('/create')}>+ Post One Now</button>
+            </div>
+          ) : (
+            currentItems[activeTab].map(item => {
+              const imgUrl = item.images?.[0] ? getImageUrl(item.images[0]) : null
+              return (
+                <div key={item._id} className="ml-item-card">
+                  {activeTab === 'listings' && (
+                    imgUrl
+                      ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
+                      : <div className="ml-item-img-placeholder">🛍️</div>
+                  )}
+                  {activeTab === 'services' && (
+                    imgUrl
+                      ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
+                      : <div className="ml-item-img-placeholder">🧑‍💼</div>
+                  )}
+                  {activeTab === 'jobs' && <div className="ml-item-img-placeholder">💼</div>}
+                  {activeTab === 'events' && (
+                    imgUrl
+                      ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
+                      : <div className="ml-item-img-placeholder">🎉</div>
+                  )}
+
+                  <div className="ml-item-info">
+                    <p className="ml-item-title">{item.title}</p>
+                    {activeTab === 'listings' && <p className="ml-item-price">${item.price}</p>}
+                    {activeTab === 'services' && item.pricePerHour && <p className="ml-item-price">${item.pricePerHour}/hr</p>}
+                    {activeTab === 'jobs' && item.company && <p className="ml-item-meta">{item.company}</p>}
+                    {activeTab === 'events' && item.date && (
+                      <p className="ml-item-meta" style={{ color: '#be185d', fontWeight: 600 }}>
+                        📅 {new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    )}
+                    <p className="ml-item-meta">
+                      📍 {item.location?.city}{item.location?.area ? ', ' + item.location.area : ''}
+                    </p>
+                    <p className="ml-item-date">Posted {new Date(item.createdAt).toLocaleDateString()}</p>
+                  </div>
+
+                  <div className="ml-item-actions">
+                    {activeTab === 'listings' && (
+                      <button className="ml-edit-btn" onClick={() => navigate('/listings/edit/' + item._id)}>
+                        ✏️ Edit
+                      </button>
+                    )}
+                    <button
+                      className="ml-delete-btn"
+                      disabled={deletingId === item._id}
+                      onClick={() => deleteItem(activeTab, item._id)}
+                    >
+                      {deletingId === item._id ? '...' : '🗑️ Delete'}
+                    </button>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </div>
+    </>
   )
 }
