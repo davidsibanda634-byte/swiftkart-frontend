@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ListingCard from '../components/cards/ListingCard'
 import api from '../services/api'
 
 export default function ListingDetail() {
@@ -18,6 +19,8 @@ export default function ListingDetail() {
   const [reportSuccess, setReportSuccess] = useState('')
   const [reportError, setReportError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [similar, setSimilar] = useState([])
+  const [similarLoading, setSimilarLoading] = useState(true)
 
   useEffect(function() {
     window.scrollTo(0, 0)
@@ -25,10 +28,26 @@ export default function ListingDetail() {
       .then(function(res) {
         setListing(res.data)
         window.scrollTo(0, 0)
+        fetchSimilar(res.data)
       })
       .catch(function() { navigate('/') })
       .finally(function() { setLoading(false) })
   }, [id])
+
+  function fetchSimilar(currentListing) {
+    setSimilarLoading(true)
+    api.get('/listings')
+      .then(function(res) {
+        const filtered = res.data
+          .filter(function(l) {
+            return l._id !== currentListing._id && l.category === currentListing.category
+          })
+          .slice(0, 4)
+        setSimilar(filtered)
+      })
+      .catch(function() { setSimilar([]) })
+      .finally(function() { setSimilarLoading(false) })
+  }
 
   function getImg(img) {
     if (!img) return null
@@ -60,7 +79,7 @@ export default function ListingDetail() {
 
   function handleShareWA() {
     const url = window.location.href
-    const text = 'Check out this listing on SwiftKart: *' + listing.title + '* - R' + listing.price + '\n' + url
+    const text = 'Check out this listing on SwiftKart: *' + listing.title + '* - $' + listing.price + '\n' + url
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
   }
 
@@ -83,7 +102,7 @@ export default function ListingDetail() {
   const phone = listing.phone?.replace(/\D/g, '') || ''
   const waText = 'Hi, I am interested in your listing: ' + listing.title
   const waLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(waText)
-  const price = 'R ' + Number(listing.price).toLocaleString()
+  const price = '$' + Number(listing.price).toLocaleString()
   const REPORTS = ['Scam or fraud', 'Fake listing', 'Inappropriate content', 'Wrong price', 'Duplicate listing', 'Other']
 
   return (
@@ -191,6 +210,47 @@ export default function ListingDetail() {
         .skd-report-box {
           background: white; margin-top: 8px; padding: 20px 16px;
         }
+
+        /* Similar Listings */
+        .skd-similar-section {
+          background: white;
+          margin-top: 8px;
+          padding: 20px 16px 28px;
+        }
+        .skd-similar-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .skd-similar-dot {
+          width: 5px; height: 22px;
+          background: linear-gradient(180deg, #00C896, #059669);
+          border-radius: 3px;
+          flex-shrink: 0;
+        }
+        .skd-similar-title {
+          font-size: 17px;
+          font-weight: 800;
+          color: #0f172a;
+        }
+        .skd-similar-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
+        .skd-similar-empty {
+          text-align: center;
+          padding: 30px 0;
+          color: #9ca3af;
+          font-size: 13px;
+        }
+        .skd-similar-skeleton {
+          background: #f8fafc;
+          border-radius: 14px;
+          aspect-ratio: 4/5;
+        }
+
         @media (min-width: 769px) {
           .skd-root { background: #f4f7fb; }
           .skd-topbar { padding: 14px 24px; top: 60px; }
@@ -208,6 +268,17 @@ export default function ListingDetail() {
           .skd-main-img { aspect-ratio: 4/5; border-radius: 0; }
           .skd-thumbs { border-radius: 0 0 0 0; }
           .skd-mobile-only { display: none !important; }
+          .skd-similar-wrap-desktop {
+            max-width: 960px;
+            margin: 0 auto 40px;
+            padding: 0 24px;
+          }
+          .skd-similar-section {
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,.06);
+            margin-top: 0;
+          }
+          .skd-similar-grid { grid-template-columns: repeat(4, 1fr); }
         }
         @media (max-width: 768px) {
           .skd-desktop-grid { display: block !important; }
@@ -406,6 +477,31 @@ export default function ListingDetail() {
 
           </div>
         </div>
+
+        {/* Similar Listings */}
+        <div className="skd-similar-wrap-desktop">
+          <div className="skd-similar-section">
+            <div className="skd-similar-header">
+              <div className="skd-similar-dot" />
+              <span className="skd-similar-title">You might also like</span>
+            </div>
+
+            {similarLoading ? (
+              <div className="skd-similar-grid">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="skd-similar-skeleton" />
+                ))}
+              </div>
+            ) : similar.length === 0 ? (
+              <p className="skd-similar-empty">No similar listings found right now.</p>
+            ) : (
+              <div className="skd-similar-grid">
+                {similar.map(l => <ListingCard key={l._id} listing={l} />)}
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
     </>
   )
