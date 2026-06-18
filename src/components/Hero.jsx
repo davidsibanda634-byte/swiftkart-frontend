@@ -161,7 +161,6 @@ export default function Hero() {
         }
         .sk-carousel-cta:hover { transform: translateY(-2px); filter: brightness(1.06); }
 
-        /* Slide indicators — modernized pill style */
         .sk-slide-dots {
           position: absolute;
           bottom: 18px;
@@ -191,7 +190,6 @@ export default function Hero() {
           background: white;
         }
 
-        /* Slide counter top right */
         .sk-slide-counter {
           position: absolute;
           top: 16px;
@@ -205,30 +203,6 @@ export default function Hero() {
           border-radius: 10px;
           letter-spacing: 0.5px;
         }
-
-        /* Left/right nav arrows */
-        .sk-arrow {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.15);
-          backdrop-filter: blur(6px);
-          border: 1px solid rgba(255,255,255,0.25);
-          color: white;
-          font-size: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s;
-          z-index: 10;
-        }
-        .sk-arrow:hover { background: rgba(255,255,255,0.28); }
-        .sk-arrow-left { right: 70px; bottom: 10px; top: auto; transform: none; }
-        .sk-arrow-right { right: 24px; bottom: 10px; top: auto; transform: none; }
 
         /* Search Section */
         .sk-search-section {
@@ -312,13 +286,12 @@ export default function Hero() {
         }
         .sk-post-quick:hover { transform: translateY(-1px); }
 
-        /* Trust Strip */
+        /* Trust Strip — desktop: single row flex */
         .sk-trust-strip {
           background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
           display: flex;
           align-items: stretch;
           justify-content: center;
-          flex-wrap: wrap;
         }
         .sk-trust-item {
           display: flex;
@@ -327,7 +300,7 @@ export default function Hero() {
           padding: 13px 28px;
           border-right: 1px solid rgba(255,255,255,0.07);
           flex: 1;
-          min-width: 150px;
+          min-width: 0;
           max-width: 260px;
         }
         .sk-trust-item:last-child { border-right: none; }
@@ -341,8 +314,24 @@ export default function Hero() {
           font-size: 16px;
           flex-shrink: 0;
         }
-        .sk-trust-label { font-size: 12px; font-weight: 700; color: white; }
-        .sk-trust-sub { font-size: 10.5px; color: rgba(255,255,255,0.45); font-weight: 500; margin-top: 1px; }
+        .sk-trust-text { min-width: 0; overflow: hidden; }
+        .sk-trust-label {
+          font-size: 12px;
+          font-weight: 700;
+          color: white;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .sk-trust-sub {
+          font-size: 10.5px;
+          color: rgba(255,255,255,0.45);
+          font-weight: 500;
+          margin-top: 1px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
 
         /* Category Section */
         .sk-cat-section {
@@ -423,12 +412,41 @@ export default function Hero() {
           white-space: nowrap;
         }
 
+        /* ===== MOBILE FIXES ===== */
         @media (max-width: 768px) {
           .sk-carousel { padding: 32px 20px 52px; min-height: 280px; }
-          .sk-trust-item { padding: 10px 12px; min-width: 110px; }
-          .sk-trust-sub { display: none; }
           .sk-post-quick { display: none; }
           .sk-search-inner { gap: 7px; }
+
+          /* Trust strip becomes a clean 2x2 grid on mobile */
+          .sk-trust-strip {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+          }
+          .sk-trust-item {
+            max-width: none;
+            min-width: 0;
+            padding: 12px 12px;
+            border-right: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            align-items: center;
+          }
+          /* remove right border on right column items (2nd, 4th) */
+          .sk-trust-item:nth-child(2n) { border-right: none; }
+          /* remove bottom border on last row items (3rd, 4th) */
+          .sk-trust-item:nth-child(3), .sk-trust-item:nth-child(4) { border-bottom: none; }
+
+          .sk-trust-icon-wrap { width: 30px; height: 30px; font-size: 14px; }
+          .sk-trust-label { font-size: 11.5px; }
+          .sk-trust-sub { display: block; font-size: 10px; }
+        }
+
+        @media (max-width: 420px) {
+          .sk-trust-item { padding: 10px 8px; gap: 8px; }
+          .sk-trust-icon-wrap { width: 28px; height: 28px; font-size: 13px; }
+          .sk-trust-label { font-size: 11px; }
+          .sk-trust-sub { font-size: 9.5px; }
         }
       `}</style>
 
@@ -465,7 +483,6 @@ export default function Hero() {
             </button>
           </div>
 
-          {/* Modern dot indicators bottom right */}
           <div className="sk-slide-dots">
             {SLIDES.map((_, i) => (
               <button
@@ -498,7 +515,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Trust Strip */}
+        {/* Trust Strip — 4 items, grid on mobile, row on desktop */}
         <div className="sk-trust-strip">
           {[
             { icon: '🛡️', bg: 'rgba(0,200,150,0.15)', label: 'Verified Sellers', sub: 'Trusted community' },
@@ -508,7 +525,7 @@ export default function Hero() {
           ].map(item => (
             <div key={item.label} className="sk-trust-item">
               <div className="sk-trust-icon-wrap" style={{ background: item.bg }}>{item.icon}</div>
-              <div>
+              <div className="sk-trust-text">
                 <div className="sk-trust-label">{item.label}</div>
                 <div className="sk-trust-sub">{item.sub}</div>
               </div>
