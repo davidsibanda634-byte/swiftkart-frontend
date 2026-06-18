@@ -10,6 +10,8 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
+  const [recentlyViewed, setRecentlyViewed] = useState([])
+  const [recentLoading, setRecentLoading] = useState(true)
   const LIMIT = 8
 
   const fetchListings = useCallback(async (pageNum) => {
@@ -34,8 +36,34 @@ export default function Home() {
     }
   }, [])
 
+  const fetchRecentlyViewed = useCallback(async () => {
+    setRecentLoading(true)
+    try {
+      const key = 'sk_recently_viewed'
+      const ids = JSON.parse(localStorage.getItem(key) || '[]')
+      if (ids.length === 0) {
+        setRecentlyViewed([])
+        setRecentLoading(false)
+        return
+      }
+      const res = await api.get('/listings')
+      const all = res.data
+      // Preserve order from localStorage (most recent first)
+      const matched = ids
+        .map(id => all.find(l => l._id === id))
+        .filter(Boolean)
+        .slice(0, 8)
+      setRecentlyViewed(matched)
+    } catch (e) {
+      setRecentlyViewed([])
+    } finally {
+      setRecentLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     fetchListings(1)
+    fetchRecentlyViewed()
   }, [])
 
   useEffect(() => {
@@ -203,6 +231,38 @@ export default function Home() {
           grid-column: 1 / -1;
         }
 
+        /* Recently Viewed — horizontal scroll strip */
+        .sk-recent-section {
+          margin-bottom: 32px;
+        }
+        .sk-recent-scroll {
+          display: flex;
+          gap: 14px;
+          overflow-x: auto;
+          padding-bottom: 6px;
+          scroll-snap-type: x proximity;
+          scrollbar-width: thin;
+        }
+        .sk-recent-scroll::-webkit-scrollbar { height: 6px; }
+        .sk-recent-scroll::-webkit-scrollbar-thumb { background: #c7d7ff; border-radius: 10px; }
+        .sk-recent-item {
+          flex-shrink: 0;
+          width: 160px;
+          scroll-snap-align: start;
+        }
+        .sk-recent-clear-btn {
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #9ca3af;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-family: inherit;
+          padding: 4px 8px;
+          transition: color 0.2s;
+        }
+        .sk-recent-clear-btn:hover { color: #ef4444; }
+
         @media (max-width: 1024px) {
           .sk-listing-grid { grid-template-columns: repeat(3, 1fr); }
         }
@@ -210,6 +270,7 @@ export default function Home() {
           .sk-listing-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
           .sk-content { padding: 20px 14px 60px; }
           .sk-section-title { font-size: 16px; }
+          .sk-recent-item { width: 140px; }
         }
         @media (max-width: 480px) {
           .sk-listing-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -220,6 +281,35 @@ export default function Home() {
         <Hero />
 
         <div className="sk-content">
+
+          {/* Recently Viewed — only shows if there's history */}
+          {!recentLoading && recentlyViewed.length > 0 && (
+            <div className="sk-recent-section">
+              <div className="sk-section-header">
+                <div className="sk-section-left">
+                  <div className="sk-section-dot" style={{ background: 'linear-gradient(180deg, #f59e0b, #d97706)' }} />
+                  <div>
+                    <div className="sk-section-title">🕐 Recently Viewed</div>
+                    <div className="sk-section-sub">Pick up where you left off</div>
+                  </div>
+                </div>
+                <button
+                  className="sk-recent-clear-btn"
+                  onClick={() => { localStorage.removeItem('sk_recently_viewed'); setRecentlyViewed([]) }}
+                >
+                  Clear
+                </button>
+              </div>
+              <div className="sk-recent-scroll">
+                {recentlyViewed.map(l => (
+                  <div key={l._id} className="sk-recent-item">
+                    <ListingCard listing={l} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="sk-section-header">
             <div className="sk-section-left">
               <div className="sk-section-dot" />

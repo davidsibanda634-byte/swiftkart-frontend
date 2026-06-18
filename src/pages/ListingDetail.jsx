@@ -21,6 +21,8 @@ export default function ListingDetail() {
   const [copied, setCopied] = useState(false)
   const [similar, setSimilar] = useState([])
   const [similarLoading, setSimilarLoading] = useState(true)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
 
   useEffect(function() {
     window.scrollTo(0, 0)
@@ -29,10 +31,22 @@ export default function ListingDetail() {
         setListing(res.data)
         window.scrollTo(0, 0)
         fetchSimilar(res.data)
+        trackRecentlyViewed(res.data)
       })
       .catch(function() { navigate('/') })
       .finally(function() { setLoading(false) })
   }, [id])
+
+  function trackRecentlyViewed(item) {
+    try {
+      const key = 'sk_recently_viewed'
+      const existing = JSON.parse(localStorage.getItem(key) || '[]')
+      const filtered = existing.filter(function(x) { return x !== item._id })
+      filtered.unshift(item._id)
+      const trimmed = filtered.slice(0, 10)
+      localStorage.setItem(key, JSON.stringify(trimmed))
+    } catch (e) {}
+  }
 
   function fetchSimilar(currentListing) {
     setSimilarLoading(true)
@@ -53,6 +67,57 @@ export default function ListingDetail() {
     if (!img) return null
     if (img.startsWith('http')) return img
     return 'https://swiftkart2-backend.onrender.com/' + img.replace(/\\/g, '/')
+  }
+
+  function openLightbox(index) {
+    setLightboxIndex(index)
+    setLightboxOpen(true)
+  }
+
+  function closeLightbox() {
+    setLightboxOpen(false)
+  }
+
+  function nextImage(e) {
+    if (e) e.stopPropagation()
+    setLightboxIndex(function(prev) {
+      return (prev + 1) % listing.images.length
+    })
+  }
+
+  function prevImage(e) {
+    if (e) e.stopPropagation()
+    setLightboxIndex(function(prev) {
+      return (prev - 1 + listing.images.length) % listing.images.length
+    })
+  }
+
+  // Keyboard navigation for lightbox
+  useEffect(function() {
+    if (!lightboxOpen) return
+    function handleKey(e) {
+      if (e.key === 'Escape') closeLightbox()
+      if (e.key === 'ArrowRight') nextImage()
+      if (e.key === 'ArrowLeft') prevImage()
+    }
+    window.addEventListener('keydown', handleKey)
+    return function() { window.removeEventListener('keydown', handleKey) }
+  }, [lightboxOpen, listing])
+
+  // Touch swipe for mobile lightbox
+  const [touchStartX, setTouchStartX] = useState(null)
+  function handleTouchStart(e) {
+    setTouchStartX(e.touches[0].clientX)
+  }
+  function handleTouchEnd(e) {
+    if (touchStartX === null) return
+    const touchEndX = e.changedTouches[0].clientX
+    const diff = touchStartX - touchEndX
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) nextImage()
+      else prevImage()
+    }
+    setTouchStartX(null)
   }
 
   function handleReport(e) {
@@ -104,6 +169,7 @@ export default function ListingDetail() {
   const waLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(waText)
   const price = '$' + Number(listing.price).toLocaleString()
   const REPORTS = ['Scam or fraud', 'Fake listing', 'Inappropriate content', 'Wrong price', 'Duplicate listing', 'Other']
+  const hasMultipleImages = listing.images && listing.images.length > 1
 
   return (
     <>
@@ -142,8 +208,25 @@ export default function ListingDetail() {
         .skd-main-img {
           width: 100%; aspect-ratio: 4/5;
           overflow: hidden; background: #f3f4f6;
+          cursor: zoom-in;
+          position: relative;
         }
         .skd-main-img img { width:100%; height:100%; object-fit:cover; display:block; }
+        .skd-zoom-hint {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          background: rgba(0,0,0,0.55);
+          color: white;
+          font-size: 11px;
+          font-weight: 600;
+          padding: 5px 11px;
+          border-radius: 20px;
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
         .skd-thumbs {
           display: flex; gap: 8px; padding: 12px 16px;
           overflow-x: auto; scrollbar-width: none;
@@ -251,6 +334,126 @@ export default function ListingDetail() {
           aspect-ratio: 4/5;
         }
 
+        /* ===== LIGHTBOX ===== */
+        .skd-lightbox-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.92);
+          z-index: 2000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: skd-fade-in 0.2s ease;
+        }
+        @keyframes skd-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+        .skd-lightbox-close {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          color: white;
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 2010;
+          transition: background 0.2s;
+        }
+        .skd-lightbox-close:hover { background: rgba(255,255,255,0.2); }
+
+        .skd-lightbox-counter {
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          color: white;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 6px 14px;
+          border-radius: 20px;
+          z-index: 2010;
+        }
+
+        .skd-lightbox-img-wrap {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 20px;
+        }
+
+        .skd-lightbox-img {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+          border-radius: 8px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .skd-lightbox-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 46px;
+          height: 46px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          color: white;
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 2010;
+          transition: background 0.2s;
+        }
+        .skd-lightbox-arrow:hover { background: rgba(255,255,255,0.2); }
+        .skd-lightbox-arrow-left { left: 16px; }
+        .skd-lightbox-arrow-right { right: 16px; }
+
+        .skd-lightbox-thumbs {
+          position: absolute;
+          bottom: 16px;
+          left: 0;
+          right: 0;
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          padding: 0 16px;
+          overflow-x: auto;
+          z-index: 2010;
+        }
+        .skd-lightbox-thumb {
+          width: 48px;
+          height: 48px;
+          object-fit: cover;
+          border-radius: 8px;
+          cursor: pointer;
+          flex-shrink: 0;
+          opacity: 0.5;
+          transition: opacity 0.2s, border 0.2s;
+          border: 2px solid transparent;
+        }
+        .skd-lightbox-thumb.active {
+          opacity: 1;
+          border-color: #00C896;
+        }
+
+        @media (max-width: 768px) {
+          .skd-lightbox-arrow { width: 38px; height: 38px; font-size: 17px; }
+          .skd-lightbox-img-wrap { padding: 50px 10px 90px; }
+          .skd-lightbox-thumbs { display: none; }
+        }
+
         @media (min-width: 769px) {
           .skd-root { background: #f4f7fb; }
           .skd-topbar { padding: 14px 24px; top: 60px; }
@@ -308,9 +511,12 @@ export default function ListingDetail() {
         <div className="skd-desktop-grid" style={{ display: 'block' }}>
 
           <div className="skd-img-section">
-            <div className="skd-main-img">
+            <div className="skd-main-img" onClick={function() { openLightbox(activeImage) }}>
               {listing.images && listing.images.length > 0 ? (
-                <img src={getImg(listing.images[activeImage])} alt={listing.title} />
+                <>
+                  <img src={getImg(listing.images[activeImage])} alt={listing.title} />
+                  <div className="skd-zoom-hint">🔍 Tap to zoom</div>
+                </>
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px', background: '#f8fafc' }}>
                   🛍️
@@ -503,6 +709,54 @@ export default function ListingDetail() {
         </div>
 
       </div>
+
+      {/* LIGHTBOX */}
+      {lightboxOpen && listing.images && listing.images.length > 0 && (
+        <div
+          className="skd-lightbox-overlay"
+          onClick={closeLightbox}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <button className="skd-lightbox-close" onClick={function(e) { e.stopPropagation(); closeLightbox() }}>✕</button>
+
+          {hasMultipleImages && (
+            <div className="skd-lightbox-counter">{lightboxIndex + 1} / {listing.images.length}</div>
+          )}
+
+          {hasMultipleImages && (
+            <button className="skd-lightbox-arrow skd-lightbox-arrow-left" onClick={prevImage}>‹</button>
+          )}
+
+          <div className="skd-lightbox-img-wrap" onClick={function(e) { e.stopPropagation() }}>
+            <img
+              className="skd-lightbox-img"
+              src={getImg(listing.images[lightboxIndex])}
+              alt={listing.title}
+            />
+          </div>
+
+          {hasMultipleImages && (
+            <button className="skd-lightbox-arrow skd-lightbox-arrow-right" onClick={nextImage}>›</button>
+          )}
+
+          {hasMultipleImages && (
+            <div className="skd-lightbox-thumbs" onClick={function(e) { e.stopPropagation() }}>
+              {listing.images.map(function(img, i) {
+                return (
+                  <img
+                    key={i}
+                    className={'skd-lightbox-thumb' + (i === lightboxIndex ? ' active' : '')}
+                    src={getImg(img)}
+                    alt={'thumb-' + i}
+                    onClick={function() { setLightboxIndex(i) }}
+                  />
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </>
   )
 }
