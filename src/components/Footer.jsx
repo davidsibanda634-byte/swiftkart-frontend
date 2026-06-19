@@ -26,7 +26,6 @@ export default function Footer() {
           border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
-        /* Brand column */
         .sk-footer-brand-row {
           display: flex;
           align-items: center;
@@ -89,10 +88,8 @@ export default function Footer() {
           border: 1px solid rgba(255,255,255,0.1);
           cursor: default;
           opacity: 0.4;
-          position: relative;
         }
 
-        /* Link columns */
         .sk-footer-col-title {
           font-size: 12px;
           font-weight: 800;
@@ -138,7 +135,6 @@ export default function Footer() {
           text-transform: uppercase;
         }
 
-        /* Bottom bar */
         .sk-footer-bottom {
           display: flex;
           justify-content: space-between;
@@ -161,7 +157,7 @@ export default function Footer() {
         }
 
         @media (max-width: 768px) {
-          .sk-footer { padding: 32px 18px 90px; } /* extra bottom padding clears BottomNav */
+          .sk-footer { padding: 32px 18px 90px; }
           .sk-footer-grid {
             grid-template-columns: 1fr 1fr;
             gap: 28px 20px;
@@ -175,7 +171,6 @@ export default function Footer() {
           .sk-footer-grid { grid-template-columns: 1fr; gap: 24px; }
         }
 
-        /* Desktop — no BottomNav, so normal padding */
         @media (min-width: 769px) {
           .sk-footer { padding: 40px 24px 28px; }
         }
@@ -186,7 +181,6 @@ export default function Footer() {
 
           <div className="sk-footer-grid">
 
-            {/* Brand */}
             <div>
               <div className="sk-footer-brand-row">
                 <div className="sk-footer-logo-icon">🛒</div>
@@ -196,22 +190,13 @@ export default function Footer() {
                 Zimbabwe's campus marketplace — buy, sell, and connect with students around you.
               </p>
               <div className="sk-footer-social-row">
-                
-                  href="https://wa.me/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="sk-social-icon live"
-                  title="WhatsApp"
-                >
-                  💬
-                </a>
-                <span className="sk-social-icon soon" title="Instagram — coming soon">📷</span>
-                <span className="sk-social-icon soon" title="Facebook — coming soon">👍</span>
-                <span className="sk-social-icon soon" title="X (Twitter) — coming soon">✕</span>
+                {renderWhatsAppIcon()}
+                <span className="sk-social-icon soon" title="Instagram coming soon">📷</span>
+                <span className="sk-social-icon soon" title="Facebook coming soon">👍</span>
+                <span className="sk-social-icon soon" title="X Twitter coming soon">✕</span>
               </div>
             </div>
 
-            {/* Explore */}
             <div>
               <p className="sk-footer-col-title">Explore</p>
               <div className="sk-footer-link-list">
@@ -222,7 +207,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Company */}
             <div>
               <p className="sk-footer-col-title">Company</p>
               <div className="sk-footer-link-list">
@@ -244,4 +228,18 @@ export default function Footer() {
       </footer>
     </>
   )
-} 
+
+  function renderWhatsAppIcon() {
+    return (
+      
+        href="https://wa.me/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="sk-social-icon live"
+        title="WhatsApp"
+      >
+        💬
+      </a>
+    )
+  }
+}
