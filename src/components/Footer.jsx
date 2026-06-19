@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom'
 
 export default function Footer() {
+  function openWhatsApp() {
+    window.open('https://wa.me/', '_blank')
+  }
+
   return (
     <>
       <style>{`
@@ -72,8 +76,8 @@ export default function Footer() {
           align-items: center;
           justify-content: center;
           font-size: 16px;
-          text-decoration: none;
           transition: all 0.2s;
+          cursor: pointer;
         }
         .sk-social-icon.live {
           background: rgba(37,211,102,0.15);
@@ -187,10 +191,10 @@ export default function Footer() {
                 <span className="sk-footer-logo-text">Swift<span>Kart</span></span>
               </div>
               <p className="sk-footer-tagline">
-                Zimbabwe's campus marketplace — buy, sell, and connect with students around you.
+                Zimbabwe's campus marketplace, buy, sell, and connect with students around you.
               </p>
               <div className="sk-footer-social-row">
-                {renderWhatsAppIcon()}
+                <span className="sk-social-icon live" title="WhatsApp" onClick={openWhatsApp}>💬</span>
                 <span className="sk-social-icon soon" title="Instagram coming soon">📷</span>
                 <span className="sk-social-icon soon" title="Facebook coming soon">👍</span>
                 <span className="sk-social-icon soon" title="X Twitter coming soon">✕</span>
@@ -200,10 +204,10 @@ export default function Footer() {
             <div>
               <p className="sk-footer-col-title">Explore</p>
               <div className="sk-footer-link-list">
-                <Link to="/marketplace" className="sk-footer-link">🛍️ Marketplace</Link>
-                <Link to="/services" className="sk-footer-link">🧑‍💼 Services</Link>
-                <Link to="/jobs" className="sk-footer-link">💼 Jobs</Link>
-                <Link to="/events" className="sk-footer-link">🎉 Events</Link>
+                <Link to="/marketplace" className="sk-footer-link">Marketplace</Link>
+                <Link to="/services" className="sk-footer-link">Services</Link>
+                <Link to="/jobs" className="sk-footer-link">Jobs</Link>
+                <Link to="/events" className="sk-footer-link">Events</Link>
               </div>
             </div>
 
@@ -221,25 +225,11 @@ export default function Footer() {
 
           <div className="sk-footer-bottom">
             <p className="sk-footer-copyright">© 2026 SwiftKart. All rights reserved.</p>
-            <p className="sk-footer-made">Made for students, by students 🇿🇼</p>
+            <p className="sk-footer-made">Made for students, by students</p>
           </div>
 
         </div>
       </footer>
     </>
   )
-
-  function renderWhatsAppIcon() {
-    return (
-      
-        href="https://wa.me/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="sk-social-icon live"
-        title="WhatsApp"
-      >
-        💬
-      </a>
-    )
-  }
 }
