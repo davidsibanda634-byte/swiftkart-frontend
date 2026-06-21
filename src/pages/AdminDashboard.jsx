@@ -25,13 +25,13 @@ export default function AdminDashboard() {
   )
 
   const cards = [
-    { label: 'Total Users', value: stats?.userCount, icon: '👤', color: '#2563EB', to: '/admin/users' },
-    { label: 'Marketplace Items', value: stats?.listingCount, icon: '🛍️', color: '#00C896', to: '/admin/listings' },
-    { label: 'Services', value: stats?.serviceCount, icon: '🧑‍💼', color: '#7C3AED', to: null },
-    { label: 'Jobs', value: stats?.jobCount, icon: '💼', color: '#F59E0B', to: null },
-    { label: 'Events', value: stats?.eventCount, icon: '🎉', color: '#EC4899', to: null },
-    { label: 'Reports', value: stats?.reportCount, icon: '🚩', color: '#EF4444', to: '/admin/reports' },
-    { label: 'Banned Users', value: stats?.bannedCount, icon: '🚫', color: '#991b1b', to: '/admin/users' },
+    { label: 'Total Users', value: stats && stats.userCount, icon: '👤', color: '#2563EB', to: '/admin/users' },
+    { label: 'Marketplace Items', value: stats && stats.listingCount, icon: '🛍️', color: '#00C896', to: '/admin/listings' },
+    { label: 'Services', value: stats && stats.serviceCount, icon: '🧑‍💼', color: '#7C3AED', to: '' },
+    { label: 'Jobs', value: stats && stats.jobCount, icon: '💼', color: '#F59E0B', to: '' },
+    { label: 'Events', value: stats && stats.eventCount, icon: '🎉', color: '#EC4899', to: '' },
+    { label: 'Reports', value: stats && stats.reportCount, icon: '🚩', color: '#EF4444', to: '/admin/reports' },
+    { label: 'Banned Users', value: stats && stats.bannedCount, icon: '🚫', color: '#991b1b', to: '/admin/users' },
   ]
 
   return (
@@ -51,23 +51,35 @@ export default function AdminDashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '32px' }}>
         {cards.map(function(c) {
-          const Wrapper = c.to ? Link : 'div'
-          return (
-            <Wrapper key={c.label} to={c.to} style={{
-              background: 'white', borderRadius: '16px', padding: '20px',
-              boxShadow: '0 2px 12px rgba(0,0,0,.06)', border: '1px solid #f1f5f9',
-              textDecoration: 'none', cursor: c.to ? 'pointer' : 'default',
-              transition: 'transform .2s',
-            }}
-              onMouseEnter={function(e) { if (c.to) e.currentTarget.style.transform = 'translateY(-3px)' }}
-              onMouseLeave={function(e) { if (c.to) e.currentTarget.style.transform = 'translateY(0)' }}
-            >
+          const cardContent = (
+            <div>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: c.color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', marginBottom: '12px' }}>
                 {c.icon}
               </div>
-              <p style={{ fontSize: '26px', fontWeight: 800, color: '#08162F', margin: 0 }}>{c.value ?? 0}</p>
+              <p style={{ fontSize: '26px', fontWeight: 800, color: '#08162F', margin: 0 }}>{c.value || 0}</p>
               <p style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 600, marginTop: '4px' }}>{c.label}</p>
-            </Wrapper>
+            </div>
+          )
+
+          const cardStyle = {
+            background: 'white', borderRadius: '16px', padding: '20px',
+            boxShadow: '0 2px 12px rgba(0,0,0,.06)', border: '1px solid #f1f5f9',
+            textDecoration: 'none', cursor: c.to ? 'pointer' : 'default',
+            transition: 'transform .2s', display: 'block'
+          }
+
+          if (c.to) {
+            return (
+              <Link key={c.label} to={c.to} style={cardStyle}>
+                {cardContent}
+              </Link>
+            )
+          }
+
+          return (
+            <div key={c.label} style={cardStyle}>
+              {cardContent}
+            </div>
           )
         })}
       </div>
