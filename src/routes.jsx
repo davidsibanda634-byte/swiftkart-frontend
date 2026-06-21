@@ -14,6 +14,10 @@ import Search from './pages/Search'
 import EditListing from './pages/EditListing'
 import UserProfile from './pages/UserProfile'
 import Saved from './pages/Saved'
+import AdminDashboard from './pages/AdminDashboard'
+import AdminUsers from './pages/AdminUsers'
+import AdminReports from './pages/AdminReports'
+import AdminListings from './pages/AdminListings'
 
 export default function AppRoutes() {
   return (
@@ -33,6 +37,10 @@ export default function AppRoutes() {
         <Route path="/search" element={<Search />} />
         <Route path="/profile/:id" element={<UserProfile />} />
         <Route path="/saved" element={<Saved />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/reports" element={<AdminReports />} />
+        <Route path="/admin/listings" element={<AdminListings />} />
       </Route>
     </Routes>
   )
