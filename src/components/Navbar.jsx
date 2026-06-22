@@ -16,7 +16,6 @@ export default function Navbar() {
     setProfileOpen(false)
   }
 
-  // Close profile dropdown on outside click
   useEffect(() => {
     const handleClick = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -137,10 +136,7 @@ export default function Navbar() {
         }
         .sk-btn-green:hover { transform: translateY(-1px); }
 
-        /* Profile Avatar + Dropdown */
-        .sk-profile-wrap {
-          position: relative;
-        }
+        .sk-profile-wrap { position: relative; }
         .sk-profile-avatar {
           width: 34px;
           height: 34px;
@@ -180,16 +176,8 @@ export default function Navbar() {
           border-bottom: 1px solid #f1f5f9;
           margin-bottom: 6px;
         }
-        .sk-dropdown-name {
-          font-size: 14px;
-          font-weight: 700;
-          color: #111827;
-        }
-        .sk-dropdown-sub {
-          font-size: 11px;
-          color: #9ca3af;
-          margin-top: 2px;
-        }
+        .sk-dropdown-name { font-size: 14px; font-weight: 700; color: #111827; }
+        .sk-dropdown-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
         .sk-dropdown-item {
           display: flex;
           align-items: center;
@@ -210,6 +198,8 @@ export default function Navbar() {
         .sk-dropdown-item:hover { background: #f8fafc; color: #111827; }
         .sk-dropdown-item.danger { color: #ef4444; }
         .sk-dropdown-item.danger:hover { background: #fef2f2; }
+        .sk-dropdown-item.admin { color: #7c3aed; }
+        .sk-dropdown-item.admin:hover { background: #f5f3ff; }
         .sk-dropdown-divider {
           border: none;
           border-top: 1px solid #f1f5f9;
@@ -320,11 +310,17 @@ export default function Navbar() {
                         onClick={() => setProfileOpen(false)}>
                         <span className="sk-dropdown-icon">🛍️</span> My Listings
                       </Link>
+                      {user.isAdmin && (
+                        <Link to="/admin" className="sk-dropdown-item admin"
+                          onClick={() => setProfileOpen(false)}>
+                          <span className="sk-dropdown-icon">🛡️</span> Admin Panel
+                        </Link>
+                      )}
                       <Link to="/saved" className="sk-dropdown-item"
                         onClick={() => setProfileOpen(false)}>
                         <span className="sk-dropdown-icon">❤️</span> Saved Items
                       </Link>
-                      <Link to={`/profile/${user._id}`} className="sk-dropdown-item"
+                      <Link to={'/profile/' + user._id} className="sk-dropdown-item"
                         onClick={() => setProfileOpen(false)}>
                         <span className="sk-dropdown-icon">👤</span> My Profile
                       </Link>
@@ -372,6 +368,13 @@ export default function Navbar() {
                   style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
                   🛍️ My Listings
                 </Link>
+                {user.isAdmin && (
+                  <Link to="/admin" onClick={() => setMenuOpen(false)}
+                    className="sk-mobile-action"
+                    style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.3)' }}>
+                    🛡️ Admin Panel
+                  </Link>
+                )}
                 <Link to="/saved" onClick={() => setMenuOpen(false)}
                   className="sk-mobile-action"
                   style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
