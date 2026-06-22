@@ -1,25 +1,31 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { AdminLayout } from './AdminDashboard'
 import api from '../services/api'
 
 export default function AdminListings() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [listings, setListings] = useState([])
+  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState('all')
 
   useEffect(function() {
     if (!user) { navigate('/login'); return }
     if (!user.isAdmin) { navigate('/'); return }
-    fetchListings()
+    fetchAll()
   }, [])
 
-  function fetchListings() {
+  function fetchAll() {
     setLoading(true)
-    api.get('/admin/listings')
-      .then(function(res) { setListings(res.data) })
+    Promise.all([
+      api.get('/admin/listings'),
+      api.get('/admin/stats'),
+    ])
+      .then(function([l, s]) { setListings(l.data); setStats(s.data) })
       .catch(function() {})
       .finally(function() { setLoading(false) })
   }
@@ -33,69 +39,101 @@ export default function AdminListings() {
   function deleteListing(id) {
     if (!window.confirm('Permanently delete this listing?')) return
     api.delete('/admin/listings/' + id)
-      .then(function() { fetchListings() })
+      .then(function() { fetchAll() })
       .catch(function() { alert('Failed to delete listing.') })
   }
 
+  const CATEGORIES = ['All', 'Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehicles', 'Furniture', 'Electronics', 'Food', 'Other']
+
   const filtered = listings.filter(function(l) {
-    return l.title.toLowerCase().includes(search.toLowerCase())
+    const matchSearch = l.title.toLowerCase().includes(search.toLowerCase()) ||
+      l.user?.name?.toLowerCase().includes(search.toLowerCase())
+    const matchFilter = filter === 'all' || l.category === filter
+    return matchSearch && matchFilter
   })
 
   return (
-    <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', maxWidth: '1100px', margin: '0 auto', padding: '32px 20px 80px' }}>
+    <AdminLayout stats={stats}>
+      <div className="adm-page-header">
+        <h1 className="adm-page-title">🛍️ Manage Listings</h1>
+        <p className="adm-page-sub">{listings.length} total listings on the platform</p>
+      </div>
 
-      <button
-        onClick={function() { navigate('/admin') }}
-        style={{ background: 'white', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '10px', fontSize: '13px', color: '#374151', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'inherit', fontWeight: 600 }}
-      >← Back to Dashboard</button>
-
-      <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#08162F', marginBottom: '4px' }}>🛍️ All Listings</h1>
-      <p style={{ color: '#9ca3af', fontSize: '13px', marginBottom: '20px' }}>{listings.length} total listings</p>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
+        {CATEGORIES.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setFilter(cat === 'All' ? 'all' : cat)}
+            style={{
+              padding: '6px 13px', borderRadius: '20px', border: '1.5px solid',
+              borderColor: (filter === 'all' && cat === 'All') || filter === cat ? '#00C896' : '#e2e8f0',
+              background: (filter === 'all' && cat === 'All') || filter === cat ? '#ecfdf5' : 'white',
+              color: (filter === 'all' && cat === 'All') || filter === cat ? '#059669' : '#374151',
+              fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+              whiteSpace: 'nowrap',
+            }}
+          >{cat}</button>
+        ))}
+      </div>
 
       <input
+        className="adm-search"
         type="text"
-        placeholder="Search listings..."
+        placeholder="🔍 Search by title or seller name..."
         value={search}
         onChange={function(e) { setSearch(e.target.value) }}
-        style={{ width: '100%', padding: '11px 16px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', marginBottom: '20px', boxSizing: 'border-box', fontFamily: 'inherit' }}
       />
 
+      <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '12px', fontWeight: 600 }}>
+        Showing {filtered.length} of {listings.length} listings
+      </p>
+
       {loading ? (
-        <p style={{ textAlign: 'center', color: '#9ca3af', padding: '40px 0' }}>Loading listings...</p>
+        <div style={{ textAlign: 'center', padding: '60px', color: '#9ca3af' }}>Loading listings...</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {filtered.map(function(l) {
+        <div className="adm-section">
+          {filtered.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#9ca3af', fontSize: '14px' }}>
+              No listings found
+            </div>
+          ) : filtered.map(function(l) {
             const imgUrl = getImg(l.images && l.images[0])
             return (
-              <div key={l._id} style={{
-                background: 'white', borderRadius: '14px', padding: '14px',
-                boxShadow: '0 2px 8px rgba(0,0,0,.06)', border: '1px solid #f1f5f9',
-                display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap'
-              }}>
-                <div style={{ width: '50px', height: '50px', borderRadius: '10px', overflow: 'hidden', background: '#f1f5f9', flexShrink: 0 }}>
-                  {imgUrl ? (
-                    <img src={imgUrl} alt={l.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>🛍️</div>
-                  )}
+              <div key={l._id} className="adm-row-item">
+                <div style={{ width: '52px', height: '52px', borderRadius: '10px', overflow: 'hidden', background: '#f1f5f9', flexShrink: 0 }}>
+                  {imgUrl
+                    ? <img src={imgUrl} alt={l.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>🛍️</div>
+                  }
                 </div>
 
-                <div style={{ flex: 1, minWidth: '160px' }}>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: 0 }}>{l.title}</p>
-                  <p style={{ fontSize: '12px', color: '#9ca3af', margin: '2px 0 0' }}>
-                    R {Number(l.price).toLocaleString()} • by {l.user?.name || 'Unknown'}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: '13.5px', fontWeight: 700, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {l.title}
+                  </p>
+                  <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: '#9ca3af' }}>
+                    ${Number(l.price).toLocaleString()} • by {l.user?.name || 'Unknown'} • {l.category}
+                  </p>
+                  <p style={{ margin: '1px 0 0', fontSize: '10.5px', color: '#c4c9d4' }}>
+                    {new Date(l.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </p>
                 </div>
 
-                <button onClick={function() { deleteListing(l._id) }} style={{
-                  background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca',
-                  padding: '6px 14px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit'
-                }}>Delete</button>
+                <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                  <button
+                    onClick={() => navigate('/listings/' + l._id)}
+                    style={{ background: '#f8fafc', color: '#374151', border: '1px solid #e2e8f0', padding: '5px 11px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+                  >View</button>
+                  <button
+                    onClick={() => deleteListing(l._id)}
+                    style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '5px 11px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+                  >Delete</button>
+                </div>
               </div>
             )
           })}
         </div>
       )}
-    </div>
+    </AdminLayout>
   )
 }
