@@ -18,6 +18,8 @@ import AdminDashboard from './pages/AdminDashboard'
 import AdminUsers from './pages/AdminUsers'
 import AdminReports from './pages/AdminReports'
 import AdminListings from './pages/AdminListings'
+import AdminAnalytics from './pages/AdminAnalytics'
+import AdminActivity from './pages/AdminActivity'
 
 export default function AppRoutes() {
   return (
@@ -41,6 +43,8 @@ export default function AppRoutes() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/reports" element={<AdminReports />} />
         <Route path="/admin/listings" element={<AdminListings />} />
+        <Route path="/admin/analytics" element={<AdminAnalytics />} />
+        <Route path="/admin/activity" element={<AdminActivity />} />
       </Route>
     </Routes>
   )
