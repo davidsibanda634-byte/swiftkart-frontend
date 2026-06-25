@@ -15,7 +15,7 @@ export default function Footer() {
           >{link}</a>
         ))}
       </div>
-      <p style={{ color: '#9ca3af', fontSize: '13px' }}>© 2026 SwiftKart. All rights reserved.</p>
+      <p style={{ color: '#9ca3af', fontSize: '13px' }}>© 2026 Scalablenexus. All rights reserved.</p>
     </footer>
   )
 }

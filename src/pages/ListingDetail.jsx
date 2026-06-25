@@ -144,7 +144,7 @@ export default function ListingDetail() {
 
   function handleShareWA() {
     const url = window.location.href
-    const text = 'Check out this listing on SwiftKart: *' + listing.title + '* - $' + listing.price + '\n' + url
+    const text = 'Check out this listing on Scalablenexus: *' + listing.title + '* - $' + listing.price + '\n' + url
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
   }
 
@@ -590,7 +590,7 @@ export default function ListingDetail() {
               </p>
 
               <div className="skd-safety-box">
-                ⚠️ <strong>Safety Tip:</strong> Always meet in a public place before exchanging money. SwiftKart is not responsible for transactions between users.
+                ⚠️ <strong>Safety Tip:</strong> Always meet in a public place before exchanging money. Scalablenexus is not responsible for transactions between users.
               </div>
 
             </div>

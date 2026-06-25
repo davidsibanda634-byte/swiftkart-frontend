@@ -226,7 +226,7 @@ export default function Register() {
           <div className="auth-logo">
             <div className="auth-logo-icon">🛒</div>
             <h1 className="auth-title">Create Your Account</h1>
-            <p className="auth-sub">Join thousands of students on SwiftKart</p>
+            <p className="auth-sub">Join thousands of students on Scalablenexus</p>
           </div>
 
           {error && <div className="auth-error">{error}</div>}

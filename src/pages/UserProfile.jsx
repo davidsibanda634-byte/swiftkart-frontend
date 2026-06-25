@@ -170,7 +170,7 @@ export default function UserProfile() {
 
             <div className="up-info">
               <div className="up-name-row">
-                <h1 className="up-name">{user?.name || 'SwiftKart User'}</h1>
+                <h1 className="up-name">{user?.name || 'Scalablenexus User'}</h1>
                 <span className="up-verified-badge">✔ Verified Seller</span>
               </div>
               <div className="up-meta-row">

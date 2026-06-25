@@ -164,7 +164,7 @@ export function AdminLayout({ children, stats }) {
         <aside className="adm-sidebar">
           <div className="adm-sidebar-top">
             <div className="adm-sidebar-badge">🛡️ ADMIN</div>
-            <p className="adm-sidebar-title">SwiftKart Admin</p>
+            <p className="adm-sidebar-title">Scalablenexus Admin</p>
             <p className="adm-sidebar-sub">{user?.name}</p>
           </div>
 
@@ -240,7 +240,7 @@ export default function AdminDashboard() {
     <AdminLayout stats={stats}>
       <div className="adm-page-header">
         <h1 className="adm-page-title">📊 Dashboard Overview</h1>
-        <p className="adm-page-sub">Welcome back, {user?.name} — here's what's happening on SwiftKart</p>
+        <p className="adm-page-sub">Welcome back, {user?.name} — here's what's happening on Scalablenexus</p>
       </div>
 
       {/* Alert banner */}

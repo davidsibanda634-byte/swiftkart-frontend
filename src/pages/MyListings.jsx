@@ -204,7 +204,7 @@ export default function MyListings() {
             <div className="ml-header-top">
               <div>
                 <h1 className="ml-title">📋 My Listings</h1>
-                <p className="ml-sub">Manage everything you've posted on SwiftKart</p>
+                <p className="ml-sub">Manage everything you've posted on Scalablenexus</p>
               </div>
               <button className="ml-new-btn" onClick={() => navigate('/create')}>➕ New Post</button>
             </div>

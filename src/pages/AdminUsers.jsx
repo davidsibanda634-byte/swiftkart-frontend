@@ -63,7 +63,7 @@ export default function AdminUsers() {
     <AdminLayout stats={stats}>
       <div className="adm-page-header">
         <h1 className="adm-page-title">👤 Manage Users</h1>
-        <p className="adm-page-sub">{users.length} total users on SwiftKart</p>
+        <p className="adm-page-sub">{users.length} total users on Scalablenexus</p>
       </div>
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>

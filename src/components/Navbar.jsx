@@ -275,7 +275,7 @@ export default function Navbar() {
         <div className="sk-navbar-inner">
           <Link to="/" className="sk-logo">
             <div className="sk-logo-icon">🛒</div>
-            <span className="sk-logo-text">Swift<span>Kart</span></span>
+            <span className="sk-logo-text">Scalable<span>nexus</span></span>
           </Link>
 
           <div className="sk-nav-center">
@@ -294,10 +294,7 @@ export default function Navbar() {
               <>
                 <Link to="/create" className="sk-btn-green">+ Post Listing</Link>
                 <div className="sk-profile-wrap" ref={profileRef}>
-                  <div
-                    className="sk-profile-avatar"
-                    onClick={() => setProfileOpen(!profileOpen)}
-                  >
+                  <div className="sk-profile-avatar" onClick={() => setProfileOpen(!profileOpen)}>
                     {user.name?.charAt(0).toUpperCase()}
                   </div>
                   {profileOpen && (
@@ -306,22 +303,18 @@ export default function Navbar() {
                         <div className="sk-dropdown-name">{user.name}</div>
                         <div className="sk-dropdown-sub">{user.email}</div>
                       </div>
-                      <Link to="/my-listings" className="sk-dropdown-item"
-                        onClick={() => setProfileOpen(false)}>
+                      <Link to="/my-listings" className="sk-dropdown-item" onClick={() => setProfileOpen(false)}>
                         <span className="sk-dropdown-icon">🛍️</span> My Listings
                       </Link>
                       {user.isAdmin && (
-                        <Link to="/admin" className="sk-dropdown-item admin"
-                          onClick={() => setProfileOpen(false)}>
+                        <Link to="/admin" className="sk-dropdown-item admin" onClick={() => setProfileOpen(false)}>
                           <span className="sk-dropdown-icon">🛡️</span> Admin Panel
                         </Link>
                       )}
-                      <Link to="/saved" className="sk-dropdown-item"
-                        onClick={() => setProfileOpen(false)}>
+                      <Link to="/saved" className="sk-dropdown-item" onClick={() => setProfileOpen(false)}>
                         <span className="sk-dropdown-icon">❤️</span> Saved Items
                       </Link>
-                      <Link to={'/profile/' + user._id} className="sk-dropdown-item"
-                        onClick={() => setProfileOpen(false)}>
+                      <Link to={'/profile/' + user._id} className="sk-dropdown-item" onClick={() => setProfileOpen(false)}>
                         <span className="sk-dropdown-icon">👤</span> My Profile
                       </Link>
                       <hr className="sk-dropdown-divider" />
@@ -359,47 +352,37 @@ export default function Navbar() {
             <hr className="sk-mobile-divider" />
             {user ? (
               <>
-                <span className="sk-mobile-nav-link"
-                  style={{ color: 'rgba(255,255,255,0.45)', cursor: 'default' }}>
+                <span className="sk-mobile-nav-link" style={{ color: 'rgba(255,255,255,0.45)', cursor: 'default' }}>
                   Hi, {user.name} 👋
                 </span>
-                <Link to="/my-listings" onClick={() => setMenuOpen(false)}
-                  className="sk-mobile-action"
+                <Link to="/my-listings" onClick={() => setMenuOpen(false)} className="sk-mobile-action"
                   style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
                   🛍️ My Listings
                 </Link>
                 {user.isAdmin && (
-                  <Link to="/admin" onClick={() => setMenuOpen(false)}
-                    className="sk-mobile-action"
+                  <Link to="/admin" onClick={() => setMenuOpen(false)} className="sk-mobile-action"
                     style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.3)' }}>
                     🛡️ Admin Panel
                   </Link>
                 )}
-                <Link to="/saved" onClick={() => setMenuOpen(false)}
-                  className="sk-mobile-action"
+                <Link to="/saved" onClick={() => setMenuOpen(false)} className="sk-mobile-action"
                   style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
                   ❤️ Saved Items
                 </Link>
-                <Link to="/create" onClick={() => setMenuOpen(false)}
-                  className="sk-mobile-action"
+                <Link to="/create" onClick={() => setMenuOpen(false)} className="sk-mobile-action"
                   style={{ background: 'linear-gradient(135deg,#00C896,#059669)', color: 'white' }}>
                   ➕ Post Listing
                 </Link>
                 <button onClick={handleLogout} className="sk-mobile-action"
-                  style={{ background: 'rgba(239,68,68,0.15)', color: '#fca5a5',
-                    border: '1px solid rgba(239,68,68,0.2)' }}>
+                  style={{ background: 'rgba(239,68,68,0.15)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>
                   🚪 Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" onClick={() => setMenuOpen(false)}
-                  className="sk-mobile-action"
-                  style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
-                  Login
-                </Link>
-                <Link to="/register" onClick={() => setMenuOpen(false)}
-                  className="sk-mobile-action"
+                <Link to="/login" onClick={() => setMenuOpen(false)} className="sk-mobile-action"
+                  style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>Login</Link>
+                <Link to="/register" onClick={() => setMenuOpen(false)} className="sk-mobile-action"
                   style={{ background: 'linear-gradient(135deg,#00C896,#059669)', color: 'white' }}>
                   Register Free
                 </Link>

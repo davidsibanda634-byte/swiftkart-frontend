@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext()
 
-const KEY = 'swiftkart_user'
+const KEY = 'scalablenexus_user'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(function() {
