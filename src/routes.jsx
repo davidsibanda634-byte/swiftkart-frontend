@@ -20,6 +20,7 @@ import AdminReports from './pages/AdminReports'
 import AdminListings from './pages/AdminListings'
 import AdminAnalytics from './pages/AdminAnalytics'
 import AdminActivity from './pages/AdminActivity'
+import JobDetail from './pages/JobDetail'
 
 export default function AppRoutes() {
   return (
@@ -45,6 +46,7 @@ export default function AppRoutes() {
         <Route path="/admin/listings" element={<AdminListings />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/activity" element={<AdminActivity />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
       </Route>
     </Routes>
   )
