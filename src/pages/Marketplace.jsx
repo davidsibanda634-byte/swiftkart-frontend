@@ -12,9 +12,9 @@ const CATEGORY_ICONS = {
 }
 
 const SORT_OPTIONS = [
-  { value: 'newest', label: '🕐 Newest First' },
-  { value: 'price_low', label: '💰 Price: Low → High' },
-  { value: 'price_high', label: '💎 Price: High → Low' },
+  { value: 'newest', label: 'Newest First' },
+  { value: 'price_low', label: 'Price: Low → High' },
+  { value: 'price_high', label: 'Price: High → Low' },
 ]
 
 export default function Marketplace() {
@@ -38,10 +38,7 @@ export default function Marketplace() {
     if (cat) setCategory(cat)
   }, [location.search])
 
-  useEffect(() => {
-    fetchListings()
-  }, [])
-
+  useEffect(() => { fetchListings() }, [])
   useEffect(() => {
     applyFilters(allListings, category, search, city, sort, minPrice, maxPrice)
   }, [category, sort])
@@ -53,18 +50,12 @@ export default function Marketplace() {
       setAllListings(data)
       applyFilters(data, category, search, city, sort, minPrice, maxPrice)
     } catch {
-      setAllListings([])
-      setListings([])
-    } finally {
-      setLoading(false)
-    }
+      setAllListings([]); setListings([])
+    } finally { setLoading(false) }
   }
 
-  // Build real city list from actual data
   const availableCities = useMemo(() => {
-    const cities = allListings
-      .map(l => l.location?.city)
-      .filter(Boolean)
+    const cities = allListings.map(l => l.location?.city).filter(Boolean)
     return [...new Set(cities)].sort()
   }, [allListings])
 
@@ -82,37 +73,16 @@ export default function Marketplace() {
   }
 
   const handleSearch = () => applyFilters(allListings, category, search, city, sort, minPrice, maxPrice)
-
-  const handleCategory = (cat) => {
-    setCategory(cat)
-    applyFilters(allListings, cat, search, city, sort, minPrice, maxPrice)
-  }
-
-  const handleSort = (s) => {
-    setSort(s)
-    applyFilters(allListings, category, search, city, s, minPrice, maxPrice)
-  }
-
-  const handleCityChange = (c) => {
-    setCity(c)
-    applyFilters(allListings, category, search, c, sort, minPrice, maxPrice)
-  }
-
-  const handlePriceApply = () => {
-    applyFilters(allListings, category, search, city, sort, minPrice, maxPrice)
-  }
-
+  const handleCategory = (cat) => { setCategory(cat); applyFilters(allListings, cat, search, city, sort, minPrice, maxPrice) }
+  const handleSort = (s) => { setSort(s); applyFilters(allListings, category, search, city, s, minPrice, maxPrice) }
+  const handleCityChange = (c) => { setCity(c); applyFilters(allListings, category, search, c, sort, minPrice, maxPrice) }
+  const handlePriceApply = () => applyFilters(allListings, category, search, city, sort, minPrice, maxPrice)
   const clearAllFilters = () => {
     setSearch(''); setCity(''); setMinPrice(''); setMaxPrice(''); setCategory('All'); setSort('newest')
     applyFilters(allListings, 'All', '', '', 'newest', '', '')
   }
 
-  const activeFilterCount = [
-    category !== 'All',
-    city !== '',
-    minPrice !== '',
-    maxPrice !== '',
-  ].filter(Boolean).length
+  const activeFilterCount = [category !== 'All', city !== '', minPrice !== '', maxPrice !== ''].filter(Boolean).length
 
   return (
     <>
@@ -121,138 +91,184 @@ export default function Marketplace() {
 
         .mp-wrap { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fb; min-height: 100vh; }
 
-        .mp-header { background: linear-gradient(135deg, #08162F 0%, #0f2167 100%); padding: 28px 24px 32px; }
+        /* Header */
+        .mp-header { background: linear-gradient(135deg, #08162F 0%, #0f2167 100%); padding: 20px 16px 0; }
         .mp-header-inner { max-width: 1240px; margin: 0 auto; }
         .mp-back {
           background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
           color: rgba(255,255,255,0.8); padding: 6px 14px; border-radius: 8px; font-size: 12px;
           font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex;
-          align-items: center; gap: 5px; margin-bottom: 16px; transition: all 0.2s;
+          align-items: center; gap: 5px; margin-bottom: 14px; transition: all 0.2s;
         }
         .mp-back:hover { background: rgba(255,255,255,0.18); color: white; }
-        .mp-title { font-size: 26px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.5px; }
-        .mp-sub { color: rgba(255,255,255,0.55); font-size: 13.5px; margin: 0 0 22px; }
+        .mp-title { font-size: 22px; font-weight: 800; color: white; margin: 0 0 3px; letter-spacing: -0.5px; }
+        .mp-sub { color: rgba(255,255,255,0.5); font-size: 13px; margin: 0 0 16px; }
 
-        .mp-search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        /* Search inside header */
+        .mp-search-row { display: flex; gap: 8px; margin-bottom: 16px; }
         .mp-search-bar {
-          flex: 1; min-width: 200px; display: flex; align-items: center;
+          flex: 1; display: flex; align-items: center;
           background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.18);
-          border-radius: 11px; height: 44px; padding: 0 14px; gap: 8px; transition: all 0.2s;
+          border-radius: 11px; height: 42px; padding: 0 12px; gap: 8px; transition: all 0.2s;
         }
-        .mp-search-bar:focus-within { background: rgba(255,255,255,0.15); border-color: #00C896; box-shadow: 0 0 0 3px rgba(0,200,150,0.15); }
+        .mp-search-bar:focus-within { background: rgba(255,255,255,0.15); border-color: #00C896; }
         .mp-search-input { flex: 1; border: none; outline: none; font-size: 13px; color: white; font-family: inherit; background: transparent; }
         .mp-search-input::placeholder { color: rgba(255,255,255,0.4); }
-
         .mp-search-btn {
-          height: 44px; padding: 0 22px; background: linear-gradient(135deg, #00C896, #059669);
-          color: white; border: none; border-radius: 11px; font-size: 13.5px; font-weight: 700;
+          height: 42px; padding: 0 18px; background: linear-gradient(135deg, #00C896, #059669);
+          color: white; border: none; border-radius: 11px; font-size: 13px; font-weight: 700;
           cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
-          box-shadow: 0 4px 14px rgba(0,200,150,0.35);
         }
-        .mp-search-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+        .mp-search-btn:hover { filter: brightness(1.08); }
 
-        .mp-content { max-width: 1240px; margin: 0 auto; padding: 20px 20px 60px; }
+        /* Category scroll row — sits at bottom of header, flush */
+        .mp-cat-scroll-wrap {
+          margin: 0 -16px;
+          padding: 0 16px;
+          overflow-x: auto;
+          scrollbar-width: none;
+          display: flex;
+          gap: 8px;
+          padding-bottom: 14px;
+        }
+        .mp-cat-scroll-wrap::-webkit-scrollbar { display: none; }
 
-        .mp-filter-bar {
-          background: white; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
+        .mp-cat-chip {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 5px;
+          flex-shrink: 0;
+          cursor: pointer;
+          border: none;
+          background: none;
+          font-family: inherit;
+          padding: 0;
+          min-width: 56px;
+          transition: transform 0.2s;
         }
-        .mp-filter-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-        .mp-cat-pills { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
-        .mp-cat-pill {
-          padding: 7px 14px; border-radius: 20px; border: 1.5px solid #e2e8f0; background: white;
-          color: #4b5563; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-          font-family: inherit; display: flex; align-items: center; gap: 5px; white-space: nowrap;
-        }
-        .mp-cat-pill:hover { border-color: #00C896; color: #059669; background: #f0fdf4; }
-        .mp-cat-pill.active {
-          background: linear-gradient(135deg, #00C896, #059669); color: white; border-color: transparent;
-          box-shadow: 0 3px 10px rgba(0,200,150,0.3);
-        }
+        .mp-cat-chip:hover { transform: translateY(-2px); }
 
-        .mp-right-controls { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-
-        .mp-more-filters-btn {
-          background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;
-          padding: 8px 14px; font-size: 12.5px; font-weight: 700; color: #374151;
-          cursor: pointer; font-family: inherit; transition: all 0.2s;
-          display: flex; align-items: center; gap: 6px; white-space: nowrap;
+        .mp-cat-chip-circle {
+          width: 46px;
+          height: 46px;
+          border-radius: 14px;
+          background: rgba(255,255,255,0.1);
+          border: 1.5px solid rgba(255,255,255,0.15);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          transition: all 0.2s;
         }
-        .mp-more-filters-btn:hover { border-color: #00C896; color: #059669; }
-        .mp-more-filters-btn.active { background: #ecfdf5; border-color: #00C896; color: #059669; }
-        .mp-filter-count {
-          background: #00C896; color: white; font-size: 10px; font-weight: 800;
-          width: 17px; height: 17px; border-radius: 50%; display: flex;
-          align-items: center; justify-content: center; flex-shrink: 0;
+        .mp-cat-chip.active .mp-cat-chip-circle {
+          background: linear-gradient(135deg, #00C896, #059669);
+          border-color: transparent;
+          box-shadow: 0 4px 12px rgba(0,200,150,0.4);
+        }
+        .mp-cat-chip-label {
+          font-size: 10px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.6);
+          text-align: center;
+          white-space: nowrap;
+        }
+        .mp-cat-chip.active .mp-cat-chip-label { color: #34d399; }
+
+        /* Content */
+        .mp-content { max-width: 1240px; margin: 0 auto; padding: 14px 14px 80px; }
+
+        /* Controls bar — sort + filters */
+        .mp-controls-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          margin-bottom: 14px;
+          background: white;
+          border-radius: 12px;
+          padding: 10px 14px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          border: 1px solid #f1f5f9;
         }
 
         .mp-sort-wrap { position: relative; flex-shrink: 0; }
         .mp-sort-select {
-          appearance: none; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;
-          padding: 8px 32px 8px 12px; font-size: 12.5px; font-weight: 600; color: #374151;
-          cursor: pointer; font-family: inherit; outline: none; transition: all 0.2s; min-width: 170px;
+          appearance: none; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 9px;
+          padding: 7px 28px 7px 10px; font-size: 12px; font-weight: 600; color: #374151;
+          cursor: pointer; font-family: inherit; outline: none;
         }
-        .mp-sort-select:focus { border-color: #00C896; box-shadow: 0 0 0 3px rgba(0,200,150,0.1); }
-        .mp-sort-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #9ca3af; pointer-events: none; }
+        .mp-sort-select:focus { border-color: #00C896; }
+        .mp-sort-arrow { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 9px; color: #9ca3af; pointer-events: none; }
 
-        /* Expanded filter panel — Price + City */
+        .mp-filter-btn {
+          display: flex; align-items: center; gap: 6px;
+          background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 9px;
+          padding: 7px 12px; font-size: 12px; font-weight: 700; color: #374151;
+          cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap;
+        }
+        .mp-filter-btn:hover { border-color: #00C896; color: #059669; }
+        .mp-filter-btn.active { background: #ecfdf5; border-color: #00C896; color: #059669; }
+        .mp-filter-count {
+          background: #00C896; color: white; font-size: 9px; font-weight: 800;
+          width: 16px; height: 16px; border-radius: 50%; display: flex;
+          align-items: center; justify-content: center;
+        }
+
+        /* Advanced panel */
         .mp-advanced-panel {
-          margin-top: 14px;
-          padding-top: 14px;
-          border-top: 1px solid #f1f5f9;
-          display: flex;
-          gap: 16px;
-          flex-wrap: wrap;
-          align-items: flex-end;
+          background: white; border-radius: 12px; padding: 14px;
+          margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          border: 1px solid #f1f5f9; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
         }
-        .mp-filter-group { display: flex; flex-direction: column; gap: 6px; }
-        .mp-filter-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        .mp-price-inputs { display: flex; align-items: center; gap: 8px; }
+        .mp-filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .mp-filter-label { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
+        .mp-price-inputs { display: flex; align-items: center; gap: 6px; }
         .mp-price-input {
-          width: 90px; padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 9px;
+          width: 80px; padding: 7px 10px; border: 1.5px solid #e2e8f0; border-radius: 8px;
           font-size: 13px; outline: none; font-family: inherit; transition: border 0.2s;
         }
         .mp-price-input:focus { border-color: #00C896; }
-        .mp-price-sep { color: #9ca3af; font-size: 13px; }
-
+        .mp-price-sep { color: #9ca3af; font-size: 12px; }
+        .mp-city-select-wrap { position: relative; }
         .mp-city-select {
-          appearance: none; background: white; border: 1.5px solid #e2e8f0; border-radius: 9px;
-          padding: 8px 32px 8px 12px; font-size: 13px; font-weight: 600; color: #374151;
-          cursor: pointer; font-family: inherit; outline: none; min-width: 160px; position: relative;
+          appearance: none; background: white; border: 1.5px solid #e2e8f0; border-radius: 8px;
+          padding: 7px 28px 7px 10px; font-size: 13px; font-weight: 600; color: #374151;
+          cursor: pointer; font-family: inherit; outline: none; min-width: 140px;
         }
         .mp-city-select:focus { border-color: #00C896; }
-        .mp-city-select-wrap { position: relative; }
-        .mp-city-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 9px; color: #9ca3af; pointer-events: none; }
-
-        .mp-apply-price-btn {
+        .mp-city-arrow { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 9px; color: #9ca3af; pointer-events: none; }
+        .mp-apply-btn {
           background: linear-gradient(135deg, #00C896, #059669); color: white; border: none;
-          padding: 9px 18px; border-radius: 9px; font-size: 12.5px; font-weight: 700;
-          cursor: pointer; font-family: inherit; transition: all 0.2s; height: 37px;
+          padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700;
+          cursor: pointer; font-family: inherit;
         }
-        .mp-apply-price-btn:hover { transform: translateY(-1px); }
-
-        .mp-clear-all-btn {
-          background: none; border: none; color: #ef4444; font-size: 12.5px; font-weight: 700;
-          cursor: pointer; font-family: inherit; padding: 8px 4px;
+        .mp-clear-btn {
+          background: none; border: none; color: #ef4444; font-size: 12px; font-weight: 700;
+          cursor: pointer; font-family: inherit; padding: 4px;
         }
-        .mp-clear-all-btn:hover { text-decoration: underline; }
+        .mp-clear-btn:hover { text-decoration: underline; }
 
-        .mp-results-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        /* Results row */
+        .mp-results-row {
+          display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 12px; flex-wrap: wrap; gap: 6px;
+        }
         .mp-count-badge {
-          display: inline-flex; align-items: center; gap: 7px; background: white; border: 1px solid #e2e8f0;
-          border-radius: 20px; padding: 5px 14px; font-size: 12.5px; font-weight: 700; color: #374151;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+          display: inline-flex; align-items: center; gap: 6px; background: white;
+          border: 1px solid #e2e8f0; border-radius: 20px; padding: 4px 12px;
+          font-size: 12px; font-weight: 700; color: #374151;
         }
-        .mp-count-dot { width: 7px; height: 7px; border-radius: 50%; background: #00C896; flex-shrink: 0; }
-
-        .mp-active-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .mp-count-dot { width: 6px; height: 6px; border-radius: 50%; background: #00C896; flex-shrink: 0; }
+        .mp-active-tags { display: flex; gap: 5px; flex-wrap: wrap; }
         .mp-active-filter {
-          display: inline-flex; align-items: center; gap: 5px; background: #f0fdf4; border: 1px solid #bbf7d0;
-          color: #059669; border-radius: 20px; padding: 4px 10px; font-size: 11.5px; font-weight: 700;
+          display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4;
+          border: 1px solid #bbf7d0; color: #059669; border-radius: 20px;
+          padding: 3px 9px; font-size: 11px; font-weight: 700;
         }
-        .mp-active-filter button { background: none; border: none; cursor: pointer; color: #059669; font-size: 13px; padding: 0; margin-left: 2px; }
+        .mp-active-filter button { background: none; border: none; cursor: pointer; color: #059669; font-size: 12px; padding: 0; margin-left: 1px; }
 
+        /* Grid */
         .mp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
         .mp-skeleton { background: white; border-radius: 14px; overflow: hidden; border: 1px solid #f1f5f9; }
@@ -270,29 +286,25 @@ export default function Marketplace() {
         @keyframes mp-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
         .mp-empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: white; border-radius: 16px; border: 2px dashed #e2e8f0; }
-        .mp-empty-icon { font-size: 52px; margin-bottom: 14px; }
-        .mp-empty-title { font-size: 17px; font-weight: 700; color: #374151; margin-bottom: 6px; }
+        .mp-empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .mp-empty-title { font-size: 16px; font-weight: 700; color: #374151; margin-bottom: 6px; }
         .mp-empty-sub { font-size: 13px; color: #9ca3af; }
         .mp-empty-btn {
-          margin-top: 16px; background: linear-gradient(135deg, #00C896, #059669); color: white; border: none;
-          padding: 10px 24px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
-          font-family: inherit; transition: all 0.2s;
+          margin-top: 14px; background: linear-gradient(135deg, #00C896, #059669); color: white; border: none;
+          padding: 10px 22px; border-radius: 10px; font-size: 13px; font-weight: 700;
+          cursor: pointer; font-family: inherit;
         }
-        .mp-empty-btn:hover { transform: translateY(-1px); }
 
         @media (max-width: 1024px) { .mp-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) {
-          .mp-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-          .mp-content { padding: 16px 14px 60px; }
-          .mp-header { padding: 20px 16px 24px; }
-          .mp-title { font-size: 22px; }
+          .mp-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
           .mp-advanced-panel { flex-direction: column; align-items: stretch; }
           .mp-price-inputs { width: 100%; }
           .mp-price-input { flex: 1; width: auto; }
           .mp-city-select-wrap { width: 100%; }
           .mp-city-select { width: 100%; }
         }
-        @media (max-width: 480px) { .mp-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+        @media (max-width: 480px) { .mp-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
       `}</style>
 
       <div className="mp-wrap">
@@ -305,7 +317,7 @@ export default function Marketplace() {
 
             <div className="mp-search-row">
               <div className="mp-search-bar">
-                <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)' }}>🔍</span>
+                <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>🔍</span>
                 <input
                   className="mp-search-input"
                   type="text"
@@ -317,123 +329,106 @@ export default function Marketplace() {
               </div>
               <button className="mp-search-btn" onClick={handleSearch}>Search</button>
             </div>
+
+            {/* Category horizontal scroll — flush to header bottom */}
+            <div className="mp-cat-scroll-wrap">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat}
+                  className={'mp-cat-chip' + (category === cat ? ' active' : '')}
+                  onClick={() => handleCategory(cat)}
+                >
+                  <div className="mp-cat-chip-circle">{CATEGORY_ICONS[cat]}</div>
+                  <span className="mp-cat-chip-label">{cat}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="mp-content">
 
-          <div className="mp-filter-bar">
-            <div className="mp-filter-top">
-              <div className="mp-cat-pills">
-                {CATEGORIES.map(cat => (
-                  <button
-                    key={cat}
-                    className={'mp-cat-pill' + (category === cat ? ' active' : '')}
-                    onClick={() => handleCategory(cat)}
-                  >
-                    <span>{CATEGORY_ICONS[cat]}</span>
-                    <span>{cat}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="mp-right-controls">
-                <button
-                  className={'mp-more-filters-btn' + (showMoreFilters ? ' active' : '')}
-                  onClick={() => setShowMoreFilters(!showMoreFilters)}
-                >
-                  💰📍 Price & City
-                  {activeFilterCount > 0 && <span className="mp-filter-count">{activeFilterCount}</span>}
-                </button>
-
-                <div className="mp-sort-wrap">
-                  <select className="mp-sort-select" value={sort} onChange={e => handleSort(e.target.value)}>
-                    {SORT_OPTIONS.map(o => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
-                  </select>
-                  <span className="mp-sort-arrow">▼</span>
+          {/* Controls bar — sort + filter toggle only */}
+          <div className="mp-controls-bar">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              {category !== 'All' && (
+                <div className="mp-active-filter">
+                  {CATEGORY_ICONS[category]} {category}
+                  <button onClick={() => handleCategory('All')}>✕</button>
                 </div>
-              </div>
+              )}
+              {city && (
+                <div className="mp-active-filter">
+                  📍 {city}
+                  <button onClick={() => handleCityChange('')}>✕</button>
+                </div>
+              )}
+              {(minPrice || maxPrice) && (
+                <div className="mp-active-filter">
+                  💰 ${minPrice || '0'} – ${maxPrice || '∞'}
+                  <button onClick={() => { setMinPrice(''); setMaxPrice(''); applyFilters(allListings, category, search, city, sort, '', '') }}>✕</button>
+                </div>
+              )}
+              {activeFilterCount === 0 && (
+                <span style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 600 }}>
+                  {loading ? '...' : listings.length + ' listing' + (listings.length !== 1 ? 's' : '')}
+                </span>
+              )}
             </div>
 
-            {showMoreFilters && (
-              <div className="mp-advanced-panel">
-                <div className="mp-filter-group">
-                  <label className="mp-filter-label">Price Range ($)</label>
-                  <div className="mp-price-inputs">
-                    <input
-                      className="mp-price-input"
-                      type="number"
-                      placeholder="Min"
-                      value={minPrice}
-                      onChange={e => setMinPrice(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handlePriceApply()}
-                    />
-                    <span className="mp-price-sep">–</span>
-                    <input
-                      className="mp-price-input"
-                      type="number"
-                      placeholder="Max"
-                      value={maxPrice}
-                      onChange={e => setMaxPrice(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handlePriceApply()}
-                    />
-                  </div>
-                </div>
+            <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+              <button
+                className={'mp-filter-btn' + (showMoreFilters ? ' active' : '')}
+                onClick={() => setShowMoreFilters(!showMoreFilters)}
+              >
+                🎛️ Filters
+                {activeFilterCount > 0 && <span className="mp-filter-count">{activeFilterCount}</span>}
+              </button>
 
-                <div className="mp-filter-group">
-                  <label className="mp-filter-label">City</label>
-                  <div className="mp-city-select-wrap">
-                    <select
-                      className="mp-city-select"
-                      value={city}
-                      onChange={e => handleCityChange(e.target.value)}
-                    >
-                      <option value="">All Cities</option>
-                      {availableCities.map(c => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
-                    <span className="mp-city-arrow">▼</span>
-                  </div>
-                </div>
-
-                <button className="mp-apply-price-btn" onClick={handlePriceApply}>Apply</button>
-                <button className="mp-clear-all-btn" onClick={clearAllFilters}>Clear All Filters</button>
+              <div className="mp-sort-wrap">
+                <select className="mp-sort-select" value={sort} onChange={e => handleSort(e.target.value)}>
+                  {SORT_OPTIONS.map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+                <span className="mp-sort-arrow">▼</span>
               </div>
-            )}
+            </div>
           </div>
 
-          {!loading && (
-            <div className="mp-results-row">
-              <div className="mp-count-badge">
-                <div className="mp-count-dot" />
-                {listings.length} listing{listings.length !== 1 ? 's' : ''} found
+          {/* Advanced filters panel */}
+          {showMoreFilters && (
+            <div className="mp-advanced-panel">
+              <div className="mp-filter-group">
+                <label className="mp-filter-label">Price Range ($)</label>
+                <div className="mp-price-inputs">
+                  <input className="mp-price-input" type="number" placeholder="Min"
+                    value={minPrice} onChange={e => setMinPrice(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handlePriceApply()} />
+                  <span className="mp-price-sep">–</span>
+                  <input className="mp-price-input" type="number" placeholder="Max"
+                    value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handlePriceApply()} />
+                </div>
               </div>
-              <div className="mp-active-tags">
-                {category !== 'All' && (
-                  <div className="mp-active-filter">
-                    {CATEGORY_ICONS[category]} {category}
-                    <button onClick={() => handleCategory('All')}>✕</button>
-                  </div>
-                )}
-                {city && (
-                  <div className="mp-active-filter">
-                    📍 {city}
-                    <button onClick={() => handleCityChange('')}>✕</button>
-                  </div>
-                )}
-                {(minPrice || maxPrice) && (
-                  <div className="mp-active-filter">
-                    💰 ${minPrice || '0'} – ${maxPrice || '∞'}
-                    <button onClick={() => { setMinPrice(''); setMaxPrice(''); applyFilters(allListings, category, search, city, sort, '', '') }}>✕</button>
-                  </div>
-                )}
+
+              <div className="mp-filter-group">
+                <label className="mp-filter-label">City</label>
+                <div className="mp-city-select-wrap">
+                  <select className="mp-city-select" value={city} onChange={e => handleCityChange(e.target.value)}>
+                    <option value="">All Cities</option>
+                    {availableCities.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <span className="mp-city-arrow">▼</span>
+                </div>
               </div>
+
+              <button className="mp-apply-btn" onClick={handlePriceApply}>Apply</button>
+              <button className="mp-clear-btn" onClick={clearAllFilters}>Clear All</button>
             </div>
           )}
 
+          {/* Grid */}
           <div className="mp-grid">
             {loading ? (
               Array.from({ length: 8 }).map((_, i) => (
@@ -447,7 +442,7 @@ export default function Marketplace() {
               <div className="mp-empty">
                 <div className="mp-empty-icon">🔍</div>
                 <div className="mp-empty-title">No listings found</div>
-                <div className="mp-empty-sub">Try a different category, city, price range or search term</div>
+                <div className="mp-empty-sub">Try a different category, city or price range</div>
                 <button className="mp-empty-btn" onClick={clearAllFilters}>Clear Filters</button>
               </div>
             ) : (
