@@ -6,12 +6,12 @@ const api = axios.create({
 
 api.interceptors.request.use(function(config) {
   try {
-    const user = JSON.parse(localStorage.getItem('swiftkart_user'))
+    const user = JSON.parse(localStorage.getItem('scalablenexus_user'))
     if (user && user.token) {
       config.headers.Authorization = 'Bearer ' + user.token
     }
   } catch (e) {
-    localStorage.removeItem('swiftkart_user')
+    localStorage.removeItem('scalablenexus_user')
   }
   return config
 })
@@ -26,7 +26,7 @@ api.interceptors.response.use(
       message === 'No token, not authorized'
     )
     if (isTokenError) {
-      localStorage.removeItem('swiftkart_user')
+      localStorage.removeItem('scalablenexus_user')
       window.location.href = '/login'
     }
     return Promise.reject(error)

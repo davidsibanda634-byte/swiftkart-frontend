@@ -13,8 +13,6 @@ export function AuthProvider({ children }) {
     }
   })
 
-  const [authReady] = useState(true)
-
   const login = function(userData) {
     setUser(userData)
     localStorage.setItem(KEY, JSON.stringify(userData))
@@ -26,7 +24,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, authReady }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
