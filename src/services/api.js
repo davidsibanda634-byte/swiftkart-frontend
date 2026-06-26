@@ -19,7 +19,13 @@ api.interceptors.request.use(function(config) {
 api.interceptors.response.use(
   function(response) { return response },
   function(error) {
-    if (error.response && error.response.status === 401) {
+    const status = error.response && error.response.status
+    const message = error.response && error.response.data && error.response.data.message
+    const isTokenError = status === 401 && (
+      message === 'Token invalid, not authorized' ||
+      message === 'No token, not authorized'
+    )
+    if (isTokenError) {
       localStorage.removeItem('swiftkart_user')
       window.location.href = '/login'
     }
