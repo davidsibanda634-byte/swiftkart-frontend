@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
 export function AdminLayout({ children, stats }) {
-  const { user } = useAuth()
+  const { user, authReady } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -20,6 +20,14 @@ export function AdminLayout({ children, stats }) {
   const isActive = (to, exact) => exact
     ? location.pathname === to
     : location.pathname === to
+
+  if (!authReady) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f7fb' }}>
+        <p style={{ color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '14px' }}>Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -200,19 +208,26 @@ export function AdminLayout({ children, stats }) {
 }
 
 export default function AdminDashboard() {
-  const { user } = useAuth()
+  const { user, authReady } = useAuth()
   const navigate = useNavigate()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(function() {
+    if (!authReady) return
     if (!user) { navigate('/login'); return }
     if (!user.isAdmin) { navigate('/'); return }
     api.get('/admin/stats')
       .then(function(res) { setStats(res.data) })
       .catch(function() { navigate('/') })
       .finally(function() { setLoading(false) })
-  }, [user])
+  }, [user, authReady])
+
+  if (!authReady) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f7fb' }}>
+      <p style={{ color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '14px' }}>Loading...</p>
+    </div>
+  )
 
   if (loading) return (
     <div style={{ textAlign: 'center', padding: '80px', color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
@@ -243,7 +258,6 @@ export default function AdminDashboard() {
         <p className="adm-page-sub">Welcome back, {user?.name} — here's what's happening on Scalablenexus</p>
       </div>
 
-      {/* Alert banner */}
       {stats?.reportCount > 0 && (
         <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '18px' }}>⚠️</span>
@@ -256,7 +270,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Top 4 cards */}
       <div className="adm-stats-grid">
         {topCards.map(card => (
           <Link key={card.label} to={card.to} className="adm-stat-card clickable">
@@ -270,7 +283,6 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Bottom 4 cards */}
       <div className="adm-stats-grid" style={{ marginBottom: '20px' }}>
         {bottomCards.map(card => (
           <div key={card.label} className="adm-stat-card">
@@ -283,7 +295,6 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Platform Summary */}
       <div className="adm-section">
         <div className="adm-section-header">
           <p className="adm-section-title">📈 Platform Summary</p>
@@ -306,7 +317,6 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Content breakdown */}
       <div className="adm-section">
         <div className="adm-section-header">
           <p className="adm-section-title">📦 Content Breakdown</p>

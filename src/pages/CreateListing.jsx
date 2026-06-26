@@ -7,7 +7,7 @@ const CATEGORIES = ['Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehi
 const JOB_CATEGORIES = ['Internship', 'Part-Time', 'Full-Time', 'Freelance', 'Volunteer', 'Other']
 
 export default function CreateListing() {
-  const { user } = useAuth()
+  const { user, authReady } = useAuth()
   const navigate = useNavigate()
   const [type, setType] = useState('listing')
   const [loading, setLoading] = useState(false)
@@ -81,6 +81,15 @@ export default function CreateListing() {
     }
   }
 
+  // Wait for auth to be confirmed before redirecting
+  if (!authReady) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#08162F' }}>
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '14px' }}>Loading...</p>
+      </div>
+    )
+  }
+
   if (!user) {
     return (
       <>
@@ -91,7 +100,7 @@ export default function CreateListing() {
         <div className="cl-bg">
           <div style={{ textAlign:'center', color:'white' }}>
             <div style={{ fontSize:'48px', marginBottom:'16px' }}>🔒</div>
-            <p style={{ fontSize:'18px', fontWeight:700, marginBottom:'16px' }}>Login required to post</p>
+            <p style={{ fontSize:'18px', fontWeight:700, marginBottom:'16px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Login required to post</p>
             <button onClick={() => navigate('/login')} style={{ background:'linear-gradient(135deg,#10b981,#059669)', color:'white', border:'none', padding:'12px 28px', borderRadius:'12px', fontWeight:700, fontSize:'14px', cursor:'pointer', fontFamily:'inherit' }}>
               Go to Login
             </button>
