@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
 const CATEGORIES = ['Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehicles', 'Furniture', 'Electronics', 'Food', 'Other']
+const JOB_CATEGORIES = ['Internship', 'Part-Time', 'Full-Time', 'Freelance', 'Volunteer', 'Other']
 
 export default function CreateListing() {
   const { user } = useAuth()
@@ -14,7 +15,7 @@ export default function CreateListing() {
   const [success, setSuccess] = useState('')
   const [images, setImages] = useState([])
   const [form, setForm] = useState({
-    title: '', description: '', price: '', category: 'Other',
+    title: '', description: '', price: '', category: 'Other', jobCategory: 'Internship',
     pricePerHour: '', company: '', date: '', phone: '',
     location: { country: '', city: '', area: '' }
   })
@@ -56,6 +57,7 @@ export default function CreateListing() {
       } else if (type === 'job') {
         await api.post('/jobs', {
           title: form.title, description: form.description,
+          category: form.jobCategory,
           company: form.company, phone: form.phone, location: form.location
         })
       } else if (type === 'event') {
@@ -117,10 +119,7 @@ export default function CreateListing() {
           background-attachment: fixed;
         }
 
-        .cl-inner {
-          max-width: 560px;
-          margin: 0 auto;
-        }
+        .cl-inner { max-width: 560px; margin: 0 auto; }
 
         .cl-back {
           background: rgba(255,255,255,0.1);
@@ -151,10 +150,7 @@ export default function CreateListing() {
           box-shadow: 0 24px 64px rgba(0,0,0,0.4);
         }
 
-        .cl-header {
-          text-align: center;
-          margin-bottom: 28px;
-        }
+        .cl-header { text-align: center; margin-bottom: 28px; }
 
         .cl-header-icon {
           width: 52px;
@@ -169,19 +165,8 @@ export default function CreateListing() {
           box-shadow: 0 8px 24px rgba(16,185,129,0.4);
         }
 
-        .cl-title {
-          font-size: 21px;
-          font-weight: 800;
-          color: white;
-          margin: 0 0 5px;
-          letter-spacing: -0.4px;
-        }
-
-        .cl-sub {
-          font-size: 13px;
-          color: rgba(255,255,255,0.55);
-          margin: 0;
-        }
+        .cl-title { font-size: 21px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.4px; }
+        .cl-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin: 0; }
 
         .cl-label {
           display: block;
@@ -213,13 +198,8 @@ export default function CreateListing() {
 
         .cl-field { margin-bottom: 15px; }
 
-        .cl-hint {
-          font-size: 10.5px;
-          color: rgba(255,255,255,0.38);
-          margin-top: 4px;
-        }
+        .cl-hint { font-size: 10.5px; color: rgba(255,255,255,0.38); margin-top: 4px; }
 
-        /* Type selector */
         .cl-type-grid {
           display: grid;
           grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -247,7 +227,6 @@ export default function CreateListing() {
         }
         .cl-type-btn:hover { border-color: rgba(255,255,255,0.3); color: white; }
 
-        /* Category grid */
         .cl-cat-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -284,11 +263,7 @@ export default function CreateListing() {
           margin: 18px 0 10px;
         }
 
-        .cl-location-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
+        .cl-location-group { display: flex; flex-direction: column; gap: 8px; }
 
         .cl-submit {
           width: 100%;
@@ -346,7 +321,6 @@ export default function CreateListing() {
               <p className="cl-sub">Fill in the details to publish your post</p>
             </div>
 
-            {/* Type selector */}
             <label className="cl-label">What are you posting?</label>
             <div className="cl-type-grid">
               {[
@@ -382,7 +356,7 @@ export default function CreateListing() {
                 <label className="cl-label">Description</label>
                 <textarea className="cl-input" name="description"
                   value={form.description} onChange={handleChange}
-                  placeholder="Describe your listing in detail..."
+                  placeholder="Describe your listing in detail... (Tip: paste application links here)"
                   rows={3} style={{ resize: 'vertical' }} />
               </div>
 
@@ -430,11 +404,25 @@ export default function CreateListing() {
               )}
 
               {type === 'job' && (
-                <div className="cl-field">
-                  <label className="cl-label">Company / Organization</label>
-                  <input className="cl-input" type="text" name="company"
-                    value={form.company} onChange={handleChange} placeholder="Company name" />
-                </div>
+                <>
+                  <div className="cl-field">
+                    <label className="cl-label">Job Category *</label>
+                    <div className="cl-cat-grid">
+                      {JOB_CATEGORIES.map(cat => (
+                        <button key={cat} type="button"
+                          className={'cl-cat-btn' + (form.jobCategory === cat ? ' active' : '')}
+                          onClick={() => setForm({ ...form, jobCategory: cat })}>
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="cl-field">
+                    <label className="cl-label">Company / Organization</label>
+                    <input className="cl-input" type="text" name="company"
+                      value={form.company} onChange={handleChange} placeholder="Company name" />
+                  </div>
+                </>
               )}
 
               {type === 'event' && (

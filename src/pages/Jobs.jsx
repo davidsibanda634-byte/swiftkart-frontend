@@ -1,33 +1,36 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import JobCard from '../components/cards/JobCard'
 import api from '../services/api'
+
+const JOB_CATEGORIES = ['All', 'Internship', 'Part-Time', 'Full-Time', 'Freelance', 'Volunteer', 'Other']
 
 export default function Jobs() {
   const navigate = useNavigate()
   const [jobs, setJobs] = useState([])
   const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('All')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      setLoading(true)
-      try {
-        const { data } = await api.get('/jobs')
-        setJobs(data)
-      } catch {
-        setJobs([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchJobs()
+  const fetchJobs = useCallback(function(cat) {
+    setLoading(true)
+    const params = {}
+    if (cat && cat !== 'All') params.category = cat
+    api.get('/jobs', { params })
+      .then(function(res) { setJobs(res.data) })
+      .catch(function() { setJobs([]) })
+      .finally(function() { setLoading(false) })
   }, [])
 
-  const filtered = jobs.filter(j =>
-    j.title.toLowerCase().includes(search.toLowerCase()) ||
-    j.company?.toLowerCase().includes(search.toLowerCase())
-  )
+  useEffect(function() {
+    fetchJobs(category)
+  }, [category])
+
+  const filtered = jobs.filter(function(j) {
+    const matchSearch = j.title.toLowerCase().includes(search.toLowerCase()) ||
+      (j.company && j.company.toLowerCase().includes(search.toLowerCase()))
+    return matchSearch
+  })
 
   return (
     <>
@@ -66,6 +69,15 @@ export default function Jobs() {
 
         .jb-content { max-width: 1240px; margin: 0 auto; padding: 24px 20px 60px; }
 
+        .jb-cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+        .jb-cat-tab {
+          padding: 7px 16px; border-radius: 20px; border: 1px solid #fde68a;
+          background: white; color: #92400e; font-size: 12.5px; font-weight: 600;
+          cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .jb-cat-tab.active { background: #d97706; color: white; border-color: #d97706; }
+        .jb-cat-tab:hover { border-color: #d97706; }
+
         .jb-count-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
         .jb-count-badge {
           display: inline-flex; align-items: center; gap: 7px; background: white;
@@ -103,7 +115,7 @@ export default function Jobs() {
       <div className="jb-wrap">
         <div className="jb-header">
           <div className="jb-header-inner">
-            <button className="jb-back" onClick={() => navigate(-1)}>← Back</button>
+            <button className="jb-back" onClick={function() { navigate(-1) }}>← Back</button>
             <h1 className="jb-title">💼 Campus Jobs</h1>
             <p className="jb-sub">Find part-time jobs, internships and freelance work near you</p>
 
@@ -114,13 +126,27 @@ export default function Jobs() {
                 type="text"
                 placeholder="Search jobs or companies…"
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={function(e) { setSearch(e.target.value) }}
               />
             </div>
           </div>
         </div>
 
         <div className="jb-content">
+          <div className="jb-cat-tabs">
+            {JOB_CATEGORIES.map(function(cat) {
+              return (
+                <button
+                  key={cat}
+                  className={'jb-cat-tab' + (category === cat ? ' active' : '')}
+                  onClick={function() { setCategory(cat) }}
+                >
+                  {cat}
+                </button>
+              )
+            })}
+          </div>
+
           {!loading && (
             <div className="jb-count-row">
               <div className="jb-count-badge">
@@ -132,17 +158,19 @@ export default function Jobs() {
 
           <div className="jb-grid">
             {loading ? (
-              Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="jb-skeleton"><div className="jb-skeleton-inner" /></div>
-              ))
+              Array.from({ length: 4 }).map(function(_, i) {
+                return (
+                  <div key={i} className="jb-skeleton"><div className="jb-skeleton-inner" /></div>
+                )
+              })
             ) : filtered.length === 0 ? (
               <div className="jb-empty">
                 <div className="jb-empty-icon">💼</div>
                 <div className="jb-empty-title">No jobs found</div>
-                <div className="jb-empty-sub">Try a different search term</div>
+                <div className="jb-empty-sub">Try a different category or search term</div>
               </div>
             ) : (
-              filtered.map(j => <JobCard key={j._id} job={j} />)
+              filtered.map(function(j) { return <JobCard key={j._id} job={j} /> })
             )}
           </div>
         </div>

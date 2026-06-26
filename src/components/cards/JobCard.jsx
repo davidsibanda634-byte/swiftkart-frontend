@@ -1,9 +1,19 @@
 import { useNavigate } from 'react-router-dom'
 
+const CAT_COLORS = {
+  'Internship': { bg: '#eff6ff', color: '#1e40af' },
+  'Part-Time': { bg: '#fef9c3', color: '#854d0e' },
+  'Full-Time': { bg: '#f0fdf4', color: '#166534' },
+  'Freelance': { bg: '#fdf2f8', color: '#9d174d' },
+  'Volunteer': { bg: '#eef2ff', color: '#3730a3' },
+  'Other': { bg: '#f9fafb', color: '#374151' },
+}
+
 export default function JobCard({ job }) {
   const navigate = useNavigate()
   const phone = job.phone ? job.phone.replace(/\D/g, '') : ''
   const waLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent('Hi, I am interested in the job: ' + job.title)
+  const catStyle = CAT_COLORS[job.category] || CAT_COLORS['Other']
 
   function handleWhatsApp(e) {
     e.stopPropagation()
@@ -43,6 +53,10 @@ export default function JobCard({ job }) {
           font-size: 24px; flex-shrink: 0;
         }
         .jc-info { flex: 1; min-width: 0; }
+        .jc-cat-badge {
+          display: inline-block; font-size: 10px; font-weight: 700;
+          padding: 2px 9px; border-radius: 20px; margin-bottom: 6px;
+        }
         .jc-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 3px; }
         .jc-title { font-weight: 700; font-size: 15px; color: #111827; margin: 0; line-height: 1.3; }
         .jc-posted { font-size: 10.5px; color: #c4c9d4; font-weight: 600; white-space: nowrap; flex-shrink: 0; padding-top: 2px; }
@@ -75,6 +89,12 @@ export default function JobCard({ job }) {
         <div className="jc-icon">💼</div>
 
         <div className="jc-info">
+          {job.category && (
+            <span className="jc-cat-badge" style={{ background: catStyle.bg, color: catStyle.color }}>
+              {job.category}
+            </span>
+          )}
+
           <div className="jc-top-row">
             <p className="jc-title">{job.title}</p>
             {postedDate && <span className="jc-posted">{postedDate}</span>}
