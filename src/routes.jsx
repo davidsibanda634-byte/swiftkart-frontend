@@ -21,6 +21,7 @@ import AdminListings from './pages/AdminListings'
 import AdminAnalytics from './pages/AdminAnalytics'
 import AdminActivity from './pages/AdminActivity'
 import JobDetail from './pages/JobDetail'
+import NotFound from './pages/NotFound'
 
 export default function AppRoutes() {
   return (
@@ -47,6 +48,7 @@ export default function AppRoutes() {
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/activity" element={<AdminActivity />} />
         <Route path="/jobs/:id" element={<JobDetail />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )
