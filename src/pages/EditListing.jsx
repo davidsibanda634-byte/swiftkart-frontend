@@ -3,8 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
+const CATEGORIES = ['Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehicles', 'Furniture', 'Electronics', 'Food', 'Other']
+
 export default function EditListing() {
-  const { user } = useAuth()
+  const { user, authReady } = useAuth()
   const navigate = useNavigate()
   const { id } = useParams()
 
@@ -17,11 +19,13 @@ export default function EditListing() {
     title: '',
     description: '',
     price: '',
+    category: 'Other',
     phone: '',
     location: { country: '', city: '', area: '' }
   })
 
   useEffect(function() {
+    if (!authReady) return
     if (!user) { navigate('/login'); return }
     api.get('/listings/' + id)
       .then(function(res) {
@@ -32,6 +36,7 @@ export default function EditListing() {
           title: data.title || '',
           description: data.description || '',
           price: data.price || '',
+          category: data.category || 'Other',
           phone: data.phone || '',
           location: {
             country: data.location?.country || '',
@@ -42,7 +47,7 @@ export default function EditListing() {
       })
       .catch(function() { navigate('/') })
       .finally(function() { setLoading(false) })
-  }, [id])
+  }, [id, authReady])
 
   function handleChange(e) {
     setForm(Object.assign({}, form, { [e.target.name]: e.target.value }))
@@ -70,97 +75,236 @@ export default function EditListing() {
       .finally(function() { setSaving(false) })
   }
 
-  const inp = {
-    width: '100%', padding: '11px 14px',
-    border: '1px solid #d1d5db', borderRadius: '10px',
-    fontSize: '14px', outline: 'none',
-    boxSizing: 'border-box', fontFamily: 'inherit',
-    backgroundColor: 'white', transition: 'border .2s'
-  }
-  const lbl = { display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '6px' }
-  const fld = { marginBottom: '16px' }
-  const onFocus = function(e) { e.target.style.border = '1px solid #00C896' }
-  const onBlur = function(e) { e.target.style.border = '1px solid #d1d5db' }
-
-  if (loading) return (
-    <p style={{ textAlign: 'center', padding: '80px 0', color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-      Loading...
-    </p>
+  if (!authReady || loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#08162F' }}>
+      <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '14px' }}>Loading...</p>
+    </div>
   )
 
   return (
-    <div style={{ background: '#f4f7fb', minHeight: '80vh', padding: '24px 16px 80px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-      <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-        <button
-          onClick={function() { navigate('/my-listings') }}
-          style={{ background: 'white', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '10px', fontSize: '13px', color: '#374151', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'inherit', fontWeight: 600 }}
-        >← Back to My Listings</button>
+        .el-bg {
+          min-height: 100vh;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          padding: 24px 16px 80px;
+          background-image:
+            linear-gradient(to bottom, rgba(8,14,40,0.88) 0%, rgba(10,20,55,0.82) 50%, rgba(8,14,40,0.92) 100%),
+            url('https://images.unsplash.com/photo-1562774053-701939374585?w=1600&q=80');
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+        }
 
-        <div style={{ background: 'white', borderRadius: '20px', boxShadow: '0 4px 24px rgba(0,0,0,.08)', padding: '28px 24px' }}>
+        .el-inner { max-width: 560px; margin: 0 auto; }
 
-          <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#08162F', marginBottom: '4px' }}>Edit Listing</h1>
-          <p style={{ color: '#9ca3af', fontSize: '13px', marginBottom: '24px' }}>Update your listing details below</p>
+        .el-back {
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 10px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          margin-bottom: 20px;
+          transition: all 0.2s;
+          backdrop-filter: blur(8px);
+        }
+        .el-back:hover { background: rgba(255,255,255,0.18); }
 
-          {error && (
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '16px' }}>
-              {error}
+        .el-card {
+          background: rgba(255,255,255,0.07);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-radius: 24px;
+          border: 1px solid rgba(255,255,255,0.14);
+          padding: 32px 28px;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+        }
+
+        .el-header { text-align: center; margin-bottom: 28px; }
+        .el-header-icon {
+          width: 52px; height: 52px;
+          background: linear-gradient(135deg, #00C896, #059669);
+          border-radius: 14px; display: flex; align-items: center;
+          justify-content: center; font-size: 24px;
+          margin: 0 auto 14px;
+          box-shadow: 0 8px 24px rgba(0,200,150,0.4);
+        }
+        .el-title { font-size: 21px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.4px; }
+        .el-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin: 0; }
+
+        .el-label {
+          display: block; font-size: 12px; font-weight: 600;
+          color: rgba(255,255,255,0.72); margin-bottom: 7px;
+        }
+
+        .el-input {
+          width: 100%; padding: 11px 14px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.16);
+          border-radius: 11px; font-size: 13.5px; color: white;
+          outline: none; box-sizing: border-box; font-family: inherit; transition: all 0.2s;
+        }
+        .el-input::placeholder { color: rgba(255,255,255,0.32); }
+        .el-input:focus {
+          border-color: #00C896;
+          background: rgba(255,255,255,0.14);
+          box-shadow: 0 0 0 3px rgba(0,200,150,0.15);
+        }
+
+        .el-field { margin-bottom: 15px; }
+        .el-hint { font-size: 10.5px; color: rgba(255,255,255,0.38); margin-top: 4px; }
+
+        .el-cat-grid {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 4px;
+        }
+        .el-cat-btn {
+          padding: 9px 10px; border-radius: 9px;
+          border: 1.5px solid rgba(255,255,255,0.13);
+          background: rgba(255,255,255,0.07);
+          color: rgba(255,255,255,0.6); font-weight: 500; font-size: 12px;
+          cursor: pointer; font-family: inherit; text-align: left; transition: all 0.2s;
+        }
+        .el-cat-btn.active {
+          border-color: #00C896;
+          background: rgba(0,200,150,0.15);
+          color: #34d399;
+        }
+        .el-cat-btn:hover { border-color: rgba(255,255,255,0.28); color: white; }
+
+        .el-section-label {
+          font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4);
+          text-transform: uppercase; letter-spacing: 0.8px; margin: 18px 0 10px;
+        }
+
+        .el-location-group { display: flex; flex-direction: column; gap: 8px; }
+
+        .el-error {
+          background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35);
+          color: #fca5a5; padding: 10px 14px; border-radius: 9px;
+          font-size: 13px; margin-bottom: 16px;
+        }
+        .el-success {
+          background: rgba(0,200,150,0.15); border: 1px solid rgba(0,200,150,0.35);
+          color: #6ee7b7; padding: 10px 14px; border-radius: 9px;
+          font-size: 13px; margin-bottom: 16px;
+        }
+
+        .el-btn-row { display: flex; gap: 10px; margin-top: 22px; }
+        .el-cancel-btn {
+          flex: 1; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+          border: 1px solid rgba(255,255,255,0.15); padding: 13px; border-radius: 12px;
+          font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .el-cancel-btn:hover { background: rgba(255,255,255,0.14); }
+        .el-save-btn {
+          flex: 2; background: linear-gradient(135deg, #00C896, #059669);
+          color: white; border: none; padding: 13px; border-radius: 12px;
+          font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit;
+          box-shadow: 0 6px 20px rgba(0,200,150,0.4); transition: all 0.2s;
+        }
+        .el-save-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0,200,150,0.5); }
+        .el-save-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        @media (max-width: 480px) {
+          .el-card { padding: 24px 16px; }
+        }
+      `}</style>
+
+      <div className="el-bg">
+        <div className="el-inner">
+          <button className="el-back" onClick={() => navigate('/my-listings')}>← My Listings</button>
+
+          <div className="el-card">
+            <div className="el-header">
+              <div className="el-header-icon">✏️</div>
+              <h1 className="el-title">Edit Listing</h1>
+              <p className="el-sub">Update your listing details below</p>
             </div>
-          )}
 
-          {success && (
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#16a34a', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '16px' }}>
-              {success}
-            </div>
-          )}
+            {error && <div className="el-error">{error}</div>}
+            {success && <div className="el-success">{success}</div>}
 
-          <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
 
-            <div style={fld}>
-              <label style={lbl}>Title *</label>
-              <input type="text" name="title" value={form.title} onChange={handleChange} placeholder="Enter a clear title" required style={inp} onFocus={onFocus} onBlur={onBlur} />
-            </div>
-
-            <div style={fld}>
-              <label style={lbl}>Description</label>
-              <textarea name="description" value={form.description} onChange={handleChange} placeholder="Describe your listing..." rows={4} style={Object.assign({}, inp, { resize: 'vertical' })} onFocus={onFocus} onBlur={onBlur} />
-            </div>
-
-            <div style={fld}>
-              <label style={lbl}>Price (R) *</label>
-              <input type="number" name="price" value={form.price} onChange={handleChange} placeholder="0.00" required style={inp} onFocus={onFocus} onBlur={onBlur} />
-            </div>
-
-            <div style={fld}>
-              <label style={lbl}>WhatsApp Phone Number *</label>
-              <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="+263771234567" required style={inp} onFocus={onFocus} onBlur={onBlur} />
-            </div>
-
-            <div style={fld}>
-              <label style={lbl}>Location *</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <input type="text" name="country" value={form.location.country} onChange={handleLocation} placeholder="Country" required style={inp} onFocus={onFocus} onBlur={onBlur} />
-                <input type="text" name="city" value={form.location.city} onChange={handleLocation} placeholder="City" required style={inp} onFocus={onFocus} onBlur={onBlur} />
-                <input type="text" name="area" value={form.location.area} onChange={handleLocation} placeholder="Area (optional)" style={inp} onFocus={onFocus} onBlur={onBlur} />
+              <div className="el-field">
+                <label className="el-label">Title *</label>
+                <input className="el-input" type="text" name="title"
+                  value={form.title} onChange={handleChange}
+                  placeholder="Enter a clear title" required />
               </div>
-            </div>
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-              <button
-                type="button"
-                onClick={function() { navigate('/my-listings') }}
-                style={{ flex: 1, background: 'white', color: '#374151', border: '1px solid #e2e8f0', padding: '12px', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-              >Cancel</button>
-              <button
-                type="submit"
-                disabled={saving}
-                style={{ flex: 1, background: saving ? '#6ee7b7' : 'linear-gradient(135deg,#00C896,#059669)', color: 'white', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
-              >{saving ? 'Saving...' : '💾 Save Changes'}</button>
-            </div>
+              <div className="el-field">
+                <label className="el-label">Description</label>
+                <textarea className="el-input" name="description"
+                  value={form.description} onChange={handleChange}
+                  placeholder="Describe your listing..."
+                  rows={4} style={{ resize: 'vertical' }} />
+              </div>
 
-          </form>
+              <div className="el-field">
+                <label className="el-label">Category *</label>
+                <div className="el-cat-grid">
+                  {CATEGORIES.map(cat => (
+                    <button key={cat} type="button"
+                      className={'el-cat-btn' + (form.category === cat ? ' active' : '')}
+                      onClick={() => setForm({ ...form, category: cat })}>
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="el-field">
+                <label className="el-label">Price ($) *</label>
+                <input className="el-input" type="number" name="price"
+                  value={form.price} onChange={handleChange}
+                  placeholder="0.00" required />
+              </div>
+
+              <div className="el-field">
+                <label className="el-label">WhatsApp Number *</label>
+                <input className="el-input" type="tel" name="phone"
+                  value={form.phone} onChange={handleChange}
+                  placeholder="+263771234567" required />
+                <p className="el-hint">Include country code e.g. +263 Zimbabwe, +27 South Africa</p>
+              </div>
+
+              <p className="el-section-label">Location</p>
+              <div className="el-location-group">
+                <input className="el-input" type="text" name="country"
+                  value={form.location.country} onChange={handleLocation}
+                  placeholder="Country (e.g. Zimbabwe)" required />
+                <input className="el-input" type="text" name="city"
+                  value={form.location.city} onChange={handleLocation}
+                  placeholder="City (e.g. Harare)" required />
+                <input className="el-input" type="text" name="area"
+                  value={form.location.area} onChange={handleLocation}
+                  placeholder="Area / Campus (optional)" />
+              </div>
+
+              <div className="el-btn-row">
+                <button type="button" className="el-cancel-btn"
+                  onClick={() => navigate('/my-listings')}>
+                  Cancel
+                </button>
+                <button type="submit" className="el-save-btn" disabled={saving}>
+                  {saving ? 'Saving...' : '💾 Save Changes'}
+                </button>
+              </div>
+
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
