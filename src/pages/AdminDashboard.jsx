@@ -14,7 +14,7 @@ export function AdminLayout({ children, stats }) {
     { to: '/admin/listings', icon: '🛍️', label: 'Listings', badge: stats?.listingCount },
     { to: '/admin/reports', icon: '🚩', label: 'Reports', badge: stats?.reportCount, alert: stats?.reportCount > 0 },
     { to: '/admin/analytics', icon: '📈', label: 'Analytics' },
-    { to: '/admin/activity', icon: '💬', label: 'Activity Feed' },
+    { to: '/admin/activity', icon: '💬', label: 'Activity' },
   ]
 
   const isActive = (to, exact) => exact
@@ -42,6 +42,7 @@ export function AdminLayout({ children, stats }) {
           background: #f4f7fb;
         }
 
+        /* ── Desktop Sidebar ── */
         .adm-sidebar {
           width: 220px;
           flex-shrink: 0;
@@ -85,14 +86,15 @@ export function AdminLayout({ children, stats }) {
           display: flex; align-items: center; gap: 9px;
           padding: 9px 10px; border-radius: 10px; font-size: 13px; font-weight: 600;
           color: rgba(255,255,255,0.55); text-decoration: none; transition: all 0.2s;
-          margin-bottom: 2px; position: relative;
+          margin-bottom: 2px;
         }
         .adm-nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
         .adm-nav-item.active { background: rgba(0,200,150,0.14); color: #34d399; }
         .adm-nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
         .adm-nav-badge {
           margin-left: auto; background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.5);
-          font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 10px; min-width: 20px; text-align: center;
+          font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 10px;
+          min-width: 20px; text-align: center;
         }
         .adm-nav-item.active .adm-nav-badge { background: rgba(0,200,150,0.2); color: #34d399; }
         .adm-nav-badge.alert { background: rgba(239,68,68,0.2); color: #f87171; }
@@ -100,11 +102,95 @@ export function AdminLayout({ children, stats }) {
         .adm-sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.07); }
         .adm-back-btn {
           display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 10px;
-          font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); text-decoration: none;
-          transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit;
+          font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4);
+          transition: all 0.2s; cursor: pointer; border: none; background: none;
+          width: 100%; font-family: inherit; text-decoration: none;
         }
         .adm-back-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
 
+        /* ── Mobile Top Tab Bar ── */
+        .adm-mobile-nav {
+          display: none;
+          background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          position: sticky;
+          top: 60px;
+          z-index: 100;
+        }
+
+        .adm-mobile-nav-scroll {
+          display: flex;
+          overflow-x: auto;
+          scrollbar-width: none;
+          padding: 8px 12px;
+          gap: 6px;
+        }
+        .adm-mobile-nav-scroll::-webkit-scrollbar { display: none; }
+
+        .adm-mobile-tab {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          padding: 8px 14px;
+          border-radius: 12px;
+          border: none;
+          background: rgba(255,255,255,0.06);
+          color: rgba(255,255,255,0.5);
+          font-family: inherit;
+          font-size: 10.5px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+          flex-shrink: 0;
+          white-space: nowrap;
+          position: relative;
+          text-decoration: none;
+        }
+        .adm-mobile-tab:hover { background: rgba(255,255,255,0.1); color: white; }
+        .adm-mobile-tab.active {
+          background: rgba(0,200,150,0.18);
+          color: #34d399;
+          border: 1px solid rgba(0,200,150,0.3);
+        }
+
+        .adm-mobile-tab-icon { font-size: 18px; line-height: 1; }
+
+        .adm-mobile-badge {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          background: #ef4444;
+          color: white;
+          font-size: 9px;
+          font-weight: 800;
+          min-width: 16px;
+          height: 16px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 4px;
+        }
+
+        .adm-mobile-back-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 14px 0;
+        }
+        .adm-mobile-back {
+          background: none; border: none; color: rgba(255,255,255,0.5);
+          font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+          display: flex; align-items: center; gap: 5px; padding: 0;
+        }
+        .adm-mobile-back:hover { color: white; }
+        .adm-mobile-admin-label {
+          font-size: 10px; font-weight: 800; color: #34d399;
+          letter-spacing: 0.5px; text-transform: uppercase;
+        }
+
+        /* ── Main content ── */
         .adm-main { flex: 1; padding: 26px 26px 60px; min-width: 0; overflow: hidden; }
 
         .adm-page-header { margin-bottom: 22px; }
@@ -158,50 +244,82 @@ export function AdminLayout({ children, stats }) {
         }
         .adm-action-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 
+        /* ── Responsive ── */
         @media (max-width: 900px) {
           .adm-sidebar { display: none; }
-          .adm-main { padding: 18px 14px 60px; }
+          .adm-mobile-nav { display: block; }
+          .adm-main { padding: 16px 14px 80px; }
           .adm-stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 480px) {
           .adm-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+          .adm-main { padding: 14px 12px 80px; }
         }
       `}</style>
 
-      <div className="adm-wrap">
-        <aside className="adm-sidebar">
-          <div className="adm-sidebar-top">
-            <div className="adm-sidebar-badge">🛡️ ADMIN</div>
-            <p className="adm-sidebar-title">Scalablenexus Admin</p>
-            <p className="adm-sidebar-sub">{user?.name}</p>
-          </div>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 60px)' }}>
 
-          <nav className="adm-nav">
-            <p className="adm-nav-label">Main</p>
-            {navItems.slice(0, 4).map(item => (
-              <Link key={item.to} to={item.to} className={'adm-nav-item' + (isActive(item.to, item.exact) ? ' active' : '')}>
-                <span className="adm-nav-icon">{item.icon}</span>
-                {item.label}
-                {item.badge !== undefined && (
-                  <span className={'adm-nav-badge' + (item.alert ? ' alert' : '')}>{item.badge}</span>
+        {/* Mobile top nav — only visible on mobile */}
+        <div className="adm-mobile-nav">
+          <div className="adm-mobile-back-row">
+            <button className="adm-mobile-back" onClick={() => navigate('/')}>
+              ← Back to Site
+            </button>
+            <span className="adm-mobile-admin-label">🛡️ Admin</span>
+          </div>
+          <div className="adm-mobile-nav-scroll">
+            {navItems.map(item => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={'adm-mobile-tab' + (isActive(item.to, item.exact) ? ' active' : '')}
+              >
+                {item.alert && item.badge > 0 && (
+                  <span className="adm-mobile-badge">{item.badge}</span>
                 )}
-              </Link>
-            ))}
-            <p className="adm-nav-label" style={{ marginTop: '14px' }}>Insights</p>
-            {navItems.slice(4).map(item => (
-              <Link key={item.to} to={item.to} className={'adm-nav-item' + (isActive(item.to, item.exact) ? ' active' : '')}>
-                <span className="adm-nav-icon">{item.icon}</span>
+                <span className="adm-mobile-tab-icon">{item.icon}</span>
                 {item.label}
               </Link>
             ))}
-          </nav>
-
-          <div className="adm-sidebar-footer">
-            <button className="adm-back-btn" onClick={() => navigate('/')}>← Back to Site</button>
           </div>
-        </aside>
+        </div>
 
-        <main className="adm-main">{children}</main>
+        {/* Desktop layout */}
+        <div className="adm-wrap">
+          <aside className="adm-sidebar">
+            <div className="adm-sidebar-top">
+              <div className="adm-sidebar-badge">🛡️ ADMIN</div>
+              <p className="adm-sidebar-title">Scalablenexus Admin</p>
+              <p className="adm-sidebar-sub">{user?.name}</p>
+            </div>
+
+            <nav className="adm-nav">
+              <p className="adm-nav-label">Main</p>
+              {navItems.slice(0, 4).map(item => (
+                <Link key={item.to} to={item.to} className={'adm-nav-item' + (isActive(item.to, item.exact) ? ' active' : '')}>
+                  <span className="adm-nav-icon">{item.icon}</span>
+                  {item.label}
+                  {item.badge !== undefined && (
+                    <span className={'adm-nav-badge' + (item.alert ? ' alert' : '')}>{item.badge}</span>
+                  )}
+                </Link>
+              ))}
+              <p className="adm-nav-label" style={{ marginTop: '14px' }}>Insights</p>
+              {navItems.slice(4).map(item => (
+                <Link key={item.to} to={item.to} className={'adm-nav-item' + (isActive(item.to, item.exact) ? ' active' : '')}>
+                  <span className="adm-nav-icon">{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="adm-sidebar-footer">
+              <button className="adm-back-btn" onClick={() => navigate('/')}>← Back to Site</button>
+            </div>
+          </aside>
+
+          <main className="adm-main">{children}</main>
+        </div>
       </div>
     </>
   )
