@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -52,11 +53,28 @@ const CATEGORIES = [
   { icon: '📦', label: 'Other', to: '/marketplace?category=Other' },
 ]
 
+const TRUST_ITEMS = [
+  { icon: '🛡️', bg: 'rgba(0,200,150,0.15)', label: 'Verified Sellers', sub: 'Trusted community' },
+  { icon: '💬', bg: 'rgba(0,200,150,0.15)', label: 'WhatsApp Contact', sub: 'Direct communication' },
+  { icon: '⚡', bg: 'rgba(245,158,11,0.15)', label: 'Fast & Reliable', sub: 'Quick responses' },
+  { icon: '🔒', bg: 'rgba(37,99,235,0.15)', label: 'Safe & Secure', sub: 'Your safety first' },
+]
+
+const QUICK_LINKS = [
+  { icon: '🛍️', label: 'Marketplace', to: '/marketplace', color: '#00C896' },
+  { icon: '🧑‍💼', label: 'Services', to: '/services', color: '#2563EB' },
+  { icon: '💼', label: 'Jobs', to: '/jobs', color: '#7C3AED' },
+  { icon: '🎉', label: 'Events', to: '/events', color: '#F59E0B' },
+  { icon: '🏠', label: 'Accommodation', to: '/accommodation', color: '#EF4444' },
+]
+
 export default function Hero() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [slide, setSlide] = useState(0)
   const [animating, setAnimating] = useState(false)
+  const [trustIndex, setTrustIndex] = useState(0)
+  const [trustAnimating, setTrustAnimating] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -66,6 +84,18 @@ export default function Hero() {
         setAnimating(false)
       }, 300)
     }, 5000)
+    return () => clearInterval(timer)
+  }, [])
+
+  // Auto-slide trust strip
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTrustAnimating(true)
+      setTimeout(() => {
+        setTrustIndex(prev => (prev + 1) % TRUST_ITEMS.length)
+        setTrustAnimating(false)
+      }, 350)
+    }, 2800)
     return () => clearInterval(timer)
   }, [])
 
@@ -79,6 +109,7 @@ export default function Hero() {
   }
 
   const current = SLIDES[slide]
+  const trustItem = TRUST_ITEMS[trustIndex]
 
   return (
     <>
@@ -86,6 +117,57 @@ export default function Hero() {
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
         .sk-hero-wrap { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* ── QUICK ACCESS ICON ROW ── */
+        .sk-quick-row {
+          background: #08162F;
+          padding: 10px 16px 12px;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .sk-quick-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 5px;
+          cursor: pointer;
+          background: none;
+          border: none;
+          font-family: inherit;
+          padding: 4px 6px;
+          border-radius: 10px;
+          transition: background 0.18s;
+          flex: 1;
+          max-width: 72px;
+        }
+        .sk-quick-item:hover { background: rgba(255,255,255,0.07); }
+        .sk-quick-circle {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          background: rgba(255,255,255,0.08);
+          border: 1.5px solid rgba(255,255,255,0.1);
+          transition: all 0.2s;
+        }
+        .sk-quick-item:hover .sk-quick-circle {
+          background: rgba(255,255,255,0.14);
+          border-color: rgba(255,255,255,0.22);
+          transform: translateY(-2px);
+        }
+        .sk-quick-label {
+          font-size: 9.5px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.65);
+          text-align: center;
+          white-space: nowrap;
+          letter-spacing: 0.2px;
+        }
 
         /* Carousel */
         .sk-carousel {
@@ -204,15 +286,14 @@ export default function Hero() {
           letter-spacing: 0.5px;
         }
 
-        /* Search Section */
+        /* ── FLOATING SEARCH ── */
         .sk-search-section {
-          background: white;
-          padding: 14px 20px;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+          padding: 0 16px;
           position: sticky;
           top: 60px;
           z-index: 90;
-          border-bottom: 1px solid #f1f5f9;
+          margin-top: -22px;
+          pointer-events: none;
         }
         .sk-search-inner {
           max-width: 720px;
@@ -220,23 +301,26 @@ export default function Hero() {
           display: flex;
           gap: 8px;
           align-items: center;
+          pointer-events: all;
+          filter: drop-shadow(0 4px 20px rgba(0,0,0,0.22));
         }
         .sk-search-bar {
           flex: 1;
           display: flex;
           align-items: center;
-          background: #f8fafc;
-          border: 1.5px solid #e2e8f0;
+          background: rgba(255,255,255,0.96);
+          border: 1.5px solid rgba(255,255,255,0.6);
           border-radius: 11px;
-          height: 42px;
+          height: 44px;
           padding: 0 14px;
           gap: 8px;
           transition: all 0.2s;
+          backdrop-filter: blur(8px);
         }
         .sk-search-bar:focus-within {
           border-color: #00C896;
           background: white;
-          box-shadow: 0 0 0 3px rgba(0,200,150,0.1);
+          box-shadow: 0 0 0 3px rgba(0,200,150,0.15);
         }
         .sk-search-icon { font-size: 15px; flex-shrink: 0; color: #9ca3af; }
         .sk-search-input {
@@ -250,7 +334,7 @@ export default function Hero() {
         }
         .sk-search-input::placeholder { color: #9ca3af; }
         .sk-search-submit {
-          height: 42px;
+          height: 44px;
           padding: 0 20px;
           background: linear-gradient(135deg, #08162F, #1e3a8a);
           color: white;
@@ -266,7 +350,7 @@ export default function Hero() {
         }
         .sk-search-submit:hover { transform: translateY(-1px); filter: brightness(1.12); }
         .sk-post-quick {
-          height: 42px;
+          height: 44px;
           padding: 0 16px;
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: #1e3a5f;
@@ -286,51 +370,71 @@ export default function Hero() {
         }
         .sk-post-quick:hover { transform: translateY(-1px); }
 
-        /* Trust Strip — desktop: single row flex */
+        /* ── TRUST STRIP — single sliding item ── */
         .sk-trust-strip {
           background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
-          display: flex;
-          align-items: stretch;
-          justify-content: center;
-        }
-        .sk-trust-item {
+          padding: 13px 20px;
+          margin-top: 28px;
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 13px 28px;
-          border-right: 1px solid rgba(255,255,255,0.07);
-          flex: 1;
-          min-width: 0;
-          max-width: 260px;
+          justify-content: center;
+          min-height: 60px;
+          overflow: hidden;
         }
-        .sk-trust-item:last-child { border-right: none; }
+        .sk-trust-slide-wrap {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .sk-trust-slide-wrap.trust-out {
+          opacity: 0;
+          transform: translateX(-28px);
+        }
+        .sk-trust-slide-wrap.trust-in {
+          opacity: 1;
+          transform: translateX(0);
+        }
         .sk-trust-icon-wrap {
-          width: 34px;
-          height: 34px;
+          width: 38px;
+          height: 38px;
           border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 18px;
           flex-shrink: 0;
         }
-        .sk-trust-text { min-width: 0; overflow: hidden; }
         .sk-trust-label {
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 700;
           color: white;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
         }
         .sk-trust-sub {
-          font-size: 10.5px;
+          font-size: 11px;
           color: rgba(255,255,255,0.45);
           font-weight: 500;
-          margin-top: 1px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          margin-top: 2px;
+        }
+        .sk-trust-dots {
+          display: flex;
+          gap: 5px;
+          margin-left: 18px;
+        }
+        .sk-trust-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.25);
+          cursor: pointer;
+          border: none;
+          padding: 0;
+          transition: all 0.3s;
+        }
+        .sk-trust-dot.active {
+          background: #00C896;
+          width: 14px;
+          border-radius: 3px;
         }
 
         /* Category Section */
@@ -417,40 +521,28 @@ export default function Hero() {
           .sk-carousel { padding: 32px 20px 52px; min-height: 280px; }
           .sk-post-quick { display: none; }
           .sk-search-inner { gap: 7px; }
-
-          /* Trust strip becomes a clean 2x2 grid on mobile */
-          .sk-trust-strip {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-          }
-          .sk-trust-item {
-            max-width: none;
-            min-width: 0;
-            padding: 12px 12px;
-            border-right: 1px solid rgba(255,255,255,0.07);
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            align-items: center;
-          }
-          /* remove right border on right column items (2nd, 4th) */
-          .sk-trust-item:nth-child(2n) { border-right: none; }
-          /* remove bottom border on last row items (3rd, 4th) */
-          .sk-trust-item:nth-child(3), .sk-trust-item:nth-child(4) { border-bottom: none; }
-
-          .sk-trust-icon-wrap { width: 30px; height: 30px; font-size: 14px; }
-          .sk-trust-label { font-size: 11.5px; }
-          .sk-trust-sub { display: block; font-size: 10px; }
+          .sk-search-section { margin-top: -20px; padding: 0 12px; }
         }
 
         @media (max-width: 420px) {
-          .sk-trust-item { padding: 10px 8px; gap: 8px; }
-          .sk-trust-icon-wrap { width: 28px; height: 28px; font-size: 13px; }
-          .sk-trust-label { font-size: 11px; }
-          .sk-trust-sub { font-size: 9.5px; }
+          .sk-quick-circle { width: 40px; height: 40px; font-size: 18px; }
+          .sk-quick-label { font-size: 9px; }
         }
       `}</style>
 
       <div className="sk-hero-wrap">
+
+        {/* ── Quick Access Icon Row (below navbar) ── */}
+        <div className="sk-quick-row">
+          {QUICK_LINKS.map(item => (
+            <button key={item.label} className="sk-quick-item" onClick={() => navigate(item.to)}>
+              <div className="sk-quick-circle" style={{ borderColor: `${item.color}44` }}>
+                {item.icon}
+              </div>
+              <span className="sk-quick-label">{item.label}</span>
+            </button>
+          ))}
+        </div>
 
         {/* Hero Carousel */}
         <div
@@ -494,7 +586,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Sticky Search */}
+        {/* ── Floating Search ── */}
         <div className="sk-search-section">
           <div className="sk-search-inner">
             <div className="sk-search-bar">
@@ -515,22 +607,26 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Trust Strip — 4 items, grid on mobile, row on desktop */}
+        {/* ── Trust Strip — auto-sliding single feature ── */}
         <div className="sk-trust-strip">
-          {[
-            { icon: '🛡️', bg: 'rgba(0,200,150,0.15)', label: 'Verified Sellers', sub: 'Trusted community' },
-            { icon: '💬', bg: 'rgba(0,200,150,0.15)', label: 'WhatsApp Contact', sub: 'Direct communication' },
-            { icon: '⚡', bg: 'rgba(245,158,11,0.15)', label: 'Fast & Reliable', sub: 'Quick responses' },
-            { icon: '🔒', bg: 'rgba(37,99,235,0.15)', label: 'Safe & Secure', sub: 'Your safety first' },
-          ].map(item => (
-            <div key={item.label} className="sk-trust-item">
-              <div className="sk-trust-icon-wrap" style={{ background: item.bg }}>{item.icon}</div>
-              <div className="sk-trust-text">
-                <div className="sk-trust-label">{item.label}</div>
-                <div className="sk-trust-sub">{item.sub}</div>
-              </div>
+          <div className={`sk-trust-slide-wrap ${trustAnimating ? 'trust-out' : 'trust-in'}`}>
+            <div className="sk-trust-icon-wrap" style={{ background: trustItem.bg }}>
+              {trustItem.icon}
             </div>
-          ))}
+            <div>
+              <div className="sk-trust-label">{trustItem.label}</div>
+              <div className="sk-trust-sub">{trustItem.sub}</div>
+            </div>
+          </div>
+          <div className="sk-trust-dots">
+            {TRUST_ITEMS.map((_, i) => (
+              <button
+                key={i}
+                className={`sk-trust-dot ${i === trustIndex ? 'active' : ''}`}
+                onClick={() => { setTrustAnimating(true); setTimeout(() => { setTrustIndex(i); setTrustAnimating(false) }, 350) }}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Shop by Category */}
