@@ -503,12 +503,12 @@ export default function Navbar() {
 
           {/* Mobile: Profile icon instead of hamburger */}
           <button
-            className="sk-mobile-profile-btn"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Profile menu"
-          >
-            {user ? user.name?.charAt(0).toUpperCase() : '👤'}
-          </button>
+  className="sk-mobile-profile-btn"
+  onClick={() => navigate('/profile-menu')}
+  aria-label="Profile menu"
+>
+  {user ? user.name?.charAt(0).toUpperCase() : '👤'}
+</button>
         </div>
 
         {/* Mobile profile drawer */}
