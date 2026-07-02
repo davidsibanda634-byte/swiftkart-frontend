@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -42,15 +41,15 @@ const SLIDES = [
 ]
 
 const CATEGORIES = [
-  { icon: '👗', label: 'Fashion', to: '/marketplace?category=Fashion' },
-  { icon: '📱', label: 'Electronics', to: '/marketplace?category=Electronics' },
-  { icon: '💄', label: 'Cosmetics', to: '/marketplace?category=Cosmetics & Hair' },
-  { icon: '🚗', label: 'Vehicles', to: '/marketplace?category=Vehicles' },
-  { icon: '🛋️', label: 'Furniture', to: '/marketplace?category=Furniture' },
-  { icon: '🍔', label: 'Food', to: '/marketplace?category=Food' },
-  { icon: '🧑‍💼', label: 'Services', to: '/services' },
-  { icon: '💼', label: 'Jobs', to: '/jobs' },
-  { icon: '📦', label: 'Other', to: '/marketplace?category=Other' },
+  { icon: '👗', label: 'Fashion', category: 'Fashion' },
+  { icon: '📱', label: 'Electronics', category: 'Electronics' },
+  { icon: '💄', label: 'Cosmetics', category: 'Cosmetics & Hair' },
+  { icon: '🚗', label: 'Vehicles', category: 'Vehicles' },
+  { icon: '🛋️', label: 'Furniture', category: 'Furniture' },
+  { icon: '🍔', label: 'Food', category: 'Food' },
+  { icon: '🧑‍💼', label: 'Services', category: null, to: '/services' },
+  { icon: '💼', label: 'Jobs', category: null, to: '/jobs' },
+  { icon: '📦', label: 'Other', category: 'Other' },
 ]
 
 const TRUST_ITEMS = [
@@ -87,7 +86,6 @@ export default function Hero() {
     return () => clearInterval(timer)
   }, [])
 
-  // Auto-slide trust strip
   useEffect(() => {
     const timer = setInterval(() => {
       setTrustAnimating(true)
@@ -121,7 +119,7 @@ export default function Hero() {
         /* ── QUICK ACCESS ICON ROW ── */
         .sk-quick-row {
           background: #08162F;
-          padding: 10px 16px 12px;
+          padding: 6px 12px 8px;
           display: flex;
           justify-content: space-around;
           align-items: center;
@@ -131,26 +129,26 @@ export default function Hero() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 5px;
+          gap: 3px;
           cursor: pointer;
           background: none;
           border: none;
           font-family: inherit;
-          padding: 4px 6px;
-          border-radius: 10px;
+          padding: 3px 4px;
+          border-radius: 8px;
           transition: background 0.18s;
           flex: 1;
-          max-width: 72px;
+          max-width: 60px;
         }
         .sk-quick-item:hover { background: rgba(255,255,255,0.07); }
         .sk-quick-circle {
-          width: 44px;
-          height: 44px;
-          border-radius: 12px;
+          width: 34px;
+          height: 34px;
+          border-radius: 9px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 20px;
+          font-size: 16px;
           background: rgba(255,255,255,0.08);
           border: 1.5px solid rgba(255,255,255,0.1);
           transition: all 0.2s;
@@ -161,9 +159,9 @@ export default function Hero() {
           transform: translateY(-2px);
         }
         .sk-quick-label {
-          font-size: 9.5px;
+          font-size: 8.5px;
           font-weight: 700;
-          color: rgba(255,255,255,0.65);
+          color: rgba(255,255,255,0.6);
           text-align: center;
           white-space: nowrap;
           letter-spacing: 0.2px;
@@ -292,7 +290,7 @@ export default function Hero() {
           position: sticky;
           top: 60px;
           z-index: 90;
-          margin-top: -22px;
+          margin-top: -24px;
           pointer-events: none;
         }
         .sk-search-inner {
@@ -302,44 +300,44 @@ export default function Hero() {
           gap: 8px;
           align-items: center;
           pointer-events: all;
-          filter: drop-shadow(0 4px 20px rgba(0,0,0,0.22));
+          filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
         }
         .sk-search-bar {
           flex: 1;
           display: flex;
           align-items: center;
-          background: rgba(255,255,255,0.96);
-          border: 1.5px solid rgba(255,255,255,0.6);
-          border-radius: 11px;
+          background: rgba(8,22,47,0.55);
+          border: 1.5px solid rgba(255,255,255,0.22);
+          border-radius: 50px;
           height: 44px;
-          padding: 0 14px;
+          padding: 0 16px;
           gap: 8px;
           transition: all 0.2s;
-          backdrop-filter: blur(8px);
+          backdrop-filter: blur(10px);
         }
         .sk-search-bar:focus-within {
           border-color: #00C896;
-          background: white;
-          box-shadow: 0 0 0 3px rgba(0,200,150,0.15);
+          background: rgba(8,22,47,0.75);
+          box-shadow: 0 0 0 3px rgba(0,200,150,0.2);
         }
-        .sk-search-icon { font-size: 15px; flex-shrink: 0; color: #9ca3af; }
+        .sk-search-icon { font-size: 14px; flex-shrink: 0; color: rgba(255,255,255,0.5); }
         .sk-search-input {
           flex: 1;
           border: none;
           outline: none;
           font-size: 13px;
-          color: #1f2937;
+          color: white;
           font-family: inherit;
           background: transparent;
         }
-        .sk-search-input::placeholder { color: #9ca3af; }
+        .sk-search-input::placeholder { color: rgba(255,255,255,0.45); }
         .sk-search-submit {
           height: 44px;
           padding: 0 20px;
-          background: linear-gradient(135deg, #08162F, #1e3a8a);
+          background: linear-gradient(135deg, #00C896, #059669);
           color: white;
           border: none;
-          border-radius: 11px;
+          border-radius: 50px;
           font-size: 13px;
           font-weight: 700;
           cursor: pointer;
@@ -347,15 +345,16 @@ export default function Hero() {
           transition: all 0.2s;
           white-space: nowrap;
           flex-shrink: 0;
+          box-shadow: 0 4px 14px rgba(0,200,150,0.4);
         }
-        .sk-search-submit:hover { transform: translateY(-1px); filter: brightness(1.12); }
+        .sk-search-submit:hover { transform: translateY(-1px); filter: brightness(1.08); }
         .sk-post-quick {
           height: 44px;
           padding: 0 16px;
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: #1e3a5f;
           border: none;
-          border-radius: 11px;
+          border-radius: 50px;
           font-size: 13px;
           font-weight: 800;
           cursor: pointer;
@@ -525,8 +524,8 @@ export default function Hero() {
         }
 
         @media (max-width: 420px) {
-          .sk-quick-circle { width: 40px; height: 40px; font-size: 18px; }
-          .sk-quick-label { font-size: 9px; }
+          .sk-quick-circle { width: 30px; height: 30px; font-size: 14px; }
+          .sk-quick-label { font-size: 8px; }
         }
       `}</style>
 
@@ -545,10 +544,7 @@ export default function Hero() {
         </div>
 
         {/* Hero Carousel */}
-        <div
-          className="sk-carousel"
-          style={{ backgroundImage: current.bg }}
-        >
+        <div className="sk-carousel" style={{ backgroundImage: current.bg }}>
           <div className="sk-slide-counter">{slide + 1} / {SLIDES.length}</div>
 
           <div className={`sk-carousel-content ${animating ? 'fade' : ''}`}>
@@ -623,7 +619,10 @@ export default function Hero() {
               <button
                 key={i}
                 className={`sk-trust-dot ${i === trustIndex ? 'active' : ''}`}
-                onClick={() => { setTrustAnimating(true); setTimeout(() => { setTrustIndex(i); setTrustAnimating(false) }, 350) }}
+                onClick={() => {
+                  setTrustAnimating(true)
+                  setTimeout(() => { setTrustIndex(i); setTrustAnimating(false) }, 350)
+                }}
               />
             ))}
           </div>
@@ -640,7 +639,14 @@ export default function Hero() {
             </div>
             <div className="sk-cat-icons-row">
               {CATEGORIES.map(cat => (
-                <button key={cat.label} className="sk-cat-icon-item" onClick={() => navigate(cat.to)}>
+                <button
+                  key={cat.label}
+                  className="sk-cat-icon-item"
+                  onClick={() => cat.to
+                    ? navigate(cat.to)
+                    : navigate('/marketplace?category=' + encodeURIComponent(cat.category))
+                  }
+                >
                   <div className="sk-cat-icon-circle">{cat.icon}</div>
                   <span className="sk-cat-icon-label">{cat.label}</span>
                 </button>
