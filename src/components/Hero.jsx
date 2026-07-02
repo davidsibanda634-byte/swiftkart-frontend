@@ -167,7 +167,7 @@ export default function Hero() {
           letter-spacing: 0.2px;
         }
 
-        /* Carousel */
+        /* ── CAROUSEL ── */
         .sk-carousel {
           position: relative;
           min-height: 340px;
@@ -175,14 +175,12 @@ export default function Hero() {
           flex-direction: column;
           align-items: flex-start;
           justify-content: center;
-          padding: 48px 60px 56px;
+          padding: 48px 60px 80px;
           text-align: left;
           overflow: hidden;
           background-size: cover !important;
           background-position: center !important;
-          transition: background-image 0.5s ease;
         }
-
         .sk-carousel-content {
           transition: opacity 0.3s ease, transform 0.3s ease;
           max-width: 540px;
@@ -191,7 +189,6 @@ export default function Hero() {
           opacity: 0;
           transform: translateY(8px);
         }
-
         .sk-slide-badge {
           display: inline-flex;
           align-items: center;
@@ -205,7 +202,6 @@ export default function Hero() {
           margin-bottom: 14px;
           border: 1px solid;
         }
-
         .sk-carousel h1 {
           color: white;
           font-size: clamp(24px, 4vw, 44px);
@@ -216,14 +212,12 @@ export default function Hero() {
           text-shadow: 0 2px 20px rgba(0,0,0,0.4);
           white-space: pre-line;
         }
-
         .sk-carousel-sub {
           color: rgba(255,255,255,0.7);
           font-size: 14px;
           margin: 0 0 26px;
           line-height: 1.6;
         }
-
         .sk-carousel-cta {
           border: none;
           padding: 11px 26px;
@@ -240,10 +234,9 @@ export default function Hero() {
           box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         }
         .sk-carousel-cta:hover { transform: translateY(-2px); filter: brightness(1.06); }
-
         .sk-slide-dots {
           position: absolute;
-          bottom: 18px;
+          bottom: 52px;
           right: 24px;
           display: flex;
           align-items: center;
@@ -253,7 +246,6 @@ export default function Hero() {
           padding: 5px 10px;
           border-radius: 20px;
         }
-
         .sk-slide-dot {
           width: 6px;
           height: 6px;
@@ -269,7 +261,6 @@ export default function Hero() {
           border-radius: 3px;
           background: white;
         }
-
         .sk-slide-counter {
           position: absolute;
           top: 16px;
@@ -284,13 +275,12 @@ export default function Hero() {
           letter-spacing: 0.5px;
         }
 
-        /* ── FLOATING SEARCH ── */
+        /* ── FLOATING SEARCH — overlaps carousel bottom ── */
         .sk-search-section {
-          padding: 0 16px;
-          position: sticky;
-          top: 60px;
+          position: relative;
           z-index: 90;
-          margin-top: -24px;
+          margin-top: -28px;
+          padding: 0 16px 0;
           pointer-events: none;
         }
         .sk-search-inner {
@@ -300,27 +290,32 @@ export default function Hero() {
           gap: 8px;
           align-items: center;
           pointer-events: all;
-          filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
         }
         .sk-search-bar {
           flex: 1;
           display: flex;
           align-items: center;
-          background: rgba(8,22,47,0.55);
-          border: 1.5px solid rgba(255,255,255,0.22);
+          background: rgba(8, 22, 47, 0.72);
+          border: 1.5px solid rgba(255,255,255,0.2);
           border-radius: 50px;
-          height: 44px;
-          padding: 0 16px;
-          gap: 8px;
+          height: 46px;
+          padding: 0 18px;
+          gap: 10px;
           transition: all 0.2s;
-          backdrop-filter: blur(10px);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
         }
         .sk-search-bar:focus-within {
           border-color: #00C896;
-          background: rgba(8,22,47,0.75);
-          box-shadow: 0 0 0 3px rgba(0,200,150,0.2);
+          background: rgba(8, 22, 47, 0.88);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 3px rgba(0,200,150,0.2);
         }
-        .sk-search-icon { font-size: 14px; flex-shrink: 0; color: rgba(255,255,255,0.5); }
+        .sk-search-icon {
+          font-size: 15px;
+          flex-shrink: 0;
+          color: rgba(255,255,255,0.4);
+        }
         .sk-search-input {
           flex: 1;
           border: none;
@@ -329,11 +324,12 @@ export default function Hero() {
           color: white;
           font-family: inherit;
           background: transparent;
+          font-weight: 500;
         }
-        .sk-search-input::placeholder { color: rgba(255,255,255,0.45); }
+        .sk-search-input::placeholder { color: rgba(255,255,255,0.38); }
         .sk-search-submit {
-          height: 44px;
-          padding: 0 20px;
+          height: 46px;
+          padding: 0 22px;
           background: linear-gradient(135deg, #00C896, #059669);
           color: white;
           border: none;
@@ -345,12 +341,12 @@ export default function Hero() {
           transition: all 0.2s;
           white-space: nowrap;
           flex-shrink: 0;
-          box-shadow: 0 4px 14px rgba(0,200,150,0.4);
+          box-shadow: 0 4px 14px rgba(0,200,150,0.45);
         }
         .sk-search-submit:hover { transform: translateY(-1px); filter: brightness(1.08); }
         .sk-post-quick {
-          height: 44px;
-          padding: 0 16px;
+          height: 46px;
+          padding: 0 18px;
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: #1e3a5f;
           border: none;
@@ -365,7 +361,7 @@ export default function Hero() {
           display: flex;
           align-items: center;
           gap: 5px;
-          box-shadow: 0 3px 10px rgba(245,158,11,0.3);
+          box-shadow: 0 4px 14px rgba(245,158,11,0.4);
         }
         .sk-post-quick:hover { transform: translateY(-1px); }
 
@@ -373,7 +369,7 @@ export default function Hero() {
         .sk-trust-strip {
           background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
           padding: 13px 20px;
-          margin-top: 28px;
+          margin-top: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -404,39 +400,17 @@ export default function Hero() {
           font-size: 18px;
           flex-shrink: 0;
         }
-        .sk-trust-label {
-          font-size: 13px;
-          font-weight: 700;
-          color: white;
-        }
-        .sk-trust-sub {
-          font-size: 11px;
-          color: rgba(255,255,255,0.45);
-          font-weight: 500;
-          margin-top: 2px;
-        }
-        .sk-trust-dots {
-          display: flex;
-          gap: 5px;
-          margin-left: 18px;
-        }
+        .sk-trust-label { font-size: 13px; font-weight: 700; color: white; }
+        .sk-trust-sub { font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 500; margin-top: 2px; }
+        .sk-trust-dots { display: flex; gap: 5px; margin-left: 18px; }
         .sk-trust-dot {
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
+          width: 5px; height: 5px; border-radius: 50%;
           background: rgba(255,255,255,0.25);
-          cursor: pointer;
-          border: none;
-          padding: 0;
-          transition: all 0.3s;
+          cursor: pointer; border: none; padding: 0; transition: all 0.3s;
         }
-        .sk-trust-dot.active {
-          background: #00C896;
-          width: 14px;
-          border-radius: 3px;
-        }
+        .sk-trust-dot.active { background: #00C896; width: 14px; border-radius: 3px; }
 
-        /* Category Section */
+        /* ── CATEGORY SECTION ── */
         .sk-cat-section {
           background: white;
           padding: 18px 20px 22px;
@@ -451,78 +425,46 @@ export default function Hero() {
         }
         .sk-cat-sec-title { font-size: 14.5px; font-weight: 800; color: #0f172a; }
         .sk-cat-sec-viewall {
-          font-size: 12px;
-          font-weight: 700;
-          color: #00C896;
-          text-decoration: none;
-          cursor: pointer;
-          background: none;
-          border: none;
-          font-family: inherit;
-          transition: opacity 0.2s;
+          font-size: 12px; font-weight: 700; color: #00C896;
+          text-decoration: none; cursor: pointer; background: none;
+          border: none; font-family: inherit; transition: opacity 0.2s;
         }
         .sk-cat-sec-viewall:hover { opacity: 0.75; }
-
         .sk-cat-icons-row {
-          display: flex;
-          gap: 6px;
-          justify-content: space-between;
-          overflow-x: auto;
-          padding-bottom: 4px;
-          scrollbar-width: none;
+          display: flex; gap: 6px; justify-content: space-between;
+          overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
         }
         .sk-cat-icons-row::-webkit-scrollbar { display: none; }
-
         .sk-cat-icon-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-          cursor: pointer;
-          background: none;
-          border: none;
-          font-family: inherit;
-          padding: 0;
-          flex-shrink: 0;
-          min-width: 58px;
-          transition: transform 0.2s;
+          display: flex; flex-direction: column; align-items: center; gap: 6px;
+          cursor: pointer; background: none; border: none; font-family: inherit;
+          padding: 0; flex-shrink: 0; min-width: 58px; transition: transform 0.2s;
         }
         .sk-cat-icon-item:hover { transform: translateY(-3px); }
-
         .sk-cat-icon-circle {
-          width: 50px;
-          height: 50px;
-          border-radius: 14px;
+          width: 50px; height: 50px; border-radius: 14px;
           background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-          border: 1.5px solid #e2e8f0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 21px;
-          transition: all 0.2s;
+          border: 1.5px solid #e2e8f0; display: flex; align-items: center;
+          justify-content: center; font-size: 21px; transition: all 0.2s;
           box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .sk-cat-icon-item:hover .sk-cat-icon-circle {
           background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-          border-color: #00C896;
-          box-shadow: 0 4px 14px rgba(0,200,150,0.18);
+          border-color: #00C896; box-shadow: 0 4px 14px rgba(0,200,150,0.18);
         }
         .sk-cat-icon-label {
-          font-size: 10px;
-          font-weight: 700;
-          color: #374151;
-          text-align: center;
-          white-space: nowrap;
+          font-size: 10px; font-weight: 700; color: #374151;
+          text-align: center; white-space: nowrap;
         }
 
-        /* ===== MOBILE FIXES ===== */
+        /* ── MOBILE ── */
         @media (max-width: 768px) {
-          .sk-carousel { padding: 32px 20px 52px; min-height: 280px; }
+          .sk-carousel { padding: 32px 20px 80px; min-height: 280px; }
           .sk-post-quick { display: none; }
           .sk-search-inner { gap: 7px; }
-          .sk-search-section { margin-top: -20px; padding: 0 12px; }
+          .sk-search-section { margin-top: -26px; padding: 0 12px; }
+          .sk-slide-dots { bottom: 52px; }
         }
-
         @media (max-width: 420px) {
           .sk-quick-circle { width: 30px; height: 30px; font-size: 14px; }
           .sk-quick-label { font-size: 8px; }
@@ -531,7 +473,7 @@ export default function Hero() {
 
       <div className="sk-hero-wrap">
 
-        {/* ── Quick Access Icon Row (below navbar) ── */}
+        {/* Quick Access Icon Row */}
         <div className="sk-quick-row">
           {QUICK_LINKS.map(item => (
             <button key={item.label} className="sk-quick-item" onClick={() => navigate(item.to)}>
@@ -546,22 +488,16 @@ export default function Hero() {
         {/* Hero Carousel */}
         <div className="sk-carousel" style={{ backgroundImage: current.bg }}>
           <div className="sk-slide-counter">{slide + 1} / {SLIDES.length}</div>
-
           <div className={`sk-carousel-content ${animating ? 'fade' : ''}`}>
-            <div
-              className="sk-slide-badge"
-              style={{
-                color: current.accent,
-                borderColor: `${current.accent}44`,
-                background: `${current.accent}18`,
-              }}
-            >
+            <div className="sk-slide-badge" style={{
+              color: current.accent,
+              borderColor: `${current.accent}44`,
+              background: `${current.accent}18`,
+            }}>
               {current.badge}
             </div>
-
             <h1>{current.title}</h1>
             <p className="sk-carousel-sub">{current.sub}</p>
-
             <button
               className="sk-carousel-cta"
               style={{ background: `linear-gradient(135deg, ${current.accent}, ${current.accent}bb)` }}
@@ -570,7 +506,6 @@ export default function Hero() {
               {current.cta} →
             </button>
           </div>
-
           <div className="sk-slide-dots">
             {SLIDES.map((_, i) => (
               <button
@@ -582,7 +517,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* ── Floating Search ── */}
+        {/* Floating Search — overlaps bottom of carousel */}
         <div className="sk-search-section">
           <div className="sk-search-inner">
             <div className="sk-search-bar">
@@ -603,7 +538,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* ── Trust Strip — auto-sliding single feature ── */}
+        {/* Trust Strip — auto-sliding */}
         <div className="sk-trust-strip">
           <div className={`sk-trust-slide-wrap ${trustAnimating ? 'trust-out' : 'trust-in'}`}>
             <div className="sk-trust-icon-wrap" style={{ background: trustItem.bg }}>

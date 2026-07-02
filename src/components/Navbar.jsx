@@ -200,14 +200,10 @@ export default function Navbar() {
         .sk-dropdown-item.danger:hover { background: #fef2f2; }
         .sk-dropdown-item.admin { color: #7c3aed; }
         .sk-dropdown-item.admin:hover { background: #f5f3ff; }
-        .sk-dropdown-divider {
-          border: none;
-          border-top: 1px solid #f1f5f9;
-          margin: 6px 0;
-        }
+        .sk-dropdown-divider { border: none; border-top: 1px solid #f1f5f9; margin: 6px 0; }
         .sk-dropdown-icon { font-size: 16px; width: 20px; text-align: center; }
 
-        /* ── MOBILE PROFILE ICON (replaces hamburger) ── */
+        /* ── MOBILE PROFILE BUTTON ── */
         .sk-mobile-profile-btn {
           display: none;
           align-items: center;
@@ -226,122 +222,6 @@ export default function Navbar() {
           transition: all 0.2s;
         }
         .sk-mobile-profile-btn:hover { border-color: #00C896; transform: scale(1.05); }
-
-        .sk-mobile-menu {
-          background: #0d1224;
-          border-top: 1px solid rgba(255,255,255,0.07);
-          padding: 14px 18px;
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-        }
-        .sk-mobile-nav-link {
-          color: rgba(255,255,255,0.78);
-          font-size: 14px;
-          font-weight: 600;
-          padding: 10px 13px;
-          border-radius: 9px;
-          text-decoration: none;
-          display: block;
-          transition: background 0.2s;
-        }
-        .sk-mobile-nav-link:hover { background: rgba(255,255,255,0.08); color: white; }
-        .sk-mobile-divider { border: none; border-top: 1px solid rgba(255,255,255,0.09); margin: 5px 0; }
-        .sk-mobile-action {
-          padding: 11px 16px;
-          border-radius: 10px;
-          font-weight: 700;
-          font-size: 13px;
-          text-align: center;
-          text-decoration: none;
-          display: block;
-          font-family: inherit;
-          cursor: pointer;
-          border: none;
-          margin-bottom: 5px;
-          transition: opacity 0.2s;
-        }
-        .sk-mobile-action:hover { opacity: 0.88; }
-
-        /* Profile drawer styles kept as-is */
-        .sk-profile-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.45);
-          z-index: 1100;
-          animation: sk-fade-in 0.2s ease;
-        }
-        @keyframes sk-fade-in {
-          from { opacity: 0; } to { opacity: 1; }
-        }
-        .sk-profile-drawer {
-          position: fixed;
-          top: 0; right: 0; bottom: 0;
-          width: 82vw;
-          max-width: 320px;
-          background: #0d1224;
-          z-index: 1200;
-          display: flex;
-          flex-direction: column;
-          animation: sk-slide-in 0.25s cubic-bezier(0.32,0.72,0,1);
-          overflow-y: auto;
-        }
-        @keyframes sk-slide-in {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
-        }
-        .sk-drawer-header {
-          background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
-          padding: 48px 20px 24px;
-          position: relative;
-        }
-        .sk-drawer-close {
-          position: absolute; top: 14px; right: 14px;
-          background: rgba(255,255,255,0.1); border: none; color: white;
-          width: 30px; height: 30px; border-radius: 50%; font-size: 14px;
-          cursor: pointer; display: flex; align-items: center; justify-content: center;
-          font-family: inherit; transition: background 0.2s;
-        }
-        .sk-drawer-close:hover { background: rgba(255,255,255,0.2); }
-        .sk-drawer-avatar {
-          width: 62px; height: 62px; border-radius: 50%;
-          background: linear-gradient(135deg, #00C896, #059669);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 24px; font-weight: 800; color: white;
-          border: 3px solid rgba(255,255,255,0.2); margin-bottom: 12px;
-        }
-        .sk-drawer-avatar-guest {
-          width: 62px; height: 62px; border-radius: 50%;
-          background: rgba(255,255,255,0.1);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 26px; margin-bottom: 12px;
-          border: 2px solid rgba(255,255,255,0.15);
-        }
-        .sk-drawer-name { font-size: 17px; font-weight: 800; color: white; margin: 0 0 2px; }
-        .sk-drawer-email { font-size: 11.5px; color: rgba(255,255,255,0.45); font-weight: 500; }
-        .sk-drawer-guest-label { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 600; }
-        .sk-drawer-body { flex: 1; padding: 12px 12px 24px; display: flex; flex-direction: column; gap: 4px; }
-        .sk-drawer-item {
-          display: flex; align-items: center; gap: 12px; padding: 13px 14px;
-          border-radius: 11px; font-size: 14px; font-weight: 600;
-          color: rgba(255,255,255,0.82); text-decoration: none; cursor: pointer;
-          transition: background 0.15s; border: none; background: none;
-          width: 100%; font-family: inherit; text-align: left;
-        }
-        .sk-drawer-item:hover { background: rgba(255,255,255,0.08); color: white; }
-        .sk-drawer-item.danger { color: #fca5a5; }
-        .sk-drawer-item.danger:hover { background: rgba(239,68,68,0.12); }
-        .sk-drawer-item.admin-item { color: #c4b5fd; }
-        .sk-drawer-item.admin-item:hover { background: rgba(124,58,237,0.12); }
-        .sk-drawer-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
-        .sk-drawer-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 6px 0; }
-        .sk-drawer-auth { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
-        .sk-drawer-auth-btn {
-          display: block; padding: 13px 16px; border-radius: 11px; font-weight: 700;
-          font-size: 14px; text-align: center; text-decoration: none;
-          font-family: inherit; cursor: pointer; border: none; transition: opacity 0.2s;
-        }
-        .sk-drawer-auth-btn:hover { opacity: 0.88; }
 
         @media (min-width: 769px) {
           .sk-mobile-profile-btn { display: none !important; }
@@ -418,7 +298,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile: Profile icon → navigates to /profile-menu page */}
+          {/* Mobile: navigates to /profile-menu page */}
           <button
             className="sk-mobile-profile-btn"
             onClick={() => navigate('/profile-menu')}
