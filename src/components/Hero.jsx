@@ -378,10 +378,10 @@ export default function Hero() {
          display: flex;
          align-items: center;
          justify-content: center;
-         min-height: 60px;
+         min-height: 50px;
          overflow: hidden;
         }
-         
+
         .sk-trust-slide-wrap {
           display: flex;
           align-items: center;
