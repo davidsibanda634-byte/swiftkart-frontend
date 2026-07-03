@@ -167,6 +167,12 @@ export default function Hero() {
           letter-spacing: 0.2px;
         }
 
+        /* ── HERO BLOCK — carousel + search combined, no white gap ── */
+        .sk-hero-block {
+          position: relative;
+          background: #08162F;
+        }
+
         /* ── CAROUSEL ── */
         .sk-carousel {
           position: relative;
@@ -175,7 +181,7 @@ export default function Hero() {
           flex-direction: column;
           align-items: flex-start;
           justify-content: center;
-          padding: 48px 60px 80px;
+          padding: 48px 60px 110px;
           text-align: left;
           overflow: hidden;
           background-size: cover !important;
@@ -236,7 +242,7 @@ export default function Hero() {
         .sk-carousel-cta:hover { transform: translateY(-2px); filter: brightness(1.06); }
         .sk-slide-dots {
           position: absolute;
-          bottom: 52px;
+          bottom: 76px;
           right: 24px;
           display: flex;
           align-items: center;
@@ -275,47 +281,40 @@ export default function Hero() {
           letter-spacing: 0.5px;
         }
 
-        /* ── FLOATING SEARCH — overlaps carousel bottom ── */
-        
+        /* ── SEARCH — sits inside the dark hero block, no gap ── */
         .sk-search-section {
-            position: relative;
-            z-index: 90;
-            margin-top: -23px;
-            padding: 0 16px;
-            pointer-events: none;
-            background: transparent;
-         }
-
-       .sk-search-inner {
+          background: #08162F;
+          padding: 0 20px 28px;
+          margin-top: -64px;
+          position: relative;
+          z-index: 10;
+        }
+        .sk-search-inner {
           max-width: 720px;
           margin: 0 auto;
           display: flex;
           gap: 8px;
           align-items: center;
-          pointer-events: all;
         }
-
-        
         .sk-search-bar {
-         flex: 1;
-         display: flex;
-         align-items: center;
-         background: rgba(8, 22, 47, 0.82);
-         border: 1.5px solid rgba(255,255,255,0.18);
-         border-radius: 50px;
-         height: 46px;
-         padding: 0 18px;
-         gap: 10px;
-         transition: all 0.2s;
-         backdrop-filter: blur(20px);
-         -webkit-backdrop-filter: blur(20px);
+          flex: 1;
+          display: flex;
+          align-items: center;
+          background: rgba(255,255,255,0.08);
+          border: 1.5px solid rgba(255,255,255,0.18);
+          border-radius: 50px;
+          height: 46px;
+          padding: 0 18px;
+          gap: 10px;
+          transition: all 0.2s;
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
         }
         .sk-search-bar:focus-within {
-         border-color: #00C896;
-         background: rgba(8, 22, 47, 0.95);
-         box-shadow: 0 0 0 3px rgba(0,200,150,0.2);
+          border-color: #00C896;
+          background: rgba(255,255,255,0.13);
+          box-shadow: 0 0 0 3px rgba(0,200,150,0.2);
         }
-        
         .sk-search-icon {
           font-size: 15px;
           flex-shrink: 0;
@@ -370,18 +369,17 @@ export default function Hero() {
         }
         .sk-post-quick:hover { transform: translateY(-1px); }
 
-        /* ── TRUST STRIP — single sliding item ── */
+        /* ── TRUST STRIP ── */
         .sk-trust-strip {
-         background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
-         padding: 13px 20px;
-         margin-top: 0;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         min-height: 50px;
-         overflow: hidden;
+          background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
+          padding: 13px 20px;
+          margin-top: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 50px;
+          overflow: hidden;
         }
-
         .sk-trust-slide-wrap {
           display: flex;
           align-items: center;
@@ -464,12 +462,12 @@ export default function Hero() {
         }
 
         /* ── MOBILE ── */
-       @media (max-width: 768px) {
-         .sk-carousel { padding: 32px 20px 80px; min-height: 280px; }
-         .sk-post-quick { display: none; }
-         .sk-search-inner { gap: 7px; }
-         .sk-search-section { margin-top: -23px; padding: 0 12px; background: transparent; }
-         .sk-slide-dots { bottom: 52px; }
+        @media (max-width: 768px) {
+          .sk-carousel { padding: 32px 20px 100px; min-height: 280px; }
+          .sk-post-quick { display: none; }
+          .sk-search-inner { gap: 7px; }
+          .sk-search-section { padding: 0 12px 22px; margin-top: -58px; }
+          .sk-slide-dots { bottom: 70px; }
         }
         @media (max-width: 420px) {
           .sk-quick-circle { width: 30px; height: 30px; font-size: 14px; }
@@ -491,60 +489,65 @@ export default function Hero() {
           ))}
         </div>
 
-        {/* Hero Carousel */}
-        <div className="sk-carousel" style={{ backgroundImage: current.bg }}>
-          <div className="sk-slide-counter">{slide + 1} / {SLIDES.length}</div>
-          <div className={`sk-carousel-content ${animating ? 'fade' : ''}`}>
-            <div className="sk-slide-badge" style={{
-              color: current.accent,
-              borderColor: `${current.accent}44`,
-              background: `${current.accent}18`,
-            }}>
-              {current.badge}
-            </div>
-            <h1>{current.title}</h1>
-            <p className="sk-carousel-sub">{current.sub}</p>
-            <button
-              className="sk-carousel-cta"
-              style={{ background: `linear-gradient(135deg, ${current.accent}, ${current.accent}bb)` }}
-              onClick={() => navigate(current.to)}
-            >
-              {current.cta} →
-            </button>
-          </div>
-          <div className="sk-slide-dots">
-            {SLIDES.map((_, i) => (
+        {/* Hero block — dark navy container holds both carousel and search */}
+        <div className="sk-hero-block">
+
+          {/* Carousel */}
+          <div className="sk-carousel" style={{ backgroundImage: current.bg }}>
+            <div className="sk-slide-counter">{slide + 1} / {SLIDES.length}</div>
+            <div className={`sk-carousel-content ${animating ? 'fade' : ''}`}>
+              <div className="sk-slide-badge" style={{
+                color: current.accent,
+                borderColor: `${current.accent}44`,
+                background: `${current.accent}18`,
+              }}>
+                {current.badge}
+              </div>
+              <h1>{current.title}</h1>
+              <p className="sk-carousel-sub">{current.sub}</p>
               <button
-                key={i}
-                className={`sk-slide-dot ${i === slide ? 'active' : ''}`}
-                onClick={() => goSlide(i)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Floating Search — overlaps bottom of carousel */}
-        <div className="sk-search-section">
-          <div className="sk-search-inner">
-            <div className="sk-search-bar">
-              <span className="sk-search-icon">🔍</span>
-              <input
-                className="sk-search-input"
-                type="text"
-                placeholder="Search items, services, jobs, events…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              />
+                className="sk-carousel-cta"
+                style={{ background: `linear-gradient(135deg, ${current.accent}, ${current.accent}bb)` }}
+                onClick={() => navigate(current.to)}
+              >
+                {current.cta} →
+              </button>
             </div>
-            <button className="sk-search-submit" onClick={handleSearch}>Search</button>
-            <button className="sk-post-quick" onClick={() => navigate('/create')}>
-              ➕ Sell
-            </button>
+            <div className="sk-slide-dots">
+              {SLIDES.map((_, i) => (
+                <button
+                  key={i}
+                  className={`sk-slide-dot ${i === slide ? 'active' : ''}`}
+                  onClick={() => goSlide(i)}
+                />
+              ))}
+            </div>
           </div>
+
+          {/* Search — inside dark navy block, no white gap possible */}
+          <div className="sk-search-section">
+            <div className="sk-search-inner">
+              <div className="sk-search-bar">
+                <span className="sk-search-icon">🔍</span>
+                <input
+                  className="sk-search-input"
+                  type="text"
+                  placeholder="Search items, services, jobs, events…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                />
+              </div>
+              <button className="sk-search-submit" onClick={handleSearch}>Search</button>
+              <button className="sk-post-quick" onClick={() => navigate('/create')}>
+                ➕ Sell
+              </button>
+            </div>
+          </div>
+
         </div>
 
-        {/* Trust Strip — auto-sliding */}
+        {/* Trust Strip */}
         <div className="sk-trust-strip">
           <div className={`sk-trust-slide-wrap ${trustAnimating ? 'trust-out' : 'trust-in'}`}>
             <div className="sk-trust-icon-wrap" style={{ background: trustItem.bg }}>
