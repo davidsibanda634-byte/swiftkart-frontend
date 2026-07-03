@@ -276,14 +276,17 @@ export default function Hero() {
         }
 
         /* ── FLOATING SEARCH — overlaps carousel bottom ── */
+        
         .sk-search-section {
-          position: relative;
-          z-index: 90;
-          margin-top: -28px;
-          padding: 0 16px 0;
-          pointer-events: none;
-        }
-        .sk-search-inner {
+            position: relative;
+            z-index: 90;
+            margin-top: -23px;
+            padding: 0 16px;
+            pointer-events: none;
+            background: transparent;
+         }
+
+       .sk-search-inner {
           max-width: 720px;
           margin: 0 auto;
           display: flex;
@@ -291,26 +294,28 @@ export default function Hero() {
           align-items: center;
           pointer-events: all;
         }
+
+        
         .sk-search-bar {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          background: rgba(8, 22, 47, 0.72);
-          border: 1.5px solid rgba(255,255,255,0.2);
-          border-radius: 50px;
-          height: 46px;
-          padding: 0 18px;
-          gap: 10px;
-          transition: all 0.2s;
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+         flex: 1;
+         display: flex;
+         align-items: center;
+         background: rgba(8, 22, 47, 0.82);
+         border: 1.5px solid rgba(255,255,255,0.18);
+         border-radius: 50px;
+         height: 46px;
+         padding: 0 18px;
+         gap: 10px;
+         transition: all 0.2s;
+         backdrop-filter: blur(20px);
+         -webkit-backdrop-filter: blur(20px);
         }
         .sk-search-bar:focus-within {
-          border-color: #00C896;
-          background: rgba(8, 22, 47, 0.88);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 3px rgba(0,200,150,0.2);
+         border-color: #00C896;
+         background: rgba(8, 22, 47, 0.95);
+         box-shadow: 0 0 0 3px rgba(0,200,150,0.2);
         }
+        
         .sk-search-icon {
           font-size: 15px;
           flex-shrink: 0;
@@ -367,15 +372,16 @@ export default function Hero() {
 
         /* ── TRUST STRIP — single sliding item ── */
         .sk-trust-strip {
-          background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
-          padding: 13px 20px;
-          margin-top: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 60px;
-          overflow: hidden;
+         background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
+         padding: 13px 20px;
+         margin-top: 0;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         min-height: 60px;
+         overflow: hidden;
         }
+         
         .sk-trust-slide-wrap {
           display: flex;
           align-items: center;
@@ -458,12 +464,12 @@ export default function Hero() {
         }
 
         /* ── MOBILE ── */
-        @media (max-width: 768px) {
-          .sk-carousel { padding: 32px 20px 80px; min-height: 280px; }
-          .sk-post-quick { display: none; }
-          .sk-search-inner { gap: 7px; }
-          .sk-search-section { margin-top: -26px; padding: 0 12px; }
-          .sk-slide-dots { bottom: 52px; }
+       @media (max-width: 768px) {
+         .sk-carousel { padding: 32px 20px 80px; min-height: 280px; }
+         .sk-post-quick { display: none; }
+         .sk-search-inner { gap: 7px; }
+         .sk-search-section { margin-top: -23px; padding: 0 12px; background: transparent; }
+         .sk-slide-dots { bottom: 52px; }
         }
         @media (max-width: 420px) {
           .sk-quick-circle { width: 30px; height: 30px; font-size: 14px; }
