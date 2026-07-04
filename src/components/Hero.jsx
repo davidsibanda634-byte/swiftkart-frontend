@@ -283,7 +283,7 @@ export default function Hero() {
 
         /* ── SEARCH — sits inside the dark hero block, no gap ── */
         .sk-search-section {
-          background: #788293;
+          background: #818ea3;
           padding: 0 20px 28px;
           margin-top: -64px;
           position: relative;
