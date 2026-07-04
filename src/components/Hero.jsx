@@ -300,7 +300,7 @@ export default function Hero() {
           flex: 1;
           display: flex;
           align-items: center;
-          background: rgba(255,255,255,0.08);
+          background: rgba(4, 21, 70, 0.13);
           border: 1.5px solid rgba(255,255,255,0.18);
           border-radius: 50px;
           height: 46px;
