@@ -170,7 +170,7 @@ export default function Hero() {
         /* ── HERO BLOCK — carousel + search combined, no white gap ── */
         .sk-hero-block {
           position: relative;
-          background: #08162F;
+          background: #8c94a5;
         }
 
         /* ── CAROUSEL ── */
