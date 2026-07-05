@@ -23,6 +23,8 @@ import AdminActivity from './pages/AdminActivity'
 import JobDetail from './pages/JobDetail'
 import NotFound from './pages/NotFound'
 import ProfileMenu from './pages/ProfileMenu'
+import Accommodation from './pages/Accommodation'
+import AccommodationDetail from './pages/AccommodationDetail'
 
 export default function AppRoutes() {
   return (
@@ -49,8 +51,10 @@ export default function AppRoutes() {
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/activity" element={<AdminActivity />} />
         <Route path="/jobs/:id" element={<JobDetail />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="/accommodation" element={<Accommodation />} />
+        <Route path="/accommodation/:id" element={<AccommodationDetail />} />
         <Route path="/profile-menu" element={<ProfileMenu />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )
