@@ -38,6 +38,15 @@ const SLIDES = [
     bg: 'linear-gradient(135deg, rgba(8,22,47,0.88) 0%, rgba(245,158,11,0.25) 100%), url("https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1600&q=80")',
     accent: '#F59E0B',
   },
+  {
+    badge: '🏠 ACCOMMODATION',
+    title: 'Find Your Home\nNear Campus',
+    sub: 'Browse rooms, apartments and houses for rent or sale near your campus.',
+    cta: 'Find Accommodation',
+    to: '/accommodation',
+    bg: 'linear-gradient(135deg, rgba(8,22,47,0.88) 0%, rgba(239,68,68,0.25) 100%), url("https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1600&q=80")',
+    accent: '#EF4444',
+  },
 ]
 
 const CATEGORIES = [
@@ -49,6 +58,7 @@ const CATEGORIES = [
   { icon: '🍔', label: 'Food', category: 'Food' },
   { icon: '🧑‍💼', label: 'Services', category: null, to: '/services' },
   { icon: '💼', label: 'Jobs', category: null, to: '/jobs' },
+  { icon: '🏠', label: 'Accommodation', category: null, to: '/accommodation' },
   { icon: '📦', label: 'Other', category: 'Other' },
 ]
 
@@ -116,7 +126,6 @@ export default function Hero() {
 
         .sk-hero-wrap { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        /* ── QUICK ACCESS ICON ROW ── */
         .sk-quick-row {
           background: #08162F;
           padding: 6px 12px 8px;
@@ -167,13 +176,11 @@ export default function Hero() {
           letter-spacing: 0.2px;
         }
 
-        /* ── HERO BLOCK — carousel + search combined, no white gap ── */
         .sk-hero-block {
           position: relative;
-          background: #8c94a5;
+          background: #08162F;
         }
 
-        /* ── CAROUSEL ── */
         .sk-carousel {
           position: relative;
           min-height: 340px;
@@ -281,9 +288,8 @@ export default function Hero() {
           letter-spacing: 0.5px;
         }
 
-        /* ── SEARCH — sits inside the dark hero block, no gap ── */
         .sk-search-section {
-          background: #041634;
+          background: #08162F;
           padding: 0 20px 28px;
           margin-top: -64px;
           position: relative;
@@ -300,7 +306,7 @@ export default function Hero() {
           flex: 1;
           display: flex;
           align-items: center;
-          background: rgba(84, 21, 14, 0.13);
+          background: rgba(255,255,255,0.08);
           border: 1.5px solid rgba(255,255,255,0.18);
           border-radius: 50px;
           height: 46px;
@@ -369,7 +375,6 @@ export default function Hero() {
         }
         .sk-post-quick:hover { transform: translateY(-1px); }
 
-        /* ── TRUST STRIP ── */
         .sk-trust-strip {
           background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
           padding: 13px 20px;
@@ -414,7 +419,6 @@ export default function Hero() {
         }
         .sk-trust-dot.active { background: #00C896; width: 14px; border-radius: 3px; }
 
-        /* ── CATEGORY SECTION ── */
         .sk-cat-section {
           background: white;
           padding: 18px 20px 22px;
@@ -461,7 +465,6 @@ export default function Hero() {
           text-align: center; white-space: nowrap;
         }
 
-        /* ── MOBILE ── */
         @media (max-width: 768px) {
           .sk-carousel { padding: 32px 20px 100px; min-height: 280px; }
           .sk-post-quick { display: none; }
@@ -477,7 +480,6 @@ export default function Hero() {
 
       <div className="sk-hero-wrap">
 
-        {/* Quick Access Icon Row */}
         <div className="sk-quick-row">
           {QUICK_LINKS.map(item => (
             <button key={item.label} className="sk-quick-item" onClick={() => navigate(item.to)}>
@@ -489,10 +491,7 @@ export default function Hero() {
           ))}
         </div>
 
-        {/* Hero block — dark navy container holds both carousel and search */}
         <div className="sk-hero-block">
-
-          {/* Carousel */}
           <div className="sk-carousel" style={{ backgroundImage: current.bg }}>
             <div className="sk-slide-counter">{slide + 1} / {SLIDES.length}</div>
             <div className={`sk-carousel-content ${animating ? 'fade' : ''}`}>
@@ -524,7 +523,6 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Search — inside dark navy block, no white gap possible */}
           <div className="sk-search-section">
             <div className="sk-search-inner">
               <div className="sk-search-bar">
@@ -544,10 +542,8 @@ export default function Hero() {
               </button>
             </div>
           </div>
-
         </div>
 
-        {/* Trust Strip */}
         <div className="sk-trust-strip">
           <div className={`sk-trust-slide-wrap ${trustAnimating ? 'trust-out' : 'trust-in'}`}>
             <div className="sk-trust-icon-wrap" style={{ background: trustItem.bg }}>
@@ -572,7 +568,6 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Shop by Category */}
         <div className="sk-cat-section">
           <div className="sk-cat-section-inner">
             <div className="sk-cat-sec-header">

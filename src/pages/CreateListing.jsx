@@ -5,6 +5,8 @@ import api from '../services/api'
 
 const CATEGORIES = ['Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehicles', 'Furniture', 'Electronics', 'Food', 'Other']
 const JOB_CATEGORIES = ['Internship', 'Part-Time', 'Full-Time', 'Freelance', 'Volunteer', 'Other']
+const PROPERTY_TYPES = ['Room', 'Studio', 'Apartment', 'House', 'Cottage', 'Flat', 'Other']
+const AMENITIES_LIST = ['WiFi', 'Parking', 'Security', 'Water', 'Electricity', 'Kitchen', 'Laundry', 'Garden', 'Swimming Pool', 'Gym', 'CCTV', 'Generator']
 
 export default function CreateListing() {
   const { user, authReady } = useAuth()
@@ -17,12 +19,24 @@ export default function CreateListing() {
   const [form, setForm] = useState({
     title: '', description: '', price: '', category: 'Other', jobCategory: 'Internship',
     pricePerHour: '', company: '', date: '', phone: '',
-    location: { country: '', city: '', area: '' }
+    location: { country: '', city: '', area: '' },
+    // Accommodation fields
+    listingType: 'For Rent', propertyType: 'Room', bedrooms: '1', bathrooms: '1',
+    furnished: 'Furnished', amenities: [], availableFrom: '', address: '',
+    priceType: 'per month',
   })
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const handleLocation = (e) => setForm({ ...form, location: { ...form.location, [e.target.name]: e.target.value } })
   const handleImages = (e) => setImages(e.target.files)
+  const toggleAmenity = (am) => {
+    setForm(prev => ({
+      ...prev,
+      amenities: prev.amenities.includes(am)
+        ? prev.amenities.filter(a => a !== am)
+        : [...prev.amenities, am]
+    }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -71,6 +85,26 @@ export default function CreateListing() {
         fd.append('location[area]', form.location.area)
         Array.from(images).forEach(img => fd.append('images', img))
         await api.post('/events', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      } else if (type === 'accommodation') {
+        const fd = new FormData()
+        fd.append('title', form.title)
+        fd.append('description', form.description)
+        fd.append('price', form.price)
+        fd.append('priceType', form.priceType)
+        fd.append('listingType', form.listingType)
+        fd.append('propertyType', form.propertyType)
+        fd.append('bedrooms', form.bedrooms)
+        fd.append('bathrooms', form.bathrooms)
+        fd.append('furnished', form.furnished)
+        fd.append('amenities', JSON.stringify(form.amenities))
+        fd.append('phone', form.phone)
+        fd.append('availableFrom', form.availableFrom)
+        fd.append('location[country]', form.location.country)
+        fd.append('location[city]', form.location.city)
+        fd.append('location[area]', form.location.area)
+        fd.append('location[address]', form.address)
+        Array.from(images).forEach(img => fd.append('images', img))
+        await api.post('/accommodations', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       }
       setSuccess('Posted successfully! Redirecting...')
       setTimeout(() => navigate('/'), 1500)
@@ -81,7 +115,6 @@ export default function CreateListing() {
     }
   }
 
-  // Wait for auth to be confirmed before redirecting
   if (!authReady) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#08162F' }}>
@@ -160,43 +193,28 @@ export default function CreateListing() {
         }
 
         .cl-header { text-align: center; margin-bottom: 28px; }
-
         .cl-header-icon {
-          width: 52px;
-          height: 52px;
+          width: 52px; height: 52px;
           background: linear-gradient(135deg, #10b981, #059669);
-          border-radius: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 24px;
+          border-radius: 14px; display: flex; align-items: center;
+          justify-content: center; font-size: 24px;
           margin: 0 auto 14px;
           box-shadow: 0 8px 24px rgba(16,185,129,0.4);
         }
-
         .cl-title { font-size: 21px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.4px; }
         .cl-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin: 0; }
 
         .cl-label {
-          display: block;
-          font-size: 12px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.72);
-          margin-bottom: 7px;
+          display: block; font-size: 12px; font-weight: 600;
+          color: rgba(255,255,255,0.72); margin-bottom: 7px;
         }
 
         .cl-input {
-          width: 100%;
-          padding: 11px 14px;
+          width: 100%; padding: 11px 14px;
           background: rgba(255,255,255,0.1);
           border: 1px solid rgba(255,255,255,0.16);
-          border-radius: 11px;
-          font-size: 13.5px;
-          color: white;
-          outline: none;
-          box-sizing: border-box;
-          font-family: inherit;
-          transition: all 0.2s;
+          border-radius: 11px; font-size: 13.5px; color: white;
+          outline: none; box-sizing: border-box; font-family: inherit; transition: all 0.2s;
         }
         .cl-input::placeholder { color: rgba(255,255,255,0.32); }
         .cl-input:focus {
@@ -206,12 +224,11 @@ export default function CreateListing() {
         }
 
         .cl-field { margin-bottom: 15px; }
-
         .cl-hint { font-size: 10.5px; color: rgba(255,255,255,0.38); margin-top: 4px; }
 
         .cl-type-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr 1fr;
           gap: 8px;
           margin-bottom: 22px;
         }
@@ -237,24 +254,14 @@ export default function CreateListing() {
         .cl-type-btn:hover { border-color: rgba(255,255,255,0.3); color: white; }
 
         .cl-cat-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 7px;
-          margin-bottom: 4px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 4px;
         }
-
         .cl-cat-btn {
-          padding: 9px 10px;
-          border-radius: 9px;
+          padding: 9px 10px; border-radius: 9px;
           border: 1.5px solid rgba(255,255,255,0.13);
           background: rgba(255,255,255,0.07);
-          color: rgba(255,255,255,0.6);
-          font-weight: 500;
-          font-size: 12px;
-          cursor: pointer;
-          font-family: inherit;
-          text-align: left;
-          transition: all 0.2s;
+          color: rgba(255,255,255,0.6); font-weight: 500; font-size: 12px;
+          cursor: pointer; font-family: inherit; text-align: left; transition: all 0.2s;
         }
         .cl-cat-btn.active {
           border-color: #10b981;
@@ -264,58 +271,58 @@ export default function CreateListing() {
         .cl-cat-btn:hover { border-color: rgba(255,255,255,0.28); color: white; }
 
         .cl-section-label {
-          font-size: 11px;
-          font-weight: 700;
-          color: rgba(255,255,255,0.4);
-          text-transform: uppercase;
-          letter-spacing: 0.8px;
-          margin: 18px 0 10px;
+          font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4);
+          text-transform: uppercase; letter-spacing: 0.8px; margin: 18px 0 10px;
         }
 
         .cl-location-group { display: flex; flex-direction: column; gap: 8px; }
 
+        .cl-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        .cl-amenities-grid {
+          display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 4px;
+        }
+        .cl-amenity-btn {
+          padding: 7px 8px; border-radius: 8px;
+          border: 1.5px solid rgba(255,255,255,0.13);
+          background: rgba(255,255,255,0.07);
+          color: rgba(255,255,255,0.6); font-weight: 500; font-size: 11px;
+          cursor: pointer; font-family: inherit; text-align: center; transition: all 0.2s;
+        }
+        .cl-amenity-btn.active {
+          border-color: #10b981;
+          background: rgba(16,185,129,0.15);
+          color: #34d399;
+        }
+
         .cl-submit {
-          width: 100%;
-          padding: 14px;
+          width: 100%; padding: 14px;
           background: linear-gradient(135deg, #10b981, #059669);
-          color: white;
-          border: none;
-          border-radius: 13px;
-          font-size: 15px;
-          font-weight: 800;
-          cursor: pointer;
-          font-family: inherit;
-          margin-top: 22px;
+          color: white; border: none; border-radius: 13px;
+          font-size: 15px; font-weight: 800; cursor: pointer;
+          font-family: inherit; margin-top: 22px;
           box-shadow: 0 6px 20px rgba(16,185,129,0.4);
-          transition: all 0.2s;
-          letter-spacing: 0.1px;
+          transition: all 0.2s; letter-spacing: 0.1px;
         }
         .cl-submit:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(16,185,129,0.5); }
         .cl-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         .cl-error {
-          background: rgba(239,68,68,0.15);
-          border: 1px solid rgba(239,68,68,0.35);
-          color: #fca5a5;
-          padding: 10px 14px;
-          border-radius: 9px;
-          font-size: 13px;
-          margin-bottom: 16px;
+          background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35);
+          color: #fca5a5; padding: 10px 14px; border-radius: 9px;
+          font-size: 13px; margin-bottom: 16px;
         }
-
         .cl-success {
-          background: rgba(16,185,129,0.15);
-          border: 1px solid rgba(16,185,129,0.35);
-          color: #6ee7b7;
-          padding: 10px 14px;
-          border-radius: 9px;
-          font-size: 13px;
-          margin-bottom: 16px;
+          background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35);
+          color: #6ee7b7; padding: 10px 14px; border-radius: 9px;
+          font-size: 13px; margin-bottom: 16px;
         }
 
         @media (max-width: 480px) {
           .cl-card { padding: 24px 16px; }
-          .cl-type-grid { grid-template-columns: 1fr 1fr; }
+          .cl-type-grid { grid-template-columns: 1fr 1fr 1fr; }
+          .cl-amenities-grid { grid-template-columns: 1fr 1fr; }
+          .cl-row-2 { grid-template-columns: 1fr; }
         }
       `}</style>
 
@@ -337,6 +344,7 @@ export default function CreateListing() {
                 { key: 'service', label: '🧑‍💼 Service' },
                 { key: 'job', label: '💼 Job' },
                 { key: 'event', label: '🎉 Event' },
+                { key: 'accommodation', label: '🏠 Property' },
               ].map(t => (
                 <button
                   key={t.key}
@@ -445,6 +453,114 @@ export default function CreateListing() {
                     <label className="cl-label">Event Poster / Image</label>
                     <input className="cl-input" type="file" multiple accept="image/*"
                       onChange={handleImages} style={{ padding: '8px' }} />
+                  </div>
+                </>
+              )}
+
+              {type === 'accommodation' && (
+                <>
+                  <div className="cl-field">
+                    <label className="cl-label">Listing Type *</label>
+                    <div className="cl-cat-grid">
+                      {['For Rent', 'For Sale'].map(lt => (
+                        <button key={lt} type="button"
+                          className={'cl-cat-btn' + (form.listingType === lt ? ' active' : '')}
+                          onClick={() => setForm({ ...form, listingType: lt })}>
+                          {lt === 'For Rent' ? '🔑 For Rent' : '🏷️ For Sale'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Property Type *</label>
+                    <div className="cl-cat-grid">
+                      {PROPERTY_TYPES.map(pt => (
+                        <button key={pt} type="button"
+                          className={'cl-cat-btn' + (form.propertyType === pt ? ' active' : '')}
+                          onClick={() => setForm({ ...form, propertyType: pt })}>
+                          {pt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Price ($) *</label>
+                    <input className="cl-input" type="number" name="price"
+                      value={form.price} onChange={handleChange} placeholder="0.00" required />
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Price Type *</label>
+                    <div className="cl-cat-grid">
+                      {['per month', 'per week', 'total price'].map(pt => (
+                        <button key={pt} type="button"
+                          className={'cl-cat-btn' + (form.priceType === pt ? ' active' : '')}
+                          onClick={() => setForm({ ...form, priceType: pt })}>
+                          {pt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="cl-row-2" style={{ marginBottom: '15px' }}>
+                    <div className="cl-field" style={{ marginBottom: 0 }}>
+                      <label className="cl-label">Bedrooms *</label>
+                      <input className="cl-input" type="number" name="bedrooms"
+                        value={form.bedrooms} onChange={handleChange} placeholder="1" min="0" required />
+                    </div>
+                    <div className="cl-field" style={{ marginBottom: 0 }}>
+                      <label className="cl-label">Bathrooms *</label>
+                      <input className="cl-input" type="number" name="bathrooms"
+                        value={form.bathrooms} onChange={handleChange} placeholder="1" min="0" required />
+                    </div>
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Furnished Status</label>
+                    <div className="cl-cat-grid">
+                      {['Furnished', 'Semi-Furnished', 'Unfurnished'].map(f => (
+                        <button key={f} type="button"
+                          className={'cl-cat-btn' + (form.furnished === f ? ' active' : '')}
+                          onClick={() => setForm({ ...form, furnished: f })}>
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Amenities (select all that apply)</label>
+                    <div className="cl-amenities-grid">
+                      {AMENITIES_LIST.map(am => (
+                        <button key={am} type="button"
+                          className={'cl-amenity-btn' + (form.amenities.includes(am) ? ' active' : '')}
+                          onClick={() => toggleAmenity(am)}>
+                          {am}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Available From</label>
+                    <input className="cl-input" type="date" name="availableFrom"
+                      value={form.availableFrom} onChange={handleChange} />
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Street Address (optional)</label>
+                    <input className="cl-input" type="text" name="address"
+                      value={form.address} onChange={handleChange}
+                      placeholder="e.g. 12 Main Street, near UZ campus" />
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Property Images (up to 8)</label>
+                    <input className="cl-input" type="file" multiple accept="image/*"
+                      onChange={handleImages} style={{ padding: '8px' }} />
+                    <p className="cl-hint">Upload clear photos — listings with photos get 3× more inquiries</p>
                   </div>
                 </>
               )}
