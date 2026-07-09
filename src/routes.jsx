@@ -25,6 +25,8 @@ import NotFound from './pages/NotFound'
 import ProfileMenu from './pages/ProfileMenu'
 import Accommodation from './pages/Accommodation'
 import AccommodationDetail from './pages/AccommodationDetail'
+import EventDetail from './pages/EventDetail'
+import ServiceDetail from './pages/ServiceDetail'
 
 export default function AppRoutes() {
   return (
@@ -55,6 +57,8 @@ export default function AppRoutes() {
         <Route path="/accommodation/:id" element={<AccommodationDetail />} />
         <Route path="/profile-menu" element={<ProfileMenu />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/events/:id" element={<EventDetail />} />
+        <Route path="/services/:id" element={<ServiceDetail />} />
       </Route>
     </Routes>
   )

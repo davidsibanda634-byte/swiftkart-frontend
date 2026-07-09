@@ -3,30 +3,32 @@ import { useNavigate } from 'react-router-dom'
 import EventCard from '../components/cards/EventCard'
 import api from '../services/api'
 
+const EVENT_TYPES = ['All', 'Workshop', 'Concert', 'Social', 'Sport', 'Academic', 'Other']
+const TYPE_ICONS = {
+  'All': '🎉', 'Workshop': '🛠️', 'Concert': '🎵', 'Social': '🥳',
+  'Sport': '⚽', 'Academic': '📚', 'Other': '📌'
+}
+
 export default function Events() {
   const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [search, setSearch] = useState('')
+  const [activeType, setActiveType] = useState('All')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true)
-      try {
-        const { data } = await api.get('/events')
-        setEvents(data)
-      } catch {
-        setEvents([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchEvents()
+    setLoading(true)
+    api.get('/events')
+      .then(res => setEvents(res.data))
+      .catch(() => setEvents([]))
+      .finally(() => setLoading(false))
   }, [])
 
-  const filtered = events.filter(e =>
-    e.title.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = events.filter(e => {
+    const matchSearch = e.title.toLowerCase().includes(search.toLowerCase())
+    const matchType = activeType === 'All' || e.category === activeType
+    return matchSearch && matchType
+  })
 
   return (
     <>
@@ -37,7 +39,7 @@ export default function Events() {
 
         .ev-header {
           background: linear-gradient(135deg, #7c2d12 0%, #be185d 100%);
-          padding: 28px 24px 32px;
+          padding: 20px 16px 0;
         }
         .ev-header-inner { max-width: 1240px; margin: 0 auto; }
         .ev-back {
@@ -49,21 +51,54 @@ export default function Events() {
         }
         .ev-back:hover { background: rgba(255,255,255,0.25); }
         .ev-title { font-size: 26px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.5px; }
-        .ev-sub { color: rgba(255,255,255,0.75); font-size: 13.5px; margin: 0 0 22px; }
+        .ev-sub { color: rgba(255,255,255,0.75); font-size: 13.5px; margin: 0 0 16px; }
 
+        .ev-search-row { display: flex; gap: 8px; margin-bottom: 16px; }
         .ev-search-bar {
-          display: flex; align-items: center; background: rgba(255,255,255,0.15);
-          border: 1.5px solid rgba(255,255,255,0.25); border-radius: 12px;
-          height: 46px; padding: 0 16px; gap: 9px; max-width: 600px; transition: all 0.2s;
+          flex: 1; display: flex; align-items: center;
+          background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
+          border-radius: 11px; height: 44px; padding: 0 14px; gap: 8px; transition: all 0.2s;
         }
-        .ev-search-bar:focus-within { background: rgba(255,255,255,0.22); box-shadow: 0 0 0 3px rgba(255,255,255,0.15); }
+        .ev-search-bar:focus-within { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
         .ev-search-input {
-          flex: 1; border: none; outline: none; font-size: 13.5px; color: white;
+          flex: 1; border: none; outline: none; font-size: 13px; color: white;
           font-family: inherit; background: transparent;
         }
-        .ev-search-input::placeholder { color: rgba(255,255,255,0.55); }
+        .ev-search-input::placeholder { color: rgba(255,255,255,0.5); }
+        .ev-search-btn {
+          height: 44px; padding: 0 18px;
+          background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.3);
+          color: white; border-radius: 11px; font-size: 13px; font-weight: 700;
+          cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+        }
+        .ev-search-btn:hover { background: rgba(255,255,255,0.3); }
 
-        .ev-content { max-width: 1240px; margin: 0 auto; padding: 24px 20px 60px; }
+        .ev-cat-scroll {
+          display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 14px;
+        }
+        .ev-cat-scroll::-webkit-scrollbar { display: none; }
+        .ev-cat-chip {
+          display: flex; flex-direction: column; align-items: center; gap: 5px;
+          flex-shrink: 0; cursor: pointer; border: none; background: none;
+          font-family: inherit; padding: 0; min-width: 56px; transition: transform 0.2s;
+        }
+        .ev-cat-chip:hover { transform: translateY(-2px); }
+        .ev-cat-circle {
+          width: 46px; height: 46px; border-radius: 14px;
+          background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.18);
+          display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.2s;
+        }
+        .ev-cat-chip.active .ev-cat-circle {
+          background: rgba(255,255,255,0.9); border-color: transparent;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .ev-cat-label {
+          font-size: 9.5px; font-weight: 700; color: rgba(255,255,255,0.65);
+          text-align: center; white-space: nowrap;
+        }
+        .ev-cat-chip.active .ev-cat-label { color: white; }
+
+        .ev-content { max-width: 1240px; margin: 0 auto; padding: 20px 16px 80px; }
 
         .ev-count-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
         .ev-count-badge {
@@ -97,13 +132,10 @@ export default function Events() {
         .ev-empty-title { font-size: 17px; font-weight: 700; color: #374151; margin-bottom: 6px; }
         .ev-empty-sub { font-size: 13px; color: #9ca3af; }
 
-        @media (max-width: 1024px) {
-          .ev-grid { grid-template-columns: repeat(2, 1fr); }
-        }
+        @media (max-width: 1024px) { .ev-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
           .ev-grid { grid-template-columns: 1fr; gap: 12px; }
-          .ev-header { padding: 20px 16px 24px; }
-          .ev-content { padding: 18px 14px 60px; }
+          .ev-content { padding: 16px 12px 80px; }
         }
       `}</style>
 
@@ -114,15 +146,32 @@ export default function Events() {
             <h1 className="ev-title">🎉 Upcoming Events</h1>
             <p className="ev-sub">Discover workshops, meetups and campus activities</p>
 
-            <div className="ev-search-bar">
-              <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)' }}>🔍</span>
-              <input
-                className="ev-search-input"
-                type="text"
-                placeholder="Search events…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
+            <div className="ev-search-row">
+              <div className="ev-search-bar">
+                <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>🔍</span>
+                <input
+                  className="ev-search-input"
+                  type="text"
+                  placeholder="Search events…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && setSearch(e.target.value)}
+                />
+              </div>
+              <button className="ev-search-btn" onClick={() => setSearch(search)}>Search</button>
+            </div>
+
+            <div className="ev-cat-scroll">
+              {EVENT_TYPES.map(type => (
+                <button
+                  key={type}
+                  className={'ev-cat-chip' + (activeType === type ? ' active' : '')}
+                  onClick={() => setActiveType(type)}
+                >
+                  <div className="ev-cat-circle">{TYPE_ICONS[type]}</div>
+                  <span className="ev-cat-label">{type}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -153,7 +202,7 @@ export default function Events() {
                 <div className="ev-empty-sub">Check back soon for upcoming events</div>
               </div>
             ) : (
-              filtered.map(e => <EventCard key={e._id} event={e} />)
+              filtered.map(e => <EventCard key={e._id} event={e} onClick={() => navigate('/events/' + e._id)} />)
             )}
           </div>
         </div>

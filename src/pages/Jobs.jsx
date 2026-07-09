@@ -4,6 +4,10 @@ import JobCard from '../components/cards/JobCard'
 import api from '../services/api'
 
 const JOB_CATEGORIES = ['All', 'Internship', 'Part-Time', 'Full-Time', 'Freelance', 'Volunteer', 'Other']
+const CAT_ICONS = {
+  'All': '💼', 'Internship': '🎓', 'Part-Time': '⏰', 'Full-Time': '🏢',
+  'Freelance': '💻', 'Volunteer': '🤝', 'Other': '📦'
+}
 
 export default function Jobs() {
   const navigate = useNavigate()
@@ -27,9 +31,8 @@ export default function Jobs() {
   }, [category])
 
   const filtered = jobs.filter(function(j) {
-    const matchSearch = j.title.toLowerCase().includes(search.toLowerCase()) ||
+    return j.title.toLowerCase().includes(search.toLowerCase()) ||
       (j.company && j.company.toLowerCase().includes(search.toLowerCase()))
-    return matchSearch
   })
 
   return (
@@ -41,7 +44,7 @@ export default function Jobs() {
 
         .jb-header {
           background: linear-gradient(135deg, #7c2d12 0%, #d97706 100%);
-          padding: 28px 24px 32px;
+          padding: 20px 16px 0;
         }
         .jb-header-inner { max-width: 1240px; margin: 0 auto; }
         .jb-back {
@@ -53,30 +56,58 @@ export default function Jobs() {
         }
         .jb-back:hover { background: rgba(255,255,255,0.25); }
         .jb-title { font-size: 26px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.5px; }
-        .jb-sub { color: rgba(255,255,255,0.75); font-size: 13.5px; margin: 0 0 22px; }
+        .jb-sub { color: rgba(255,255,255,0.75); font-size: 13.5px; margin: 0 0 16px; }
 
+        .jb-search-row { display: flex; gap: 8px; margin-bottom: 16px; }
         .jb-search-bar {
-          display: flex; align-items: center; background: rgba(255,255,255,0.15);
-          border: 1.5px solid rgba(255,255,255,0.25); border-radius: 12px;
-          height: 46px; padding: 0 16px; gap: 9px; max-width: 600px; transition: all 0.2s;
+          flex: 1; display: flex; align-items: center;
+          background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
+          border-radius: 11px; height: 44px; padding: 0 14px; gap: 8px; transition: all 0.2s;
         }
-        .jb-search-bar:focus-within { background: rgba(255,255,255,0.22); box-shadow: 0 0 0 3px rgba(255,255,255,0.15); }
+        .jb-search-bar:focus-within { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
         .jb-search-input {
-          flex: 1; border: none; outline: none; font-size: 13.5px; color: white;
+          flex: 1; border: none; outline: none; font-size: 13px; color: white;
           font-family: inherit; background: transparent;
         }
-        .jb-search-input::placeholder { color: rgba(255,255,255,0.55); }
-
-        .jb-content { max-width: 1240px; margin: 0 auto; padding: 24px 20px 60px; }
-
-        .jb-cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-        .jb-cat-tab {
-          padding: 7px 16px; border-radius: 20px; border: 1px solid #fde68a;
-          background: white; color: #92400e; font-size: 12.5px; font-weight: 600;
-          cursor: pointer; font-family: inherit; transition: all 0.2s;
+        .jb-search-input::placeholder { color: rgba(255,255,255,0.5); }
+        .jb-search-btn {
+          height: 44px; padding: 0 18px;
+          background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.3);
+          color: white; border-radius: 11px; font-size: 13px; font-weight: 700;
+          cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
         }
-        .jb-cat-tab.active { background: #d97706; color: white; border-color: #d97706; }
-        .jb-cat-tab:hover { border-color: #d97706; }
+        .jb-search-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .jb-cat-scroll {
+          display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+          padding-bottom: 14px;
+        }
+        .jb-cat-scroll::-webkit-scrollbar { display: none; }
+
+        .jb-cat-chip {
+          display: flex; flex-direction: column; align-items: center; gap: 5px;
+          flex-shrink: 0; cursor: pointer; border: none; background: none;
+          font-family: inherit; padding: 0; min-width: 56px; transition: transform 0.2s;
+        }
+        .jb-cat-chip:hover { transform: translateY(-2px); }
+        .jb-cat-circle {
+          width: 46px; height: 46px; border-radius: 14px;
+          background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.18);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px; transition: all 0.2s;
+        }
+        .jb-cat-chip.active .jb-cat-circle {
+          background: rgba(255,255,255,0.9);
+          border-color: transparent;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .jb-cat-label {
+          font-size: 9.5px; font-weight: 700; color: rgba(255,255,255,0.65);
+          text-align: center; white-space: nowrap;
+        }
+        .jb-cat-chip.active .jb-cat-label { color: white; }
+
+        .jb-content { max-width: 1240px; margin: 0 auto; padding: 20px 16px 80px; }
 
         .jb-count-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
         .jb-count-badge {
@@ -107,46 +138,48 @@ export default function Jobs() {
 
         @media (max-width: 768px) {
           .jb-grid { grid-template-columns: 1fr; gap: 12px; }
-          .jb-header { padding: 20px 16px 24px; }
-          .jb-content { padding: 18px 14px 60px; }
+          .jb-content { padding: 16px 12px 80px; }
         }
       `}</style>
 
       <div className="jb-wrap">
         <div className="jb-header">
           <div className="jb-header-inner">
-            <button className="jb-back" onClick={function() { navigate(-1) }}>← Back</button>
+            <button className="jb-back" onClick={() => navigate(-1)}>← Back</button>
             <h1 className="jb-title">💼 Campus Jobs</h1>
             <p className="jb-sub">Find part-time jobs, internships and freelance work near you</p>
 
-            <div className="jb-search-bar">
-              <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)' }}>🔍</span>
-              <input
-                className="jb-search-input"
-                type="text"
-                placeholder="Search jobs or companies…"
-                value={search}
-                onChange={function(e) { setSearch(e.target.value) }}
-              />
+            <div className="jb-search-row">
+              <div className="jb-search-bar">
+                <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>🔍</span>
+                <input
+                  className="jb-search-input"
+                  type="text"
+                  placeholder="Search jobs or companies…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && setSearch(e.target.value)}
+                />
+              </div>
+              <button className="jb-search-btn" onClick={() => setSearch(search)}>Search</button>
+            </div>
+
+            <div className="jb-cat-scroll">
+              {JOB_CATEGORIES.map(cat => (
+                <button
+                  key={cat}
+                  className={'jb-cat-chip' + (category === cat ? ' active' : '')}
+                  onClick={() => setCategory(cat)}
+                >
+                  <div className="jb-cat-circle">{CAT_ICONS[cat]}</div>
+                  <span className="jb-cat-label">{cat}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         <div className="jb-content">
-          <div className="jb-cat-tabs">
-            {JOB_CATEGORIES.map(function(cat) {
-              return (
-                <button
-                  key={cat}
-                  className={'jb-cat-tab' + (category === cat ? ' active' : '')}
-                  onClick={function() { setCategory(cat) }}
-                >
-                  {cat}
-                </button>
-              )
-            })}
-          </div>
-
           {!loading && (
             <div className="jb-count-row">
               <div className="jb-count-badge">
@@ -158,11 +191,9 @@ export default function Jobs() {
 
           <div className="jb-grid">
             {loading ? (
-              Array.from({ length: 4 }).map(function(_, i) {
-                return (
-                  <div key={i} className="jb-skeleton"><div className="jb-skeleton-inner" /></div>
-                )
-              })
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="jb-skeleton"><div className="jb-skeleton-inner" /></div>
+              ))
             ) : filtered.length === 0 ? (
               <div className="jb-empty">
                 <div className="jb-empty-icon">💼</div>
@@ -170,7 +201,7 @@ export default function Jobs() {
                 <div className="jb-empty-sub">Try a different category or search term</div>
               </div>
             ) : (
-              filtered.map(function(j) { return <JobCard key={j._id} job={j} /> })
+              filtered.map(j => <JobCard key={j._id} job={j} />)
             )}
           </div>
         </div>

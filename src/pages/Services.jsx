@@ -5,8 +5,8 @@ import api from '../services/api'
 
 const CATEGORIES = ['All', 'Tutoring', 'Design', 'Tech Help', 'Photography', 'Writing', 'Other']
 const CATEGORY_ICONS = {
-  All: '🧑‍💼', Tutoring: '📚', Design: '🎨', 'Tech Help': '💻',
-  Photography: '📸', Writing: '✍️', Other: '📦',
+  'All': '🧑‍💼', 'Tutoring': '📚', 'Design': '🎨', 'Tech Help': '💻',
+  'Photography': '📸', 'Writing': '✍️', 'Other': '📦',
 }
 
 export default function Services() {
@@ -17,18 +17,11 @@ export default function Services() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchServices = async () => {
-      setLoading(true)
-      try {
-        const { data } = await api.get('/services')
-        setServices(data)
-      } catch {
-        setServices([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchServices()
+    setLoading(true)
+    api.get('/services')
+      .then(res => setServices(res.data))
+      .catch(() => setServices([]))
+      .finally(() => setLoading(false))
   }, [])
 
   const filtered = services.filter(s => {
@@ -46,7 +39,7 @@ export default function Services() {
 
         .sv-header {
           background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
-          padding: 28px 24px 32px;
+          padding: 20px 16px 0;
         }
         .sv-header-inner { max-width: 1240px; margin: 0 auto; }
         .sv-back {
@@ -58,39 +51,54 @@ export default function Services() {
         }
         .sv-back:hover { background: rgba(255,255,255,0.25); }
         .sv-title { font-size: 26px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.5px; }
-        .sv-sub { color: rgba(255,255,255,0.75); font-size: 13.5px; margin: 0 0 22px; }
+        .sv-sub { color: rgba(255,255,255,0.75); font-size: 13.5px; margin: 0 0 16px; }
 
+        .sv-search-row { display: flex; gap: 8px; margin-bottom: 16px; }
         .sv-search-bar {
-          display: flex; align-items: center; background: rgba(255,255,255,0.15);
-          border: 1.5px solid rgba(255,255,255,0.25); border-radius: 12px;
-          height: 46px; padding: 0 16px; gap: 9px; max-width: 600px; transition: all 0.2s;
+          flex: 1; display: flex; align-items: center;
+          background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
+          border-radius: 11px; height: 44px; padding: 0 14px; gap: 8px; transition: all 0.2s;
         }
-        .sv-search-bar:focus-within { background: rgba(255,255,255,0.22); box-shadow: 0 0 0 3px rgba(255,255,255,0.15); }
+        .sv-search-bar:focus-within { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
         .sv-search-input {
-          flex: 1; border: none; outline: none; font-size: 13.5px; color: white;
+          flex: 1; border: none; outline: none; font-size: 13px; color: white;
           font-family: inherit; background: transparent;
         }
-        .sv-search-input::placeholder { color: rgba(255,255,255,0.55); }
-
-        .sv-content { max-width: 1240px; margin: 0 auto; padding: 20px 20px 60px; }
-
-        .sv-filter-bar {
-          background: white; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
-          display: flex; gap: 6px; flex-wrap: wrap;
+        .sv-search-input::placeholder { color: rgba(255,255,255,0.5); }
+        .sv-search-btn {
+          height: 44px; padding: 0 18px;
+          background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.3);
+          color: white; border-radius: 11px; font-size: 13px; font-weight: 700;
+          cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
         }
+        .sv-search-btn:hover { background: rgba(255,255,255,0.3); }
 
-        .sv-cat-pill {
-          padding: 7px 14px; border-radius: 20px; border: 1.5px solid #e2e8f0;
-          background: white; color: #4b5563; font-size: 12.5px; font-weight: 600;
-          cursor: pointer; transition: all 0.2s; font-family: inherit;
-          display: flex; align-items: center; gap: 5px; white-space: nowrap;
+        .sv-cat-scroll {
+          display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 14px;
         }
-        .sv-cat-pill:hover { border-color: #7c3aed; color: #6d28d9; background: #f5f3ff; }
-        .sv-cat-pill.active {
-          background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white;
-          border-color: transparent; box-shadow: 0 3px 10px rgba(124,58,237,0.3);
+        .sv-cat-scroll::-webkit-scrollbar { display: none; }
+        .sv-cat-chip {
+          display: flex; flex-direction: column; align-items: center; gap: 5px;
+          flex-shrink: 0; cursor: pointer; border: none; background: none;
+          font-family: inherit; padding: 0; min-width: 60px; transition: transform 0.2s;
         }
+        .sv-cat-chip:hover { transform: translateY(-2px); }
+        .sv-cat-circle {
+          width: 46px; height: 46px; border-radius: 14px;
+          background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.18);
+          display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.2s;
+        }
+        .sv-cat-chip.active .sv-cat-circle {
+          background: rgba(255,255,255,0.9); border-color: transparent;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .sv-cat-label {
+          font-size: 9.5px; font-weight: 700; color: rgba(255,255,255,0.65);
+          text-align: center; white-space: nowrap;
+        }
+        .sv-cat-chip.active .sv-cat-label { color: white; }
+
+        .sv-content { max-width: 1240px; margin: 0 auto; padding: 20px 16px 80px; }
 
         .sv-count-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .sv-count-badge {
@@ -124,13 +132,10 @@ export default function Services() {
         .sv-empty-title { font-size: 17px; font-weight: 700; color: #374151; margin-bottom: 6px; }
         .sv-empty-sub { font-size: 13px; color: #9ca3af; }
 
-        @media (max-width: 1024px) {
-          .sv-grid { grid-template-columns: repeat(3, 1fr); }
-        }
+        @media (max-width: 1024px) { .sv-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) {
           .sv-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-          .sv-header { padding: 20px 16px 24px; }
-          .sv-content { padding: 16px 14px 60px; }
+          .sv-content { padding: 16px 12px 80px; }
         }
       `}</style>
 
@@ -141,33 +146,37 @@ export default function Services() {
             <h1 className="sv-title">🧑‍💼 Student Services</h1>
             <p className="sv-sub">Find skilled students offering services on your campus</p>
 
-            <div className="sv-search-bar">
-              <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)' }}>🔍</span>
-              <input
-                className="sv-search-input"
-                type="text"
-                placeholder="Search services…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
+            <div className="sv-search-row">
+              <div className="sv-search-bar">
+                <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>🔍</span>
+                <input
+                  className="sv-search-input"
+                  type="text"
+                  placeholder="Search services…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && setSearch(e.target.value)}
+                />
+              </div>
+              <button className="sv-search-btn" onClick={() => setSearch(search)}>Search</button>
+            </div>
+
+            <div className="sv-cat-scroll">
+              {CATEGORIES.map(tab => (
+                <button
+                  key={tab}
+                  className={'sv-cat-chip' + (activeTab === tab ? ' active' : '')}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  <div className="sv-cat-circle">{CATEGORY_ICONS[tab]}</div>
+                  <span className="sv-cat-label">{tab}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         <div className="sv-content">
-          <div className="sv-filter-bar">
-            {CATEGORIES.map(tab => (
-              <button
-                key={tab}
-                className={'sv-cat-pill' + (activeTab === tab ? ' active' : '')}
-                onClick={() => setActiveTab(tab)}
-              >
-                <span>{CATEGORY_ICONS[tab]}</span>
-                <span>{tab}</span>
-              </button>
-            ))}
-          </div>
-
           {!loading && (
             <div className="sv-count-row">
               <div className="sv-count-badge">
@@ -193,7 +202,7 @@ export default function Services() {
                 <div className="sv-empty-sub">Try a different category or search term</div>
               </div>
             ) : (
-              filtered.map(s => <ServiceCard key={s._id} service={s} />)
+              filtered.map(s => <ServiceCard key={s._id} service={s} onClick={() => navigate('/services/' + s._id)} />)
             )}
           </div>
         </div>
