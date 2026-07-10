@@ -11,7 +11,7 @@ export default function BottomNav() {
     { to: '/marketplace', icon: '🛍️', label: 'Categories' },
     { to: '/create', icon: null, label: 'Sell', isSell: true },
     { to: '/saved', icon: '❤️', label: 'Saved' },
-    { to: user ? '/my-listings' : '/login', icon: '👤', label: 'Profile' },
+    { to: '/profile-menu', icon: '👤', label: 'Profile' },
   ]
 
   return (
@@ -45,45 +45,23 @@ export default function BottomNav() {
           min-width: 52px;
           position: relative;
         }
-        .sk-bn-icon {
-          font-size: 20px;
-          line-height: 1;
-        }
-        .sk-bn-label {
-          font-size: 10px;
-          font-weight: 600;
-          color: #9ca3af;
-          transition: color 0.2s;
-        }
+        .sk-bn-icon { font-size: 20px; line-height: 1; }
+        .sk-bn-label { font-size: 10px; font-weight: 600; color: #9ca3af; transition: color 0.2s; }
         .sk-bn-item.active .sk-bn-label { color: #00C896; }
-        .sk-bn-item.active .sk-bn-icon { filter: none; }
         .sk-bn-active-dot {
-          position: absolute;
-          top: 2px;
-          width: 4px;
-          height: 4px;
-          border-radius: 50%;
-          background: #00C896;
+          position: absolute; top: 2px; width: 4px; height: 4px;
+          border-radius: 50%; background: #00C896;
         }
         .sk-bn-sell {
-          width: 48px;
-          height: 48px;
-          border-radius: 16px;
+          width: 48px; height: 48px; border-radius: 16px;
           background: linear-gradient(135deg, #00C896, #059669);
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: flex; align-items: center; justify-content: center;
           box-shadow: 0 4px 16px rgba(0,200,150,0.4);
-          text-decoration: none;
-          transition: all 0.2s;
-          margin-bottom: 8px;
+          text-decoration: none; transition: all 0.2s; margin-bottom: 8px;
         }
         .sk-bn-sell:hover { transform: scale(1.08); }
         .sk-bn-sell-icon { font-size: 22px; }
-
-        @media (max-width: 768px) {
-          .sk-bottom-nav { display: flex !important; }
-        }
+        @media (max-width: 768px) { .sk-bottom-nav { display: flex !important; } }
       `}</style>
 
       <nav className="sk-bottom-nav">
@@ -96,9 +74,9 @@ export default function BottomNav() {
             <Link
               key={item.to}
               to={item.to}
-              className={`sk-bn-item ${path === item.to ? 'active' : ''}`}
+              className={`sk-bn-item ${path === item.to || (item.to === '/profile-menu' && path === '/profile-menu') ? 'active' : ''}`}
             >
-              {path === item.to && <div className="sk-bn-active-dot" />}
+              {(path === item.to) && <div className="sk-bn-active-dot" />}
               <span className="sk-bn-icon">{item.icon}</span>
               <span className="sk-bn-label">{item.label}</span>
             </Link>

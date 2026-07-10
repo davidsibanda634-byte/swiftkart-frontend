@@ -11,6 +11,7 @@ export default function MyListings() {
   const [services, setServices] = useState([])
   const [jobs, setJobs] = useState([])
   const [events, setEvents] = useState([])
+  const [accommodations, setAccommodations] = useState([])
   const [activeTab, setActiveTab] = useState('listings')
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
@@ -23,16 +24,19 @@ export default function MyListings() {
   const fetchAll = async () => {
     setLoading(true)
     try {
-      const [l, s, j, e] = await Promise.all([
+      const [l, s, j, e, a] = await Promise.all([
         api.get('/listings'),
         api.get('/services'),
         api.get('/jobs'),
         api.get('/events'),
+        api.get('/accommodations'),
       ])
-      setListings(l.data.filter(i => i.user?._id === user._id || i.user === user._id))
-      setServices(s.data.filter(i => i.user?._id === user._id || i.user === user._id))
-      setJobs(j.data.filter(i => i.user?._id === user._id || i.user === user._id))
-      setEvents(e.data.filter(i => i.user?._id === user._id || i.user === user._id))
+      const mine = (arr) => arr.data.filter(i => i.user?._id === user._id || i.user === user._id)
+      setListings(mine(l))
+      setServices(mine(s))
+      setJobs(mine(j))
+      setEvents(mine(e))
+      setAccommodations(mine(a))
     } catch {} finally { setLoading(false) }
   }
 
@@ -51,6 +55,7 @@ export default function MyListings() {
       if (type === 'services') setServices(services.filter(x => x._id !== id))
       if (type === 'jobs') setJobs(jobs.filter(x => x._id !== id))
       if (type === 'events') setEvents(events.filter(x => x._id !== id))
+      if (type === 'accommodations') setAccommodations(accommodations.filter(x => x._id !== id))
     } catch {
       alert('Failed to delete. Please try again.')
     } finally {
@@ -58,16 +63,17 @@ export default function MyListings() {
     }
   }
 
-  const total = listings.length + services.length + jobs.length + events.length
+  const total = listings.length + services.length + jobs.length + events.length + accommodations.length
 
   const tabs = [
     { key: 'listings', label: '🛍️ Items', count: listings.length, color: '#00C896' },
     { key: 'services', label: '🧑‍💼 Services', count: services.length, color: '#7c3aed' },
     { key: 'jobs', label: '💼 Jobs', count: jobs.length, color: '#d97706' },
     { key: 'events', label: '🎉 Events', count: events.length, color: '#be185d' },
+    { key: 'accommodations', label: '🏠 Properties', count: accommodations.length, color: '#0f4c81' },
   ]
 
-  const currentItems = { listings, services, jobs, events }
+  const currentItems = { listings, services, jobs, events, accommodations }
   const currentTabMeta = tabs.find(t => t.key === activeTab)
 
   return (
@@ -99,24 +105,25 @@ export default function MyListings() {
         }
         .ml-new-btn:hover { transform: translateY(-1px); }
 
-        /* Stats row */
-        .ml-stats-row {
-          display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap;
-        }
+        .ml-stats-row { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
         .ml-stat-card {
           background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
-          border-radius: 12px; padding: 12px 18px; flex: 1; min-width: 100px;
+          border-radius: 12px; padding: 12px 18px; flex: 1; min-width: 80px;
         }
         .ml-stat-num { font-size: 20px; font-weight: 800; color: white; }
         .ml-stat-label { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; margin-top: 2px; }
 
         .ml-content { max-width: 900px; margin: 0 auto; padding: 20px 20px 60px; }
 
-        .ml-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .ml-tabs {
+          display: flex; gap: 8px; margin-bottom: 20px;
+          overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+        }
+        .ml-tabs::-webkit-scrollbar { display: none; }
         .ml-tab {
           padding: 8px 16px; border-radius: 20px; border: 1.5px solid #e2e8f0; background: white;
           color: #4b5563; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;
-          font-family: inherit; display: flex; align-items: center; gap: 6px;
+          font-family: inherit; display: flex; align-items: center; gap: 6px; flex-shrink: 0;
         }
         .ml-tab.active { color: white; border-color: transparent; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
         .ml-tab-count {
@@ -132,9 +139,7 @@ export default function MyListings() {
         }
         .ml-item-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
 
-        .ml-item-img {
-          width: 76px; height: 76px; object-fit: cover; border-radius: 12px; flex-shrink: 0;
-        }
+        .ml-item-img { width: 76px; height: 76px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
         .ml-item-img-placeholder {
           width: 76px; height: 76px; border-radius: 12px; flex-shrink: 0;
           background: linear-gradient(135deg, #f1f5f9, #e2e8f0); display: flex;
@@ -142,10 +147,7 @@ export default function MyListings() {
         }
 
         .ml-item-info { flex: 1; min-width: 0; }
-        .ml-item-title {
-          font-weight: 700; font-size: 14.5px; color: #111827; margin: 0 0 4px;
-          overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
+        .ml-item-title { font-weight: 700; font-size: 14.5px; color: #111827; margin: 0 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .ml-item-price { font-weight: 800; font-size: 15px; color: #08162F; margin: 0 0 4px; }
         .ml-item-meta { font-size: 12px; color: #9ca3af; margin: 0; }
         .ml-item-date { font-size: 11px; color: #c4c9d4; margin: 3px 0 0; }
@@ -226,6 +228,10 @@ export default function MyListings() {
                 <div className="ml-stat-num">{jobs.length + events.length}</div>
                 <div className="ml-stat-label">Jobs & Events</div>
               </div>
+              <div className="ml-stat-card">
+                <div className="ml-stat-num">{accommodations.length}</div>
+                <div className="ml-stat-label">Properties</div>
+              </div>
             </div>
           </div>
         </div>
@@ -264,34 +270,26 @@ export default function MyListings() {
           ) : (
             currentItems[activeTab].map(item => {
               const imgUrl = item.images?.[0] ? getImageUrl(item.images[0]) : null
+              const placeholderIcons = { listings: '🛍️', services: '🧑‍💼', jobs: '💼', events: '🎉', accommodations: '🏠' }
               return (
                 <div key={item._id} className="ml-item-card">
-                  {activeTab === 'listings' && (
-                    imgUrl
-                      ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
-                      : <div className="ml-item-img-placeholder">🛍️</div>
-                  )}
-                  {activeTab === 'services' && (
-                    imgUrl
-                      ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
-                      : <div className="ml-item-img-placeholder">🧑‍💼</div>
-                  )}
-                  {activeTab === 'jobs' && <div className="ml-item-img-placeholder">💼</div>}
-                  {activeTab === 'events' && (
-                    imgUrl
-                      ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
-                      : <div className="ml-item-img-placeholder">🎉</div>
-                  )}
+                  {imgUrl
+                    ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
+                    : <div className="ml-item-img-placeholder">{placeholderIcons[activeTab]}</div>
+                  }
 
                   <div className="ml-item-info">
                     <p className="ml-item-title">{item.title}</p>
                     {activeTab === 'listings' && <p className="ml-item-price">${item.price}</p>}
                     {activeTab === 'services' && item.pricePerHour && <p className="ml-item-price">${item.pricePerHour}/hr</p>}
-                    {activeTab === 'jobs' && item.company && <p className="ml-item-meta">{item.company}</p>}
+                    {activeTab === 'jobs' && item.company && <p className="ml-item-meta">🏢 {item.company}</p>}
                     {activeTab === 'events' && item.date && (
                       <p className="ml-item-meta" style={{ color: '#be185d', fontWeight: 600 }}>
                         📅 {new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                       </p>
+                    )}
+                    {activeTab === 'accommodations' && (
+                      <p className="ml-item-price" style={{ color: '#0f4c81' }}>${item.price?.toLocaleString()} <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 500 }}>{item.priceType}</span></p>
                     )}
                     <p className="ml-item-meta">
                       📍 {item.location?.city}{item.location?.area ? ', ' + item.location.area : ''}
