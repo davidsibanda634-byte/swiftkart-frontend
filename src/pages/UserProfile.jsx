@@ -59,7 +59,6 @@ export default function UserProfile() {
     { key: 'events', label: '🎉 Events', count: events.length, color: '#be185d' },
   ]
 
-  // Member since — fallback to oldest item date if user.createdAt unavailable
   const allItems = [...listings, ...services, ...jobs, ...events]
   const oldestDate = allItems.length > 0
     ? allItems.reduce((oldest, item) => new Date(item.createdAt) < new Date(oldest) ? item.createdAt : oldest, allItems[0].createdAt)
@@ -74,7 +73,7 @@ export default function UserProfile() {
         .up-wrap { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fb; min-height: 100vh; }
 
         .up-header { background: linear-gradient(135deg, #08162F 0%, #0f2167 100%); padding: 28px 24px 60px; }
-        .up-header-inner { max-width: 1000px; margin: 0 auto; }
+        .up-header-inner { max-width: 1100px; margin: 0 auto; }
         .up-back {
           background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
           color: rgba(255,255,255,0.8); padding: 6px 14px; border-radius: 8px; font-size: 12px;
@@ -83,10 +82,12 @@ export default function UserProfile() {
         }
         .up-back:hover { background: rgba(255,255,255,0.18); color: white; }
 
+        /* ── Profile card ── */
         .up-profile-card {
           background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12);
           padding: 28px; margin-top: -36px; position: relative; z-index: 2;
           display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+          max-width: 1100px; margin-left: auto; margin-right: auto;
         }
 
         .up-avatar {
@@ -116,13 +117,18 @@ export default function UserProfile() {
         .up-stat-num { font-size: 19px; font-weight: 800; color: #08162F; }
         .up-stat-label { font-size: 10.5px; color: #9ca3af; font-weight: 600; margin-top: 1px; }
 
-        .up-content { max-width: 1000px; margin: 0 auto; padding: 24px 20px 60px; }
+        /* ── Content ── */
+        .up-content { max-width: 1100px; margin: 0 auto; padding: 24px 20px 100px; }
 
-        .up-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .up-tabs {
+          display: flex; gap: 8px; margin-bottom: 20px;
+          overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+        }
+        .up-tabs::-webkit-scrollbar { display: none; }
         .up-tab {
-          padding: 8px 16px; border-radius: 20px; border: 1.5px solid #e2e8f0; background: white;
+          padding: 8px 18px; border-radius: 20px; border: 1.5px solid #e2e8f0; background: white;
           color: #4b5563; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;
-          font-family: inherit; display: flex; align-items: center; gap: 6px;
+          font-family: inherit; display: flex; align-items: center; gap: 6px; flex-shrink: 0;
         }
         .up-tab.active { color: white; border-color: transparent; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
         .up-tab-count {
@@ -131,6 +137,7 @@ export default function UserProfile() {
         }
         .up-tab.active .up-tab-count { background: rgba(255,255,255,0.25); color: white; }
 
+        /* ── Grids — desktop first ── */
         .up-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         .up-grid-services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         .up-grid-wide { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -142,16 +149,47 @@ export default function UserProfile() {
         .up-empty-icon { font-size: 44px; margin-bottom: 10px; }
         .up-empty-text { font-size: 14px; color: #9ca3af; }
 
-        .up-loading { text-align: center; padding: 100px 0; color: #9ca3af; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .up-loading {
+          text-align: center; padding: 100px 0; color: #9ca3af;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
 
+        /* ── Skeleton ── */
+        .up-skeleton {
+          background: white; border-radius: 14px; overflow: hidden; border: 1px solid #f1f5f9;
+        }
+        .up-skeleton-img {
+          width: 100%; aspect-ratio: 4/5;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%; animation: up-shimmer 1.4s infinite;
+        }
+        .up-skeleton-line {
+          height: 12px; margin: 12px 12px 8px; border-radius: 6px;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%; animation: up-shimmer 1.4s infinite;
+        }
+        .up-skeleton-line.short { width: 55%; }
+        @keyframes up-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+          .up-grid { grid-template-columns: repeat(3, 1fr); }
+          .up-grid-services { grid-template-columns: repeat(3, 1fr); }
+        }
         @media (max-width: 768px) {
           .up-header { padding: 20px 16px 50px; }
-          .up-content { padding: 20px 14px 60px; }
+          .up-content { padding: 20px 14px 100px; }
           .up-profile-card { padding: 20px; flex-direction: column; align-items: flex-start; }
           .up-stats { width: 100%; }
           .up-stat-box { flex: 1; }
-          .up-grid, .up-grid-services { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .up-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .up-grid-services { grid-template-columns: repeat(2, 1fr); gap: 12px; }
           .up-grid-wide { grid-template-columns: 1fr; gap: 12px; }
+          .up-name { font-size: 20px; }
+        }
+        @media (max-width: 480px) {
+          .up-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+          .up-grid-services { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         }
       `}</style>
 
@@ -163,7 +201,7 @@ export default function UserProfile() {
         </div>
 
         <div className="up-content" style={{ paddingTop: 0 }}>
-          <div className="up-profile-card" style={{ maxWidth: '1000px', margin: '-36px auto 0' }}>
+          <div className="up-profile-card" style={{ marginTop: '-36px' }}>
             <div className="up-avatar">
               {user?.name?.charAt(0).toUpperCase() || '?'}
             </div>
@@ -197,11 +235,29 @@ export default function UserProfile() {
                 <div className="up-stat-num">{listings.length}</div>
                 <div className="up-stat-label">Items</div>
               </div>
+              <div className="up-stat-box">
+                <div className="up-stat-num">{services.length}</div>
+                <div className="up-stat-label">Services</div>
+              </div>
+              <div className="up-stat-box">
+                <div className="up-stat-num">{jobs.length + events.length}</div>
+                <div className="up-stat-label">Jobs & Events</div>
+              </div>
             </div>
           </div>
 
           {loading ? (
-            <p className="up-loading">Loading profile...</p>
+            <div style={{ marginTop: '24px' }}>
+              <div className="up-grid">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="up-skeleton">
+                    <div className="up-skeleton-img" />
+                    <div className="up-skeleton-line" />
+                    <div className="up-skeleton-line short" />
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : (
             <>
               <div className="up-tabs" style={{ marginTop: '24px' }}>
@@ -221,7 +277,10 @@ export default function UserProfile() {
               {activeTab === 'listings' && (
                 <div className="up-grid">
                   {listings.length === 0 ? (
-                    <div className="up-empty"><div className="up-empty-icon">🛍️</div><p className="up-empty-text">No items posted yet</p></div>
+                    <div className="up-empty">
+                      <div className="up-empty-icon">🛍️</div>
+                      <p className="up-empty-text">No items posted yet</p>
+                    </div>
                   ) : listings.map(l => <ListingCard key={l._id} listing={l} />)}
                 </div>
               )}
@@ -229,7 +288,10 @@ export default function UserProfile() {
               {activeTab === 'services' && (
                 <div className="up-grid-services">
                   {services.length === 0 ? (
-                    <div className="up-empty"><div className="up-empty-icon">🧑‍💼</div><p className="up-empty-text">No services posted yet</p></div>
+                    <div className="up-empty">
+                      <div className="up-empty-icon">🧑‍💼</div>
+                      <p className="up-empty-text">No services posted yet</p>
+                    </div>
                   ) : services.map(s => <ServiceCard key={s._id} service={s} />)}
                 </div>
               )}
@@ -237,7 +299,10 @@ export default function UserProfile() {
               {activeTab === 'jobs' && (
                 <div className="up-grid-wide">
                   {jobs.length === 0 ? (
-                    <div className="up-empty"><div className="up-empty-icon">💼</div><p className="up-empty-text">No jobs posted yet</p></div>
+                    <div className="up-empty">
+                      <div className="up-empty-icon">💼</div>
+                      <p className="up-empty-text">No jobs posted yet</p>
+                    </div>
                   ) : jobs.map(j => <JobCard key={j._id} job={j} />)}
                 </div>
               )}
@@ -245,7 +310,10 @@ export default function UserProfile() {
               {activeTab === 'events' && (
                 <div className="up-grid-wide">
                   {events.length === 0 ? (
-                    <div className="up-empty"><div className="up-empty-icon">🎉</div><p className="up-empty-text">No events posted yet</p></div>
+                    <div className="up-empty">
+                      <div className="up-empty-icon">🎉</div>
+                      <p className="up-empty-text">No events posted yet</p>
+                    </div>
                   ) : events.map(e => <EventCard key={e._id} event={e} />)}
                 </div>
               )}
