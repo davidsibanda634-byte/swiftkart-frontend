@@ -33,7 +33,11 @@ import PrivacyCentre from './pages/legal/PrivacyCentre'
 import CookiePolicy from './pages/legal/CookiePolicy'
 import CommunityGuidelines from './pages/legal/CommunityGuidelines'
 import AboutUs from './pages/AboutUs'
-
+import HowToBuy from './pages/help/HowToBuy'
+import HowToSell from './pages/help/HowToSell'
+import StayingSafe from './pages/help/StayingSafe'
+import ContactSupport from './pages/help/ContactSupport'
+import ReportBug from './pages/help/ReportBug'
 
 export default function AppRoutes() {
   return (
@@ -62,16 +66,21 @@ export default function AppRoutes() {
         <Route path="/jobs/:id" element={<JobDetail />} />
         <Route path="/accommodation" element={<Accommodation />} />
         <Route path="/accommodation/:id" element={<AccommodationDetail />} />
-        <Route path="/profile-menu" element={<ProfileMenu />} />
-        <Route path="*" element={<NotFound />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/services/:id" element={<ServiceDetail />} />
+        <Route path="/profile-menu" element={<ProfileMenu />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/legal/terms" element={<TermsOfUse />} />
         <Route path="/legal/privacy" element={<PrivacyPolicy />} />
         <Route path="/legal/privacy-centre" element={<PrivacyCentre />} />
         <Route path="/legal/cookies" element={<CookiePolicy />} />
         <Route path="/legal/guidelines" element={<CommunityGuidelines />} />
+        <Route path="/help/how-to-buy" element={<HowToBuy />} />
+        <Route path="/help/how-to-sell" element={<HowToSell />} />
+        <Route path="/help/safety" element={<StayingSafe />} />
+        <Route path="/help/contact" element={<ContactSupport />} />
+        <Route path="/help/bug" element={<ReportBug />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )
