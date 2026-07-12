@@ -102,7 +102,7 @@ To exercise any of these rights, contact us at support@scalablenexus.co.zw`
       title: '11. Contact Us',
       content: `For privacy-related questions or to exercise your rights:
 📧 privacy@scalablenexus.co.zw
-📱 WhatsApp: +263 77 000 0000
+📱 WhatsApp: +91303015894
 🌐 scalablenexus.vercel.app`
     },
   ]

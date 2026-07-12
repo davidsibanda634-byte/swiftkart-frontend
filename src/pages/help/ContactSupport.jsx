@@ -14,7 +14,7 @@ export default function ContactSupport() {
   function handleSubmit(e) {
     e.preventDefault()
     const waText = `*Scalablenexus Support Request*\n\nName: ${form.name}\nEmail: ${form.email}\nSubject: ${form.subject}\n\nMessage:\n${form.message}`
-    window.open('https://wa.me/2637700000000?text=' + encodeURIComponent(waText), '_blank')
+    window.open('https://wa.me/917303015894?text=' + encodeURIComponent(waText), '_blank')
     setSubmitted(true)
   }
 
@@ -24,7 +24,7 @@ export default function ContactSupport() {
       title: 'WhatsApp Support',
       body: 'Fastest response. Send us a WhatsApp message and we typically respond within 2 hours during business hours.',
       action: 'Chat on WhatsApp',
-      href: 'https://wa.me/2637700000000'
+      href: 'https://wa.me/917303015894'
     },
     {
       icon: '📧', color: '#2563EB', bg: '#eff6ff',

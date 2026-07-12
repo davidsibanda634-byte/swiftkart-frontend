@@ -71,9 +71,9 @@ export default function StayingSafe() {
       <div style={{ background: 'white', borderRadius: '16px', padding: '20px', border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', marginBottom: '20px' }}>
         <p style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 10px' }}>🆘 Emergency Contacts Zimbabwe</p>
         {[
-          { label: 'Zimbabwe Republic Police', value: '999 or 995' },
+          { label: 'Zimbabwe Republic Police', value: '.... or ....' },
           { label: 'Scalablenexus Support', value: 'support@scalablenexus.co.zw' },
-          { label: 'WhatsApp Support', value: '+263 77 000 0000' },
+          { label: 'WhatsApp Support', value: '+917303015894' },
         ].map((c, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < 2 ? '1px solid #f8fafc' : 'none' }}>
             <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', fontWeight: 500 }}>{c.label}</p>

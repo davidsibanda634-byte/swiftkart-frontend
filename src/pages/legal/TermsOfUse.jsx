@@ -112,7 +112,7 @@ The Platform is provided "as is" without warranties of any kind.`
       title: '13. Contact Us',
       content: `If you have questions about these Terms of Use, contact us at:
 📧 support@scalablenexus.co.zw
-📱 WhatsApp: +263 77 000 0000
+📱 WhatsApp: +917303015894
 🌐 scalablenexus.vercel.app`
     },
   ]

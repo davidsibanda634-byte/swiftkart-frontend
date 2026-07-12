@@ -161,7 +161,7 @@ export default function AboutUs() {
           <div className="ab-contact">
             <p className="ab-contact-title">Get In Touch</p>
             <div className="ab-contact-item">📧 support@scalablenexus.co.zw</div>
-            <div className="ab-contact-item">📱 WhatsApp: +263 77 000 0000</div>
+            <div className="ab-contact-item">📱 WhatsApp: +917303015894</div>
             <div className="ab-contact-item">🌐 scalablenexus.vercel.app</div>
             <div className="ab-contact-item">📍 Zimbabwe 🇿🇼</div>
           </div>
