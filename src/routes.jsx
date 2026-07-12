@@ -27,6 +27,13 @@ import Accommodation from './pages/Accommodation'
 import AccommodationDetail from './pages/AccommodationDetail'
 import EventDetail from './pages/EventDetail'
 import ServiceDetail from './pages/ServiceDetail'
+import TermsOfUse from './pages/legal/TermsOfUse'
+import PrivacyPolicy from './pages/legal/PrivacyPolicy'
+import PrivacyCentre from './pages/legal/PrivacyCentre'
+import CookiePolicy from './pages/legal/CookiePolicy'
+import CommunityGuidelines from './pages/legal/CommunityGuidelines'
+import AboutUs from './pages/AboutUs'
+
 
 export default function AppRoutes() {
   return (
@@ -59,6 +66,12 @@ export default function AppRoutes() {
         <Route path="*" element={<NotFound />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/services/:id" element={<ServiceDetail />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/legal/terms" element={<TermsOfUse />} />
+        <Route path="/legal/privacy" element={<PrivacyPolicy />} />
+        <Route path="/legal/privacy-centre" element={<PrivacyCentre />} />
+        <Route path="/legal/cookies" element={<CookiePolicy />} />
+        <Route path="/legal/guidelines" element={<CommunityGuidelines />} />
       </Route>
     </Routes>
   )
