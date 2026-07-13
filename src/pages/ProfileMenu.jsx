@@ -53,10 +53,29 @@ export default function ProfileMenu() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+        /* ── Root — full viewport, dark background like CreateListing ── */
+        .pm-page-bg {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          min-height: 100vh;
+          background-image:
+            linear-gradient(to bottom, rgba(8,14,40,0.92) 0%, rgba(10,20,55,0.88) 50%, rgba(8,14,40,0.95) 100%),
+            url('https://images.unsplash.com/photo-1562774053-701939374585?w=1600&q=80');
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          padding: 0;
+        }
+
+        /* ── The actual profile panel ── */
         .pm-wrap {
           font-family: 'Plus Jakarta Sans', sans-serif;
           min-height: 100vh;
           background: #0a0f1e;
+          width: 100%;
+          max-width: 560px;
         }
 
         /* ── Header ── */
@@ -134,9 +153,7 @@ export default function ProfileMenu() {
         }
         .pm-group-title { font-size: 14px; font-weight: 700; color: white; }
         .pm-group-sub { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; margin-top: 1px; }
-        .pm-group-chevron {
-          font-size: 12px; color: rgba(255,255,255,0.3); transition: transform 0.25s;
-        }
+        .pm-group-chevron { font-size: 12px; color: rgba(255,255,255,0.3); transition: transform 0.25s; }
         .pm-group-chevron.open { transform: rotate(180deg); }
 
         /* ── Dropdown body ── */
@@ -168,7 +185,7 @@ export default function ProfileMenu() {
         }
         .pm-item-arrow { margin-left: auto; color: rgba(255,255,255,0.18); font-size: 13px; }
 
-        /* ── Direct link (not in dropdown) ── */
+        /* ── Direct link ── */
         .pm-direct-item {
           display: flex; align-items: center; gap: 13px;
           padding: 14px 16px; border-radius: 14px; font-size: 13.5px; font-weight: 600;
@@ -196,138 +213,95 @@ export default function ProfileMenu() {
         .pm-version { text-align: center; font-size: 11px; color: rgba(255,255,255,0.18); font-weight: 600; margin-top: 24px; }
         .pm-version span { color: #00C896; }
 
-        @media (min-width: 769px) { .pm-wrap { max-width: 520px; margin: 0 auto; } }
+        /* ── Desktop ── */
+        @media (min-width: 769px) {
+          .pm-page-bg {
+            padding: 0;
+            align-items: stretch;
+          }
+          .pm-wrap {
+            max-width: 560px;
+            border-left: 1px solid rgba(255,255,255,0.06);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 0 80px rgba(0,0,0,0.5);
+          }
+          .pm-content { padding: 14px 20px 80px; }
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+          .pm-page-bg { background: none; }
+          .pm-wrap { max-width: 100%; }
+        }
       `}</style>
 
-      <div className="pm-wrap">
+      {/* ── Outer bg wrapper — dark campus photo on desktop ── */}
+      <div className="pm-page-bg">
+        <div className="pm-wrap">
 
-        {/* ── Header ── */}
-        <div className="pm-header">
-          <button className="pm-back" onClick={() => navigate(-1)}>←</button>
-          <div className="pm-avatar-wrap">
+          {/* ── Header ── */}
+          <div className="pm-header">
+            <button className="pm-back" onClick={() => navigate(-1)}>←</button>
+            <div className="pm-avatar-wrap">
+              {user ? (
+                <>
+                  <div className="pm-avatar">{user.name?.charAt(0).toUpperCase()}</div>
+                  <p className="pm-name">{user.name}</p>
+                  <p className="pm-email">{user.email}</p>
+                  <div className="pm-verified-badge">✅ Campus Member</div>
+                  <div className="pm-stats">
+                    <div className="pm-stat">
+                      <div className="pm-stat-num">✓</div>
+                      <div className="pm-stat-label">Verified</div>
+                    </div>
+                    <div className="pm-stat">
+                      <div className="pm-stat-num">📍</div>
+                      <div className="pm-stat-label">{user.location?.city || 'Campus'}</div>
+                    </div>
+                    <div className="pm-stat">
+                      <div className="pm-stat-num">🛍️</div>
+                      <div className="pm-stat-label">Seller</div>
+                    </div>
+                    <div className="pm-stat">
+                      <div className="pm-stat-num">📱</div>
+                      <div className="pm-stat-label">WhatsApp</div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="pm-avatar-guest">👤</div>
+                  <p className="pm-guest-label">Welcome, Guest</p>
+                  <p className="pm-email" style={{ marginTop: 4 }}>Sign in to access your account</p>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ── Content ── */}
+          <div className="pm-content">
+
             {user ? (
               <>
-                <div className="pm-avatar">{user.name?.charAt(0).toUpperCase()}</div>
-                <p className="pm-name">{user.name}</p>
-                <p className="pm-email">{user.email}</p>
-                <div className="pm-verified-badge">✅ Campus Member</div>
-                <div className="pm-stats">
-                  <div className="pm-stat">
-                    <div className="pm-stat-num">✓</div>
-                    <div className="pm-stat-label">Verified</div>
-                  </div>
-                  <div className="pm-stat">
-                    <div className="pm-stat-num">📍</div>
-                    <div className="pm-stat-label">{user.location?.city || 'Campus'}</div>
-                  </div>
-                  <div className="pm-stat">
-                    <div className="pm-stat-num">🛍️</div>
-                    <div className="pm-stat-label">Seller</div>
-                  </div>
-                  <div className="pm-stat">
-                    <div className="pm-stat-num">📱</div>
-                    <div className="pm-stat-label">WhatsApp</div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="pm-avatar-guest">👤</div>
-                <p className="pm-guest-label">Welcome, Guest</p>
-                <p className="pm-email" style={{ marginTop: 4 }}>Sign in to access your account</p>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* ── Content ── */}
-        <div className="pm-content">
-
-          {user ? (
-            <>
-              {/* ── Manage Account dropdown ── */}
-              <div className="pm-group">
-                <div
-                  className={'pm-group-header' + (openSection === 'account' ? ' open' : '')}
-                  onClick={() => toggleSection('account')}
-                >
-                  <div className="pm-group-left">
-                    <div className="pm-group-icon" style={{ background: 'rgba(0,200,150,0.12)' }}>⚙️</div>
-                    <div>
-                      <div className="pm-group-title">Manage Account</div>
-                      <div className="pm-group-sub">Profile, listings, saved items</div>
-                    </div>
-                  </div>
-                  <span className={'pm-group-chevron' + (openSection === 'account' ? ' open' : '')}>▼</span>
-                </div>
-                {openSection === 'account' && (
-                  <div className="pm-dropdown">
-                    {accountItems.map(item => (
-                      <Link key={item.label} to={item.to} className="pm-item">
-                        <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                        {item.label}
-                        <span className="pm-item-arrow">›</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* ── Explore dropdown ── */}
-              <div className="pm-group">
-                <div
-                  className={'pm-group-header' + (openSection === 'explore' ? ' open' : '')}
-                  onClick={() => toggleSection('explore')}
-                >
-                  <div className="pm-group-left">
-                    <div className="pm-group-icon" style={{ background: 'rgba(37,99,235,0.12)' }}>🗂️</div>
-                    <div>
-                      <div className="pm-group-title">Explore Platform</div>
-                      <div className="pm-group-sub">Marketplace, jobs, events & more</div>
-                    </div>
-                  </div>
-                  <span className={'pm-group-chevron' + (openSection === 'explore' ? ' open' : '')}>▼</span>
-                </div>
-                {openSection === 'explore' && (
-                  <div className="pm-dropdown">
-                    {exploreItems.map(item => (
-                      <Link key={item.label} to={item.to} className="pm-item">
-                        <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                        {item.label}
-                        <span className="pm-item-arrow">›</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* ── Admin ── */}
-              {user.isAdmin && (
+                {/* ── Manage Account dropdown ── */}
                 <div className="pm-group">
                   <div
-                    className={'pm-group-header' + (openSection === 'admin' ? ' open' : '')}
-                    onClick={() => toggleSection('admin')}
+                    className={'pm-group-header' + (openSection === 'account' ? ' open' : '')}
+                    onClick={() => toggleSection('account')}
                   >
                     <div className="pm-group-left">
-                      <div className="pm-group-icon" style={{ background: 'rgba(124,58,237,0.15)' }}>🛡️</div>
+                      <div className="pm-group-icon" style={{ background: 'rgba(0,200,150,0.12)' }}>⚙️</div>
                       <div>
-                        <div className="pm-group-title" style={{ color: '#c4b5fd' }}>Administration</div>
-                        <div className="pm-group-sub">Manage the platform</div>
+                        <div className="pm-group-title">Manage Account</div>
+                        <div className="pm-group-sub">Profile, listings, saved items</div>
                       </div>
                     </div>
-                    <span className={'pm-group-chevron' + (openSection === 'admin' ? ' open' : '')}>▼</span>
+                    <span className={'pm-group-chevron' + (openSection === 'account' ? ' open' : '')}>▼</span>
                   </div>
-                  {openSection === 'admin' && (
+                  {openSection === 'account' && (
                     <div className="pm-dropdown">
-                      {[
-                        { icon: '📊', label: 'Dashboard', to: '/admin', bg: 'rgba(124,58,237,0.15)' },
-                        { icon: '👤', label: 'Manage Users', to: '/admin/users', bg: 'rgba(124,58,237,0.15)' },
-                        { icon: '🛍️', label: 'Manage Listings', to: '/admin/listings', bg: 'rgba(124,58,237,0.15)' },
-                        { icon: '🚩', label: 'Reports', to: '/admin/reports', bg: 'rgba(239,68,68,0.12)' },
-                        { icon: '📈', label: 'Analytics', to: '/admin/analytics', bg: 'rgba(124,58,237,0.15)' },
-                        { icon: '💬', label: 'Activity Feed', to: '/admin/activity', bg: 'rgba(124,58,237,0.15)' },
-                      ].map(item => (
-                        <Link key={item.label} to={item.to} className="pm-item admin-item">
+                      {accountItems.map(item => (
+                        <Link key={item.label} to={item.to} className="pm-item">
                           <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
                           {item.label}
                           <span className="pm-item-arrow">›</span>
@@ -336,177 +310,242 @@ export default function ProfileMenu() {
                     </div>
                   )}
                 </div>
-              )}
 
-              <hr className="pm-divider" />
-
-              {/* ── Help Centre dropdown ── */}
-              <div className="pm-group">
-                <div
-                  className={'pm-group-header' + (openSection === 'help' ? ' open' : '')}
-                  onClick={() => toggleSection('help')}
-                >
-                  <div className="pm-group-left">
-                    <div className="pm-group-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>🆘</div>
-                    <div>
-                      <div className="pm-group-title">Help Centre</div>
-                      <div className="pm-group-sub">Guides, safety tips, support</div>
+                {/* ── Explore dropdown ── */}
+                <div className="pm-group">
+                  <div
+                    className={'pm-group-header' + (openSection === 'explore' ? ' open' : '')}
+                    onClick={() => toggleSection('explore')}
+                  >
+                    <div className="pm-group-left">
+                      <div className="pm-group-icon" style={{ background: 'rgba(37,99,235,0.12)' }}>🗂️</div>
+                      <div>
+                        <div className="pm-group-title">Explore Platform</div>
+                        <div className="pm-group-sub">Marketplace, jobs, events & more</div>
+                      </div>
                     </div>
+                    <span className={'pm-group-chevron' + (openSection === 'explore' ? ' open' : '')}>▼</span>
                   </div>
-                  <span className={'pm-group-chevron' + (openSection === 'help' ? ' open' : '')}>▼</span>
+                  {openSection === 'explore' && (
+                    <div className="pm-dropdown">
+                      {exploreItems.map(item => (
+                        <Link key={item.label} to={item.to} className="pm-item">
+                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
+                          {item.label}
+                          <span className="pm-item-arrow">›</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {openSection === 'help' && (
-                  <div className="pm-dropdown">
-                    {helpItems.map(item => (
-                      <Link key={item.label} to={item.to} className="pm-item">
-                        <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                        {item.label}
-                        <span className="pm-item-arrow">›</span>
-                      </Link>
-                    ))}
+
+                {/* ── Admin ── */}
+                {user.isAdmin && (
+                  <div className="pm-group">
+                    <div
+                      className={'pm-group-header' + (openSection === 'admin' ? ' open' : '')}
+                      onClick={() => toggleSection('admin')}
+                    >
+                      <div className="pm-group-left">
+                        <div className="pm-group-icon" style={{ background: 'rgba(124,58,237,0.15)' }}>🛡️</div>
+                        <div>
+                          <div className="pm-group-title" style={{ color: '#c4b5fd' }}>Administration</div>
+                          <div className="pm-group-sub">Manage the platform</div>
+                        </div>
+                      </div>
+                      <span className={'pm-group-chevron' + (openSection === 'admin' ? ' open' : '')}>▼</span>
+                    </div>
+                    {openSection === 'admin' && (
+                      <div className="pm-dropdown">
+                        {[
+                          { icon: '📊', label: 'Dashboard', to: '/admin', bg: 'rgba(124,58,237,0.15)' },
+                          { icon: '👤', label: 'Manage Users', to: '/admin/users', bg: 'rgba(124,58,237,0.15)' },
+                          { icon: '🛍️', label: 'Manage Listings', to: '/admin/listings', bg: 'rgba(124,58,237,0.15)' },
+                          { icon: '🚩', label: 'Reports', to: '/admin/reports', bg: 'rgba(239,68,68,0.12)' },
+                          { icon: '📈', label: 'Analytics', to: '/admin/analytics', bg: 'rgba(124,58,237,0.15)' },
+                          { icon: '💬', label: 'Activity Feed', to: '/admin/activity', bg: 'rgba(124,58,237,0.15)' },
+                        ].map(item => (
+                          <Link key={item.label} to={item.to} className="pm-item admin-item">
+                            <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
+                            {item.label}
+                            <span className="pm-item-arrow">›</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
 
-              {/* ── Legal & Policies dropdown ── */}
-              <div className="pm-group">
-                <div
-                  className={'pm-group-header' + (openSection === 'legal' ? ' open' : '')}
-                  onClick={() => toggleSection('legal')}
-                >
-                  <div className="pm-group-left">
-                    <div className="pm-group-icon" style={{ background: 'rgba(255,255,255,0.06)' }}>⚖️</div>
-                    <div>
-                      <div className="pm-group-title">Legal & Policies</div>
-                      <div className="pm-group-sub">Terms, privacy, about us</div>
+                <hr className="pm-divider" />
+
+                {/* ── Help Centre dropdown ── */}
+                <div className="pm-group">
+                  <div
+                    className={'pm-group-header' + (openSection === 'help' ? ' open' : '')}
+                    onClick={() => toggleSection('help')}
+                  >
+                    <div className="pm-group-left">
+                      <div className="pm-group-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>🆘</div>
+                      <div>
+                        <div className="pm-group-title">Help Centre</div>
+                        <div className="pm-group-sub">Guides, safety tips, support</div>
+                      </div>
                     </div>
+                    <span className={'pm-group-chevron' + (openSection === 'help' ? ' open' : '')}>▼</span>
                   </div>
-                  <span className={'pm-group-chevron' + (openSection === 'legal' ? ' open' : '')}>▼</span>
-                </div>
-                {openSection === 'legal' && (
-                  <div className="pm-dropdown">
-                    {legalItems.map(item => (
-                      <Link key={item.label} to={item.to} className="pm-item">
-                        <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                        {item.label}
-                        <span className="pm-item-arrow">›</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <hr className="pm-divider" />
-
-              {/* ── Logout ── */}
-              <button className="pm-direct-item danger" onClick={handleLogout}>
-                <div className="pm-item-icon" style={{ background: 'rgba(239,68,68,0.12)' }}>🚪</div>
-                Logout
-                <span className="pm-item-arrow">›</span>
-              </button>
-            </>
-          ) : (
-            <>
-              {/* ── Guest: Explore dropdown ── */}
-              <div className="pm-group">
-                <div
-                  className={'pm-group-header' + (openSection === 'explore' ? ' open' : '')}
-                  onClick={() => toggleSection('explore')}
-                >
-                  <div className="pm-group-left">
-                    <div className="pm-group-icon" style={{ background: 'rgba(37,99,235,0.12)' }}>🗂️</div>
-                    <div>
-                      <div className="pm-group-title">Explore Platform</div>
-                      <div className="pm-group-sub">Browse without an account</div>
+                  {openSection === 'help' && (
+                    <div className="pm-dropdown">
+                      {helpItems.map(item => (
+                        <Link key={item.label} to={item.to} className="pm-item">
+                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
+                          {item.label}
+                          <span className="pm-item-arrow">›</span>
+                        </Link>
+                      ))}
                     </div>
-                  </div>
-                  <span className={'pm-group-chevron' + (openSection === 'explore' ? ' open' : '')}>▼</span>
+                  )}
                 </div>
-                {openSection === 'explore' && (
-                  <div className="pm-dropdown">
-                    {exploreItems.map(item => (
-                      <Link key={item.label} to={item.to} className="pm-item">
-                        <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                        {item.label}
-                        <span className="pm-item-arrow">›</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
 
-              {/* ── Guest: Help ── */}
-              <div className="pm-group">
-                <div
-                  className={'pm-group-header' + (openSection === 'help' ? ' open' : '')}
-                  onClick={() => toggleSection('help')}
-                >
-                  <div className="pm-group-left">
-                    <div className="pm-group-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>🆘</div>
-                    <div>
-                      <div className="pm-group-title">Help Centre</div>
-                      <div className="pm-group-sub">Guides, safety tips, support</div>
+                {/* ── Legal & Policies dropdown ── */}
+                <div className="pm-group">
+                  <div
+                    className={'pm-group-header' + (openSection === 'legal' ? ' open' : '')}
+                    onClick={() => toggleSection('legal')}
+                  >
+                    <div className="pm-group-left">
+                      <div className="pm-group-icon" style={{ background: 'rgba(255,255,255,0.06)' }}>⚖️</div>
+                      <div>
+                        <div className="pm-group-title">Legal & Policies</div>
+                        <div className="pm-group-sub">Terms, privacy, about us</div>
+                      </div>
                     </div>
+                    <span className={'pm-group-chevron' + (openSection === 'legal' ? ' open' : '')}>▼</span>
                   </div>
-                  <span className={'pm-group-chevron' + (openSection === 'help' ? ' open' : '')}>▼</span>
-                </div>
-                {openSection === 'help' && (
-                  <div className="pm-dropdown">
-                    {helpItems.map(item => (
-                      <Link key={item.label} to={item.to} className="pm-item">
-                        <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                        {item.label}
-                        <span className="pm-item-arrow">›</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* ── Guest: Legal ── */}
-              <div className="pm-group">
-                <div
-                  className={'pm-group-header' + (openSection === 'legal' ? ' open' : '')}
-                  onClick={() => toggleSection('legal')}
-                >
-                  <div className="pm-group-left">
-                    <div className="pm-group-icon" style={{ background: 'rgba(255,255,255,0.06)' }}>⚖️</div>
-                    <div>
-                      <div className="pm-group-title">Legal & Policies</div>
-                      <div className="pm-group-sub">Terms, privacy, about us</div>
+                  {openSection === 'legal' && (
+                    <div className="pm-dropdown">
+                      {legalItems.map(item => (
+                        <Link key={item.label} to={item.to} className="pm-item">
+                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
+                          {item.label}
+                          <span className="pm-item-arrow">›</span>
+                        </Link>
+                      ))}
                     </div>
-                  </div>
-                  <span className={'pm-group-chevron' + (openSection === 'legal' ? ' open' : '')}>▼</span>
+                  )}
                 </div>
-                {openSection === 'legal' && (
-                  <div className="pm-dropdown">
-                    {legalItems.map(item => (
-                      <Link key={item.label} to={item.to} className="pm-item">
-                        <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                        {item.label}
-                        <span className="pm-item-arrow">›</span>
-                      </Link>
-                    ))}
+
+                <hr className="pm-divider" />
+
+                {/* ── Logout ── */}
+                <button className="pm-direct-item danger" onClick={handleLogout}>
+                  <div className="pm-item-icon" style={{ background: 'rgba(239,68,68,0.12)' }}>🚪</div>
+                  Logout
+                  <span className="pm-item-arrow">›</span>
+                </button>
+              </>
+            ) : (
+              <>
+                {/* ── Guest: Explore dropdown ── */}
+                <div className="pm-group">
+                  <div
+                    className={'pm-group-header' + (openSection === 'explore' ? ' open' : '')}
+                    onClick={() => toggleSection('explore')}
+                  >
+                    <div className="pm-group-left">
+                      <div className="pm-group-icon" style={{ background: 'rgba(37,99,235,0.12)' }}>🗂️</div>
+                      <div>
+                        <div className="pm-group-title">Explore Platform</div>
+                        <div className="pm-group-sub">Browse without an account</div>
+                      </div>
+                    </div>
+                    <span className={'pm-group-chevron' + (openSection === 'explore' ? ' open' : '')}>▼</span>
                   </div>
-                )}
-              </div>
+                  {openSection === 'explore' && (
+                    <div className="pm-dropdown">
+                      {exploreItems.map(item => (
+                        <Link key={item.label} to={item.to} className="pm-item">
+                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
+                          {item.label}
+                          <span className="pm-item-arrow">›</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-              <hr className="pm-divider" />
+                {/* ── Guest: Help ── */}
+                <div className="pm-group">
+                  <div
+                    className={'pm-group-header' + (openSection === 'help' ? ' open' : '')}
+                    onClick={() => toggleSection('help')}
+                  >
+                    <div className="pm-group-left">
+                      <div className="pm-group-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>🆘</div>
+                      <div>
+                        <div className="pm-group-title">Help Centre</div>
+                        <div className="pm-group-sub">Guides, safety tips, support</div>
+                      </div>
+                    </div>
+                    <span className={'pm-group-chevron' + (openSection === 'help' ? ' open' : '')}>▼</span>
+                  </div>
+                  {openSection === 'help' && (
+                    <div className="pm-dropdown">
+                      {helpItems.map(item => (
+                        <Link key={item.label} to={item.to} className="pm-item">
+                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
+                          {item.label}
+                          <span className="pm-item-arrow">›</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-              <div className="pm-auth">
-                <Link to="/login" className="pm-auth-btn"
-                  style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  Login to Your Account
-                </Link>
-                <Link to="/register" className="pm-auth-btn"
-                  style={{ background: 'linear-gradient(135deg,#00C896,#059669)', color: 'white' }}>
-                  Register Free — Join the Community
-                </Link>
-              </div>
-            </>
-          )}
+                {/* ── Guest: Legal ── */}
+                <div className="pm-group">
+                  <div
+                    className={'pm-group-header' + (openSection === 'legal' ? ' open' : '')}
+                    onClick={() => toggleSection('legal')}
+                  >
+                    <div className="pm-group-left">
+                      <div className="pm-group-icon" style={{ background: 'rgba(255,255,255,0.06)' }}>⚖️</div>
+                      <div>
+                        <div className="pm-group-title">Legal & Policies</div>
+                        <div className="pm-group-sub">Terms, privacy, about us</div>
+                      </div>
+                    </div>
+                    <span className={'pm-group-chevron' + (openSection === 'legal' ? ' open' : '')}>▼</span>
+                  </div>
+                  {openSection === 'legal' && (
+                    <div className="pm-dropdown">
+                      {legalItems.map(item => (
+                        <Link key={item.label} to={item.to} className="pm-item">
+                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
+                          {item.label}
+                          <span className="pm-item-arrow">›</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-          <p className="pm-version">Scalable<span>nexus</span> v1.0 · Built for Campus Zimbabwe</p>
+                <hr className="pm-divider" />
+
+                <div className="pm-auth">
+                  <Link to="/login" className="pm-auth-btn"
+                    style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.12)' }}>
+                    Login to Your Account
+                  </Link>
+                  <Link to="/register" className="pm-auth-btn"
+                    style={{ background: 'linear-gradient(135deg,#00C896,#059669)', color: 'white' }}>
+                    Register Free — Join the Community
+                  </Link>
+                </div>
+              </>
+            )}
+
+            <p className="pm-version">Scalable<span>nexus</span> v1.0 · Built for Campus Zimbabwe</p>
+          </div>
         </div>
       </div>
     </>
