@@ -1,30 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 
 export default function Navbar() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [profileOpen, setProfileOpen] = useState(false)
-  const profileRef = useRef(null)
-
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-    setMenuOpen(false)
-    setProfileOpen(false)
-  }
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
-        setProfileOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
 
   return (
     <>
@@ -117,6 +97,7 @@ export default function Navbar() {
           align-items: center;
         }
         .sk-btn-outline:hover { background: rgba(255,255,255,0.18); }
+
         .sk-btn-green {
           background: linear-gradient(135deg, #00C896, #059669);
           color: white;
@@ -136,7 +117,7 @@ export default function Navbar() {
         }
         .sk-btn-green:hover { transform: translateY(-1px); }
 
-        .sk-profile-wrap { position: relative; }
+        /* ── Desktop profile avatar — clicks to /profile-menu ── */
         .sk-profile-avatar {
           width: 34px;
           height: 34px;
@@ -152,58 +133,11 @@ export default function Navbar() {
           border: 2px solid rgba(255,255,255,0.2);
           transition: all 0.2s;
           flex-shrink: 0;
+          text-decoration: none;
         }
         .sk-profile-avatar:hover { border-color: #00C896; transform: scale(1.05); }
-        .sk-profile-dropdown {
-          position: absolute;
-          top: calc(100% + 10px);
-          right: 0;
-          background: white;
-          border-radius: 14px;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-          padding: 8px;
-          min-width: 200px;
-          z-index: 300;
-          border: 1px solid #f1f5f9;
-          animation: sk-dropdown-in 0.15s ease;
-        }
-        @keyframes sk-dropdown-in {
-          from { opacity: 0; transform: translateY(-8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .sk-dropdown-header {
-          padding: 10px 12px 8px;
-          border-bottom: 1px solid #f1f5f9;
-          margin-bottom: 6px;
-        }
-        .sk-dropdown-name { font-size: 14px; font-weight: 700; color: #111827; }
-        .sk-dropdown-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
-        .sk-dropdown-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 9px 12px;
-          border-radius: 9px;
-          font-size: 13px;
-          font-weight: 600;
-          color: #374151;
-          text-decoration: none;
-          cursor: pointer;
-          transition: background 0.15s;
-          border: none;
-          background: none;
-          width: 100%;
-          font-family: inherit;
-        }
-        .sk-dropdown-item:hover { background: #f8fafc; color: #111827; }
-        .sk-dropdown-item.danger { color: #ef4444; }
-        .sk-dropdown-item.danger:hover { background: #fef2f2; }
-        .sk-dropdown-item.admin { color: #7c3aed; }
-        .sk-dropdown-item.admin:hover { background: #f5f3ff; }
-        .sk-dropdown-divider { border: none; border-top: 1px solid #f1f5f9; margin: 6px 0; }
-        .sk-dropdown-icon { font-size: 16px; width: 20px; text-align: center; }
 
-        /* ── MOBILE PROFILE BUTTON ── */
+        /* ── Mobile profile button ── */
         .sk-mobile-profile-btn {
           display: none;
           align-items: center;
@@ -258,37 +192,10 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link to="/create" className="sk-btn-green">+ Post Listing</Link>
-                <div className="sk-profile-wrap" ref={profileRef}>
-                  <div className="sk-profile-avatar" onClick={() => setProfileOpen(!profileOpen)}>
-                    {user.name?.charAt(0).toUpperCase()}
-                  </div>
-                  {profileOpen && (
-                    <div className="sk-profile-dropdown">
-                      <div className="sk-dropdown-header">
-                        <div className="sk-dropdown-name">{user.name}</div>
-                        <div className="sk-dropdown-sub">{user.email}</div>
-                      </div>
-                      <Link to="/my-listings" className="sk-dropdown-item" onClick={() => setProfileOpen(false)}>
-                        <span className="sk-dropdown-icon">🛍️</span> My Listings
-                      </Link>
-                      {user.isAdmin && (
-                        <Link to="/admin" className="sk-dropdown-item admin" onClick={() => setProfileOpen(false)}>
-                          <span className="sk-dropdown-icon">🛡️</span> Admin Panel
-                        </Link>
-                      )}
-                      <Link to="/saved" className="sk-dropdown-item" onClick={() => setProfileOpen(false)}>
-                        <span className="sk-dropdown-icon">❤️</span> Saved Items
-                      </Link>
-                      <Link to={'/profile/' + user._id} className="sk-dropdown-item" onClick={() => setProfileOpen(false)}>
-                        <span className="sk-dropdown-icon">👤</span> My Profile
-                      </Link>
-                      <hr className="sk-dropdown-divider" />
-                      <button className="sk-dropdown-item danger" onClick={handleLogout}>
-                        <span className="sk-dropdown-icon">🚪</span> Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {/* Desktop profile avatar — goes to full profile menu page */}
+                <Link to="/profile-menu" className="sk-profile-avatar">
+                  {user.name?.charAt(0).toUpperCase()}
+                </Link>
               </>
             ) : (
               <>
@@ -298,7 +205,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile: navigates to /profile-menu page */}
+          {/* Mobile profile button — also goes to /profile-menu */}
           <button
             className="sk-mobile-profile-btn"
             onClick={() => navigate('/profile-menu')}
