@@ -406,7 +406,7 @@ export default function MyListings() {
                       onClick={() => deleteItem(typeEndpoints[activeTab], item._id)}
                     >
                       {deletingId === item._id ? '...' : '🗑️ Delete'}
-                    </button>
+                  </button>
                   </div>
                 </div>
               )

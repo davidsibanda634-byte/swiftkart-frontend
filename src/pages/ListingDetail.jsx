@@ -38,15 +38,33 @@ export default function ListingDetail() {
   }, [id])
 
   function trackRecentlyViewed(item) {
-    try {
-      const key = 'sk_recently_viewed'
-      const existing = JSON.parse(localStorage.getItem(key) || '[]')
-      const filtered = existing.filter(function(x) { return x !== item._id })
-      filtered.unshift(item._id)
-      const trimmed = filtered.slice(0, 10)
-      localStorage.setItem(key, JSON.stringify(trimmed))
-    } catch (e) {}
+  try {
+    const key = 'sk_recently_viewed'
+
+    const existing = JSON.parse(localStorage.getItem(key) || '[]')
+
+    const filtered = existing.filter(function(x) {
+      return x._id !== item._id
+    })
+
+    filtered.unshift({
+      _id: item._id,
+      title: item.title,
+      price: item.price,
+      image:
+        item.images && item.images.length > 0
+          ? getImg(item.images[0])
+          : null
+    })
+
+    localStorage.setItem(
+      key,
+      JSON.stringify(filtered.slice(0, 10))
+    )
+  } catch (e) {
+    console.log(e)
   }
+}
 
   function fetchSimilar(currentListing) {
     setSimilarLoading(true)

@@ -46,13 +46,11 @@ export default function Home() {
     setSavedIds(prev => isSaved ? [...prev, id] : prev.filter(s => s !== id))
   }
 
-  // Just Dropped — listings posted in the last 6 hours
   const justDropped = allListings.filter(l => {
     const hoursOld = (new Date() - new Date(l.createdAt)) / (1000 * 60 * 60)
     return hoursOld <= 6
   })
 
-  // Featured — most recent 4
   const featured = allListings.slice(0, 4)
 
   const SkeletonCard = () => (
@@ -72,7 +70,6 @@ export default function Home() {
 
         .home-wrap { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fb; }
 
-        /* ── Just Dropped strip ── */
         .jd-strip {
           background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
           padding: 18px 20px 22px;
@@ -131,7 +128,6 @@ export default function Home() {
           padding: 2px 7px; border-radius: 20px; letter-spacing: 0.3px;
         }
 
-        /* ── Section headers ── */
         .home-section { max-width: 1240px; margin: 0 auto; padding: 24px 20px 0; }
         .home-section-header {
           display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
@@ -147,23 +143,33 @@ export default function Home() {
         }
         .home-view-all:hover { opacity: 0.75; }
 
-        /* ── Grid ── */
         .home-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
         /* ── Recently Viewed ── */
-        .rv-scroll { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+        .rv-scroll {
+          display: flex; gap: 12px; overflow-x: auto;
+          scrollbar-width: none; padding-bottom: 4px;
+        }
         .rv-scroll::-webkit-scrollbar { display: none; }
         .rv-card {
-          flex-shrink: 0; width: 140px; background: white; border-radius: 14px; overflow: hidden;
-          border: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+          flex-shrink: 0; width: 160px; background: white; border-radius: 14px;
+          overflow: hidden; border: 1px solid #f1f5f9; cursor: pointer;
+          transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .rv-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        .rv-card-img { width: 100%; height: 140px; object-fit: cover; display: block; }
-        .rv-card-no-img { width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; font-size: 36px; background: #f8fafc; }
+        .rv-card-img {
+          width: 100%; height: 140px; object-fit: cover; display: block;
+        }
+        .rv-card-no-img {
+          width: 100%; height: 140px; display: flex; align-items: center;
+          justify-content: center; font-size: 36px; background: #f8fafc;
+        }
         .rv-card-body { padding: 10px; }
-        .rv-card-title { font-size: 11.5px; font-weight: 700; color: #111827; margin: 0 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .rv-card-price { font-size: 12px; font-weight: 800; color: #00C896; margin: 0; }
+        .rv-card-title {
+          font-size: 11.5px; font-weight: 700; color: #111827; margin: 0 0 4px;
+          overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .rv-card-price { font-size: 13px; font-weight: 800; color: #00C896; margin: 0; }
 
         .home-loader { text-align: center; padding: 30px; color: #9ca3af; font-size: 13px; }
 
@@ -208,7 +214,7 @@ export default function Home() {
                     <div key={l._id} className="jd-card-wrap" onClick={() => navigate('/listings/' + l._id)}>
                       <span className="jd-new-badge">NEW</span>
                       <div className="jd-card">
-                        {img
+                        {img && img.startsWith('http')
                           ? <img className="jd-card-img" src={img} alt={l.title} />
                           : <div className="jd-card-no-img">🛍️</div>
                         }
@@ -279,14 +285,33 @@ export default function Home() {
 
             <div className="rv-scroll">
               {recentlyViewed.map(item => (
-                <div key={item._id} className="rv-card" onClick={() => navigate('/listings/' + item._id)}>
-                  {item.image
-                    ? <img className="rv-card-img" src={item.image} alt={item.title} />
-                    : <div className="rv-card-no-img">🛍️</div>
+                <div
+                  key={item._id}
+                  className="rv-card"
+                  onClick={() => navigate('/listings/' + item._id)}
+                >
+                  {/* ── Fixed: check image exists and is a real URL ── */}
+                  {item.image && item.image.startsWith('http')
+                    ? <img
+                        className="rv-card-img"
+                        src={item.image}
+                        alt={item.title}
+                        onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }}
+                      />
+                    : null
                   }
+                  {(!item.image || !item.image.startsWith('http')) && (
+                    <div className="rv-card-no-img">🛍️</div>
+                  )}
                   <div className="rv-card-body">
                     <p className="rv-card-title">{item.title}</p>
-                    <p className="rv-card-price">${item.price}</p>
+                    {/* ── Fixed: check price exists before showing $ ── */}
+                    <p className="rv-card-price">
+                      {item.price !== undefined && item.price !== null && item.price !== ''
+                        ? '$' + Number(item.price).toLocaleString()
+                        : 'View listing'
+                      }
+                    </p>
                   </div>
                 </div>
               ))}
