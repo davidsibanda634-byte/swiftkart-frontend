@@ -33,71 +33,17 @@ export default defineConfig({
         ]
       },
       workbox: {
-        // Cache the app shell
+        // Only cache the app shell — JS, CSS, HTML, fonts, icons
+        // Nothing else — all data must come fresh from the network
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // Cache API responses for offline browsing
-        runtimeCaching: [
-          {
-            // Cache listing images from Cloudinary / backend
-            urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'cloudinary-images',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-              }
-            }
-          },
-          {
-            // Cache backend images
-            urlPattern: /^https:\/\/swiftkart2-backend\.onrender\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'backend-images',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 3 // 3 days
-              }
-            }
-          },
-          {
-            // Cache API listing data for offline browsing
-            urlPattern: /^https:\/\/swiftkart2-backend\.onrender\.com\/api\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 // 1 day
-              },
-              networkTimeoutSeconds: 10
-            }
-          },
-          {
-            // Cache Google Fonts
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-static',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              }
-            }
-          }
-        ]
+
+        // No runtime caching at all
+        // Every API call goes directly to the backend — always live data
+        runtimeCaching: [],
+
+        // Force new service worker to take over immediately
+        skipWaiting: true,
+        clientsClaim: true,
       }
     })
   ],
