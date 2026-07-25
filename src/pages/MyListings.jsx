@@ -81,7 +81,6 @@ export default function MyListings() {
     }
   }
 
-  // Edit route per type
   const getEditRoute = (type, id) => {
     if (type === 'listings') return '/listings/edit/' + id
     if (type === 'services') return '/services/edit/' + id
@@ -108,6 +107,10 @@ export default function MyListings() {
     jobs: 'jobs', events: 'events', accommodations: 'accommodations',
   }
 
+  const placeholderIcons = {
+    listings: '🛍️', services: '🧑‍💼', jobs: '💼', events: '🎉', accommodations: '🏠'
+  }
+
   return (
     <>
       <style>{`
@@ -125,7 +128,10 @@ export default function MyListings() {
         }
         .ml-back:hover { background: rgba(255,255,255,0.18); color: white; }
 
-        .ml-header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; }
+        .ml-header-top {
+          display: flex; justify-content: space-between; align-items: flex-start;
+          flex-wrap: wrap; gap: 14px;
+        }
         .ml-title { font-size: 26px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.5px; }
         .ml-sub { color: rgba(255,255,255,0.55); font-size: 13.5px; margin: 0; }
 
@@ -171,7 +177,9 @@ export default function MyListings() {
         }
         .ml-item-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
 
-        .ml-item-img { width: 76px; height: 76px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+        .ml-item-img {
+          width: 76px; height: 76px; object-fit: cover; border-radius: 12px; flex-shrink: 0;
+        }
         .ml-item-img-placeholder {
           width: 76px; height: 76px; border-radius: 12px; flex-shrink: 0;
           background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
@@ -179,29 +187,35 @@ export default function MyListings() {
         }
 
         .ml-item-info { flex: 1; min-width: 0; }
-        .ml-item-title { font-weight: 700; font-size: 14.5px; color: #111827; margin: 0 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ml-item-title {
+          font-weight: 700; font-size: 14.5px; color: #111827; margin: 0 0 4px;
+          overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
         .ml-item-price { font-weight: 800; font-size: 15px; color: #08162F; margin: 0 0 4px; }
         .ml-item-meta { font-size: 12px; color: #9ca3af; margin: 0; }
         .ml-item-date { font-size: 11px; color: #c4c9d4; margin: 3px 0 0; }
 
         .ml-item-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
         .ml-edit-btn {
           background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 6px 14px;
-          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
-          font-family: inherit; transition: all 0.2s;
+          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;
+          white-space: nowrap; font-family: inherit; transition: all 0.2s;
         }
         .ml-edit-btn:hover { background: #dbeafe; }
+
         .ml-repost-btn {
           background: #f0fdf4; color: #059669; border: 1px solid #bbf7d0; padding: 6px 14px;
-          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
-          font-family: inherit; transition: all 0.2s;
+          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;
+          white-space: nowrap; font-family: inherit; transition: all 0.2s;
         }
         .ml-repost-btn:hover { background: #dcfce7; }
         .ml-repost-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .ml-delete-btn {
           background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 14px;
-          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
-          font-family: inherit; transition: all 0.2s;
+          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;
+          white-space: nowrap; font-family: inherit; transition: all 0.2s;
         }
         .ml-delete-btn:hover { background: #fee2e2; }
         .ml-delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -226,7 +240,10 @@ export default function MyListings() {
           background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
           background-size: 200% 100%; animation: ml-shimmer 1.4s infinite; border-radius: 8px;
         }
-        @keyframes ml-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        @keyframes ml-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
 
         @media (max-width: 600px) {
           .ml-header { padding: 20px 16px 24px; }
@@ -249,6 +266,7 @@ export default function MyListings() {
               </div>
               <button className="ml-new-btn" onClick={() => navigate('/create')}>➕ New Post</button>
             </div>
+
             <div className="ml-stats-row">
               <div className="ml-stat-card">
                 <div className="ml-stat-num">{total}</div>
@@ -275,6 +293,7 @@ export default function MyListings() {
         </div>
 
         <div className="ml-content">
+
           <div className="ml-tabs">
             {tabs.map(tab => (
               <button
@@ -292,7 +311,7 @@ export default function MyListings() {
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="ml-skeleton">
-                <div className="ml-skel-box" style={{ width: '76px', height: '76px' }} />
+                <div className="ml-skel-box" style={{ width: '76px', height: '76px', flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
                   <div className="ml-skel-box" style={{ height: '14px', width: '60%', marginBottom: '8px' }} />
                   <div className="ml-skel-box" style={{ height: '12px', width: '30%' }} />
@@ -303,15 +322,17 @@ export default function MyListings() {
             <div className="ml-empty">
               <div className="ml-empty-icon">{currentTabMeta.label.split(' ')[0]}</div>
               <div className="ml-empty-title">No {activeTab} posted yet</div>
-              <button className="ml-empty-btn" onClick={() => navigate('/create')}>+ Post One Now</button>
+              <button className="ml-empty-btn" onClick={() => navigate('/create')}>
+                + Post One Now
+              </button>
             </div>
           ) : (
             currentItems[activeTab].map(item => {
               const imgUrl = item.images?.[0] ? getImageUrl(item.images[0]) : null
-              const placeholderIcons = { listings: '🛍️', services: '🧑‍💼', jobs: '💼', events: '🎉', accommodations: '🏠' }
 
               return (
                 <div key={item._id} className="ml-item-card">
+
                   {imgUrl
                     ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
                     : <div className="ml-item-img-placeholder">{placeholderIcons[activeTab]}</div>
@@ -319,9 +340,16 @@ export default function MyListings() {
 
                   <div className="ml-item-info">
                     <p className="ml-item-title">{item.title}</p>
-                    {activeTab === 'listings' && <p className="ml-item-price">${item.price}</p>}
-                    {activeTab === 'services' && item.pricePerHour && <p className="ml-item-price">${item.pricePerHour}/hr</p>}
-                    {activeTab === 'jobs' && item.company && <p className="ml-item-meta">🏢 {item.company}</p>}
+
+                    {activeTab === 'listings' && (
+                      <p className="ml-item-price">${item.price}</p>
+                    )}
+                    {activeTab === 'services' && item.pricePerHour && (
+                      <p className="ml-item-price">${item.pricePerHour}/hr</p>
+                    )}
+                    {activeTab === 'jobs' && item.company && (
+                      <p className="ml-item-meta">🏢 {item.company}</p>
+                    )}
                     {activeTab === 'events' && item.date && (
                       <p className="ml-item-meta" style={{ color: '#be185d', fontWeight: 600 }}>
                         📅 {new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -329,17 +357,22 @@ export default function MyListings() {
                     )}
                     {activeTab === 'accommodations' && (
                       <p className="ml-item-price" style={{ color: '#0f4c81' }}>
-                        ${item.price?.toLocaleString()} <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 500 }}>{item.priceType}</span>
+                        ${item.price?.toLocaleString()}
+                        <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 500 }}>
+                          {' '}{item.priceType}
+                        </span>
                       </p>
                     )}
+
                     <p className="ml-item-meta">
                       📍 {item.location?.city}{item.location?.area ? ', ' + item.location.area : ''}
                     </p>
-                    <p className="ml-item-date">Posted {new Date(item.createdAt).toLocaleDateString()}</p>
+                    <p className="ml-item-date">
+                      Posted {new Date(item.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
 
                   <div className="ml-item-actions">
-                    {/* Edit button for ALL types */}
                     <button
                       className="ml-edit-btn"
                       onClick={() => navigate(getEditRoute(activeTab, item._id))}
@@ -361,6 +394,7 @@ export default function MyListings() {
                       {deletingId === item._id ? '...' : '🗑️ Delete'}
                     </button>
                   </div>
+
                 </div>
               )
             })
