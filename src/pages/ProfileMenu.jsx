@@ -1,6 +1,110 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import {
+  ArrowLeft, ChevronRight, ChevronDown, BadgeCheck, User, ShoppingBag, Heart,
+  PlusCircle, Compass, Briefcase, PartyPopper, Home, Settings, LifeBuoy,
+  HelpCircle, Store, ShieldCheck, MessageCircle, Bug, Scale, FileText, Lock,
+  Building2, Cookie, ShieldAlert, LayoutDashboard, Users, Flag, BarChart3,
+  History, LogOut, Wrench,
+} from 'lucide-react'
+
+// ---------- Menu config ----------
+// Each group is an accordion row; its `items` render as flat sub-rows when open.
+// Add `badge: 'New'` to any item to show a highlight pill, like the reference design.
+function buildGroups(user) {
+  return [
+    {
+      key: 'account',
+      icon: Settings,
+      color: '#00C896',
+      bg: '#ecfdf5',
+      title: 'Manage Account',
+      sub: 'Profile, listings, saved items',
+      items: [
+        { icon: User, label: 'My Profile', to: user ? '/profile/' + user._id : '/login' },
+        { icon: ShoppingBag, label: 'My Listings', to: '/my-listings' },
+        { icon: Heart, label: 'Saved Items', to: '/saved' },
+        { icon: PlusCircle, label: 'Post a Listing', to: '/create', badge: 'New' },
+      ],
+    },
+    {
+      key: 'explore',
+      icon: Compass,
+      color: '#2563EB',
+      bg: '#eff6ff',
+      title: 'Explore Platform',
+      sub: 'Marketplace, jobs, events & more',
+      items: [
+        { icon: ShoppingBag, label: 'Marketplace', to: '/marketplace' },
+        { icon: Wrench, label: 'Services', to: '/services' },
+        { icon: Briefcase, label: 'Jobs', to: '/jobs' },
+        { icon: PartyPopper, label: 'Events', to: '/events' },
+        { icon: Home, label: 'Accommodation', to: '/accommodation' },
+      ],
+    },
+    ...(user?.isAdmin ? [{
+      key: 'admin',
+      icon: ShieldAlert,
+      color: '#7C3AED',
+      bg: '#f5f3ff',
+      title: 'Administration',
+      sub: 'Manage the platform',
+      items: [
+        { icon: LayoutDashboard, label: 'Dashboard', to: '/admin' },
+        { icon: Users, label: 'Manage Users', to: '/admin/users' },
+        { icon: ShoppingBag, label: 'Manage Listings', to: '/admin/listings' },
+        { icon: Flag, label: 'Reports', to: '/admin/reports' },
+        { icon: BarChart3, label: 'Analytics', to: '/admin/analytics' },
+        { icon: History, label: 'Activity Feed', to: '/admin/activity' },
+      ],
+    }] : []),
+    {
+      key: 'help',
+      icon: LifeBuoy,
+      color: '#d97706',
+      bg: '#fffbeb',
+      title: 'Help Centre',
+      sub: 'Guides, safety tips, support',
+      items: [
+        { icon: HelpCircle, label: 'How to Buy', to: '/help/how-to-buy' },
+        { icon: Store, label: 'How to Sell', to: '/help/how-to-sell' },
+        { icon: ShieldCheck, label: 'Staying Safe', to: '/help/safety' },
+        { icon: MessageCircle, label: 'Contact Support', to: '/help/contact' },
+        { icon: Bug, label: 'Report a Bug', to: '/help/bug' },
+      ],
+    },
+    {
+      key: 'legal',
+      icon: Scale,
+      color: '#6b7280',
+      bg: '#f3f4f6',
+      title: 'Legal & Policies',
+      sub: 'Terms, privacy, about us',
+      items: [
+        { icon: FileText, label: 'Terms of Use', to: '/legal/terms' },
+        { icon: Lock, label: 'Privacy Policy', to: '/legal/privacy' },
+        { icon: ShieldCheck, label: 'Privacy Centre', to: '/legal/privacy-centre' },
+        { icon: Building2, label: 'About Us', to: '/about' },
+        { icon: Cookie, label: 'Cookie Policy', to: '/legal/cookies' },
+        { icon: Scale, label: 'Community Guidelines', to: '/legal/guidelines' },
+      ],
+    },
+  ]
+}
+
+const GUEST_EXPLORE = [
+  { icon: ShoppingBag, label: 'Marketplace', to: '/marketplace' },
+  { icon: Wrench, label: 'Services', to: '/services' },
+  { icon: Briefcase, label: 'Jobs', to: '/jobs' },
+  { icon: PartyPopper, label: 'Events', to: '/events' },
+  { icon: Home, label: 'Accommodation', to: '/accommodation' },
+]
+
+function memberSince(dateStr) {
+  if (!dateStr) return null
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
 
 export default function ProfileMenu() {
   const { user, logout } = useAuth()
@@ -8,546 +112,261 @@ export default function ProfileMenu() {
   const [openSection, setOpenSection] = useState(null)
 
   function handleLogout() {
+    if (!window.confirm('Log out of your account?')) return
     logout()
     navigate('/')
   }
 
   function toggleSection(key) {
-    setOpenSection(prev => prev === key ? null : key)
+    setOpenSection(function (prev) { return prev === key ? null : key })
   }
 
-  const accountItems = [
-    { icon: '👤', label: 'My Profile', to: user ? '/profile/' + user._id : '/login', bg: 'rgba(0,200,150,0.12)' },
-    { icon: '🛍️', label: 'My Listings', to: '/my-listings', bg: 'rgba(0,200,150,0.12)' },
-    { icon: '❤️', label: 'Saved Items', to: '/saved', bg: 'rgba(239,68,68,0.12)' },
-    { icon: '➕', label: 'Post a Listing', to: '/create', bg: 'rgba(0,200,150,0.12)' },
-  ]
-
-  const exploreItems = [
-    { icon: '🛍️', label: 'Marketplace', to: '/marketplace', bg: 'rgba(0,200,150,0.12)' },
-    { icon: '🧑‍💼', label: 'Services', to: '/services', bg: 'rgba(37,99,235,0.12)' },
-    { icon: '💼', label: 'Jobs', to: '/jobs', bg: 'rgba(124,58,237,0.12)' },
-    { icon: '🎉', label: 'Events', to: '/events', bg: 'rgba(245,158,11,0.12)' },
-    { icon: '🏠', label: 'Accommodation', to: '/accommodation', bg: 'rgba(239,68,68,0.12)' },
-  ]
-
-  const helpItems = [
-    { icon: '❓', label: 'How to Buy', to: '/help/how-to-buy', bg: 'rgba(37,99,235,0.12)' },
-    { icon: '🏪', label: 'How to Sell', to: '/help/how-to-sell', bg: 'rgba(37,99,235,0.12)' },
-    { icon: '🔒', label: 'Staying Safe', to: '/help/safety', bg: 'rgba(239,68,68,0.12)' },
-    { icon: '💬', label: 'Contact Support', to: '/help/contact', bg: 'rgba(37,99,235,0.12)' },
-    { icon: '🐛', label: 'Report a Bug', to: '/help/bug', bg: 'rgba(245,158,11,0.12)' },
-  ]
-
-  const legalItems = [
-    { icon: '📋', label: 'Terms of Use', to: '/legal/terms', bg: 'rgba(255,255,255,0.06)' },
-    { icon: '🔐', label: 'Privacy Policy', to: '/legal/privacy', bg: 'rgba(255,255,255,0.06)' },
-    { icon: '🛡️', label: 'Privacy Centre', to: '/legal/privacy-centre', bg: 'rgba(255,255,255,0.06)' },
-    { icon: '🏢', label: 'About Us', to: '/about', bg: 'rgba(255,255,255,0.06)' },
-    { icon: '📜', label: 'Cookie Policy', to: '/legal/cookies', bg: 'rgba(255,255,255,0.06)' },
-    { icon: '⚖️', label: 'Community Guidelines', to: '/legal/guidelines', bg: 'rgba(255,255,255,0.06)' },
-  ]
+  const groups = buildGroups(user)
+  const since = memberSince(user?.createdAt)
 
   return (
-    <>
+    <div className="pm-page">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        * { box-sizing: border-box; }
+        .pm-page { font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; background: #f5f6f9; }
+        .pm-wrap { max-width: 560px; margin: 0 auto; min-height: 100vh; background: #f5f6f9; }
 
-        /* ── Root — full viewport, dark background like CreateListing ── */
-        .pm-page-bg {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          min-height: 100vh;
-          background-image:
-            linear-gradient(to bottom, rgba(8,14,40,0.92) 0%, rgba(10,20,55,0.88) 50%, rgba(8,14,40,0.95) 100%),
-            url('https://images.unsplash.com/photo-1562774053-701939374585?w=1600&q=80');
-          background-size: cover;
-          background-position: center;
-          background-attachment: fixed;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding: 0;
-        }
-
-        /* ── The actual profile panel ── */
-        .pm-wrap {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          min-height: 100vh;
-          background: #0a0f1e;
-          width: 100%;
-          max-width: 560px;
-        }
-
-        /* ── Header ── */
+        /* ---------- Header ---------- */
         .pm-header {
-          background: linear-gradient(160deg, #08162F 0%, #0f2167 100%);
-          padding: 48px 20px 28px;
-          position: relative;
+          background: linear-gradient(160deg, #08162F 0%, #10275e 100%);
+          padding: 44px 18px 22px; position: relative; border-radius: 0 0 22px 22px;
         }
         .pm-back {
           position: absolute; top: 14px; left: 14px;
-          background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-          color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: 50%;
-          font-size: 15px; cursor: pointer; display: flex; align-items: center;
-          justify-content: center; font-family: inherit; transition: all 0.2s;
+          background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.14);
+          color: rgba(255,255,255,0.85); width: 34px; height: 34px; border-radius: 50%;
+          cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-        .pm-back:hover { background: rgba(255,255,255,0.15); color: white; }
+        .pm-back:hover { background: rgba(255,255,255,0.18); }
 
-        .pm-avatar-wrap { display: flex; flex-direction: column; align-items: center; }
+        .pm-identity { display: flex; flex-direction: column; align-items: center; }
         .pm-avatar {
-          width: 82px; height: 82px; border-radius: 50%;
+          width: 72px; height: 72px; border-radius: 50%;
           background: linear-gradient(135deg, #00C896, #059669);
           display: flex; align-items: center; justify-content: center;
-          font-size: 32px; font-weight: 800; color: white;
-          border: 3px solid rgba(255,255,255,0.2); margin-bottom: 14px;
-          box-shadow: 0 8px 28px rgba(0,200,150,0.35);
+          font-size: 27px; font-weight: 800; color: white;
+          border: 3px solid rgba(255,255,255,0.18); margin-bottom: 12px;
+          box-shadow: 0 8px 22px rgba(0,200,150,0.3);
         }
         .pm-avatar-guest {
-          width: 82px; height: 82px; border-radius: 50%;
-          background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.12);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 34px; margin-bottom: 14px;
+          width: 72px; height: 72px; border-radius: 50%;
+          background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.14);
+          display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
         }
-        .pm-name { font-size: 20px; font-weight: 800; color: white; margin: 0 0 3px; text-align: center; }
-        .pm-email { font-size: 12px; color: rgba(255,255,255,0.4); text-align: center; font-weight: 500; margin: 0 0 16px; }
-        .pm-guest-label { font-size: 17px; color: rgba(255,255,255,0.7); font-weight: 700; text-align: center; margin: 0 0 4px; }
+        .pm-name { font-size: 18px; font-weight: 800; color: white; margin: 0 0 2px; text-align: center; }
+        .pm-email { font-size: 11.5px; color: rgba(255,255,255,0.45); text-align: center; font-weight: 500; margin: 0 0 12px; }
+        .pm-guest-label { font-size: 16px; color: rgba(255,255,255,0.85); font-weight: 700; text-align: center; margin: 0 0 4px; }
 
         .pm-verified-badge {
           display: inline-flex; align-items: center; gap: 5px;
           background: rgba(0,200,150,0.15); border: 1px solid rgba(0,200,150,0.3);
-          color: #34d399; padding: 4px 12px; border-radius: 20px;
-          font-size: 11px; font-weight: 700; letter-spacing: 0.3px; margin-bottom: 16px;
+          color: #34d399; padding: 4px 11px; border-radius: 20px;
+          font-size: 10.5px; font-weight: 700; margin-bottom: 14px;
         }
 
-        .pm-stats {
-          display: flex; gap: 1px; border-radius: 14px; overflow: hidden;
-          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
+        .pm-stats { display: flex; gap: 1px; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 400px; }
+        .pm-stat { flex: 1; padding: 10px 6px; text-align: center; }
+        .pm-stat + .pm-stat { border-left: 1px solid rgba(255,255,255,0.07); }
+        .pm-stat-num { font-size: 13px; font-weight: 800; color: #34d399; }
+        .pm-stat-label { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px; }
+
+        /* ---------- Content ---------- */
+        .pm-content { padding: 14px 12px 90px; }
+        .pm-section-label {
+          font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+          color: #9ca3af; margin: 16px 8px 6px;
         }
-        .pm-stat { flex: 1; padding: 12px 8px; text-align: center; }
-        .pm-stat + .pm-stat { border-left: 1px solid rgba(255,255,255,0.06); }
-        .pm-stat-num { font-size: 17px; font-weight: 800; color: #00C896; }
-        .pm-stat-label { font-size: 9.5px; color: rgba(255,255,255,0.35); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .pm-section-label:first-child { margin-top: 2px; }
 
-        /* ── Content ── */
-        .pm-content { padding: 12px 14px 100px; }
+        .pm-card { background: white; border-radius: 14px; border: 1px solid #eef0f4; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.03); }
+        .pm-card + .pm-card { margin-top: 10px; }
 
-        /* ── Section Group ── */
-        .pm-group { margin-bottom: 8px; }
-
-        .pm-group-header {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 14px 16px; border-radius: 14px; cursor: pointer;
-          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
-          transition: all 0.2s; user-select: none;
+        /* Row shared by group headers, sub-items, and direct links */
+        .pm-row {
+          display: flex; align-items: center; gap: 12px; width: 100%;
+          padding: 13px 14px; border: none; background: none; cursor: pointer;
+          font-family: inherit; text-align: left; text-decoration: none;
+          border-bottom: 1px solid #f4f5f8;
         }
-        .pm-group-header:hover { background: rgba(255,255,255,0.07); }
-        .pm-group-header.open {
-          border-radius: 14px 14px 0 0; border-bottom-color: transparent;
-          background: rgba(255,255,255,0.06);
-        }
+        .pm-row:last-child { border-bottom: none; }
+        .pm-row:hover { background: #fafbfc; }
+        .pm-row-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .pm-row-text { flex: 1; min-width: 0; }
+        .pm-row-title { font-size: 13.5px; font-weight: 700; color: #111827; line-height: 1.3; }
+        .pm-row-sub { font-size: 11px; color: #9ca3af; font-weight: 500; margin-top: 1px; }
+        .pm-row-badge { font-size: 9.5px; font-weight: 800; color: white; background: #ef4444; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
+        .pm-row-chevron { color: #cbd0da; flex-shrink: 0; transition: transform 0.2s; }
+        .pm-row-chevron.open { transform: rotate(180deg); }
 
-        .pm-group-left { display: flex; align-items: center; gap: 12px; }
-        .pm-group-icon {
-          width: 36px; height: 36px; border-radius: 10px;
-          display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
-        }
-        .pm-group-title { font-size: 14px; font-weight: 700; color: white; }
-        .pm-group-sub { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; margin-top: 1px; }
-        .pm-group-chevron { font-size: 12px; color: rgba(255,255,255,0.3); transition: transform 0.25s; }
-        .pm-group-chevron.open { transform: rotate(180deg); }
+        /* Sub-items sit inside the same card, slightly muted */
+        .pm-subrow { padding-left: 14px; background: #fcfcfd; }
+        .pm-subrow .pm-row-icon { width: 30px; height: 30px; }
+        .pm-subrow .pm-row-title { font-size: 13px; font-weight: 600; color: #374151; }
 
-        /* ── Dropdown body ── */
-        .pm-dropdown {
-          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-          border-top: none; border-radius: 0 0 14px 14px; overflow: hidden;
-        }
+        .pm-row.danger .pm-row-title { color: #dc2626; }
+        .pm-row.danger:hover { background: #fef2f2; }
+        .pm-row.admin .pm-row-title { color: #6d28d9; }
 
-        /* ── Item inside dropdown ── */
-        .pm-item {
-          display: flex; align-items: center; gap: 13px;
-          padding: 13px 16px; font-size: 13.5px; font-weight: 600;
-          color: rgba(255,255,255,0.75); text-decoration: none; cursor: pointer;
-          transition: background 0.15s; border: none; background: none;
-          width: 100%; font-family: inherit; text-align: left;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .pm-item:last-child { border-bottom: none; }
-        .pm-item:hover { background: rgba(255,255,255,0.06); color: white; }
-        .pm-item.danger { color: #fca5a5; }
-        .pm-item.danger:hover { background: rgba(239,68,68,0.1); }
-        .pm-item.admin-item { color: #c4b5fd; }
-        .pm-item.admin-item:hover { background: rgba(124,58,237,0.1); }
-
-        .pm-item-icon {
-          width: 34px; height: 34px; border-radius: 9px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 16px; flex-shrink: 0;
-        }
-        .pm-item-arrow { margin-left: auto; color: rgba(255,255,255,0.18); font-size: 13px; }
-
-        /* ── Direct link ── */
-        .pm-direct-item {
-          display: flex; align-items: center; gap: 13px;
-          padding: 14px 16px; border-radius: 14px; font-size: 13.5px; font-weight: 600;
-          color: rgba(255,255,255,0.75); text-decoration: none; cursor: pointer;
-          transition: all 0.2s; border: 1px solid rgba(255,255,255,0.06);
-          background: rgba(255,255,255,0.04); width: 100%; font-family: inherit;
-          text-align: left; margin-bottom: 8px;
-        }
-        .pm-direct-item:hover { background: rgba(255,255,255,0.08); color: white; }
-        .pm-direct-item.danger { color: #fca5a5; border-color: rgba(239,68,68,0.15); background: rgba(239,68,68,0.05); }
-        .pm-direct-item.danger:hover { background: rgba(239,68,68,0.1); }
-
-        .pm-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 12px 0; }
-
-        /* ── Auth buttons ── */
-        .pm-auth { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+        /* ---------- Guest auth buttons ---------- */
+        .pm-auth { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
         .pm-auth-btn {
-          display: block; padding: 14px 16px; border-radius: 14px; font-weight: 700;
+          display: block; padding: 14px 16px; border-radius: 13px; font-weight: 700;
           font-size: 14px; text-align: center; text-decoration: none;
           font-family: inherit; cursor: pointer; border: none; transition: opacity 0.2s;
         }
-        .pm-auth-btn:hover { opacity: 0.88; }
+        .pm-auth-btn:hover { opacity: 0.9; }
 
-        /* ── App version ── */
-        .pm-version { text-align: center; font-size: 11px; color: rgba(255,255,255,0.18); font-weight: 600; margin-top: 24px; }
+        .pm-version { text-align: center; font-size: 11px; color: #c4c9d4; font-weight: 600; margin-top: 22px; }
         .pm-version span { color: #00C896; }
 
-        /* ── Desktop ── */
+        /* ---------- Desktop ---------- */
         @media (min-width: 769px) {
-          .pm-page-bg {
-            padding: 0;
-            align-items: stretch;
-          }
-          .pm-wrap {
-            max-width: 560px;
-            border-left: 1px solid rgba(255,255,255,0.06);
-            border-right: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 0 80px rgba(0,0,0,0.5);
-          }
-          .pm-content { padding: 14px 20px 80px; }
-        }
-
-        /* ── Mobile ── */
-        @media (max-width: 768px) {
-          .pm-page-bg { background: none; }
-          .pm-wrap { max-width: 100%; }
+          .pm-wrap { border-left: 1px solid #eef0f4; border-right: 1px solid #eef0f4; box-shadow: 0 0 40px rgba(0,0,0,0.04); }
+          .pm-content { padding: 16px 20px 70px; }
         }
       `}</style>
 
-      {/* ── Outer bg wrapper — dark campus photo on desktop ── */}
-      <div className="pm-page-bg">
-        <div className="pm-wrap">
+      <div className="pm-wrap">
 
-          {/* ── Header ── */}
-          <div className="pm-header">
-            <button className="pm-back" onClick={() => navigate(-1)}>←</button>
-            <div className="pm-avatar-wrap">
-              {user ? (
-                <>
-                  <div className="pm-avatar">{user.name?.charAt(0).toUpperCase()}</div>
-                  <p className="pm-name">{user.name}</p>
-                  <p className="pm-email">{user.email}</p>
-                  <div className="pm-verified-badge">✅ Campus Member</div>
-                  <div className="pm-stats">
-                    <div className="pm-stat">
-                      <div className="pm-stat-num">✓</div>
-                      <div className="pm-stat-label">Verified</div>
-                    </div>
-                    <div className="pm-stat">
-                      <div className="pm-stat-num">📍</div>
-                      <div className="pm-stat-label">{user.location?.city || 'Campus'}</div>
-                    </div>
-                    <div className="pm-stat">
-                      <div className="pm-stat-num">🛍️</div>
-                      <div className="pm-stat-label">Seller</div>
-                    </div>
-                    <div className="pm-stat">
-                      <div className="pm-stat-num">📱</div>
-                      <div className="pm-stat-label">WhatsApp</div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="pm-avatar-guest">👤</div>
-                  <p className="pm-guest-label">Welcome, Guest</p>
-                  <p className="pm-email" style={{ marginTop: 4 }}>Sign in to access your account</p>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* ── Content ── */}
-          <div className="pm-content">
-
+        {/* Header */}
+        <div className="pm-header">
+          <button className="pm-back" onClick={function () { navigate(-1) }} aria-label="Go back"><ArrowLeft size={16} /></button>
+          <div className="pm-identity">
             {user ? (
               <>
-                {/* ── Manage Account dropdown ── */}
-                <div className="pm-group">
-                  <div
-                    className={'pm-group-header' + (openSection === 'account' ? ' open' : '')}
-                    onClick={() => toggleSection('account')}
-                  >
-                    <div className="pm-group-left">
-                      <div className="pm-group-icon" style={{ background: 'rgba(0,200,150,0.12)' }}>⚙️</div>
-                      <div>
-                        <div className="pm-group-title">Manage Account</div>
-                        <div className="pm-group-sub">Profile, listings, saved items</div>
-                      </div>
-                    </div>
-                    <span className={'pm-group-chevron' + (openSection === 'account' ? ' open' : '')}>▼</span>
+                <div className="pm-avatar">{(user.name || '?').charAt(0).toUpperCase()}</div>
+                <p className="pm-name">{user.name}</p>
+                <p className="pm-email">{user.email}</p>
+                <div className="pm-verified-badge"><BadgeCheck size={12} /> Campus Member</div>
+                <div className="pm-stats">
+                  <div className="pm-stat">
+                    <div className="pm-stat-num">{user.listingsCount ?? '—'}</div>
+                    <div className="pm-stat-label">Listings</div>
                   </div>
-                  {openSection === 'account' && (
-                    <div className="pm-dropdown">
-                      {accountItems.map(item => (
-                        <Link key={item.label} to={item.to} className="pm-item">
-                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                          {item.label}
-                          <span className="pm-item-arrow">›</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  <div className="pm-stat">
+                    <div className="pm-stat-num">{user.location?.city || 'Campus'}</div>
+                    <div className="pm-stat-label">Location</div>
+                  </div>
+                  <div className="pm-stat">
+                    <div className="pm-stat-num">{user.rating ? user.rating.toFixed(1) : '—'}</div>
+                    <div className="pm-stat-label">Rating</div>
+                  </div>
+                  <div className="pm-stat">
+                    <div className="pm-stat-num">{since || '—'}</div>
+                    <div className="pm-stat-label">Member Since</div>
+                  </div>
                 </div>
-
-                {/* ── Explore dropdown ── */}
-                <div className="pm-group">
-                  <div
-                    className={'pm-group-header' + (openSection === 'explore' ? ' open' : '')}
-                    onClick={() => toggleSection('explore')}
-                  >
-                    <div className="pm-group-left">
-                      <div className="pm-group-icon" style={{ background: 'rgba(37,99,235,0.12)' }}>🗂️</div>
-                      <div>
-                        <div className="pm-group-title">Explore Platform</div>
-                        <div className="pm-group-sub">Marketplace, jobs, events & more</div>
-                      </div>
-                    </div>
-                    <span className={'pm-group-chevron' + (openSection === 'explore' ? ' open' : '')}>▼</span>
-                  </div>
-                  {openSection === 'explore' && (
-                    <div className="pm-dropdown">
-                      {exploreItems.map(item => (
-                        <Link key={item.label} to={item.to} className="pm-item">
-                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                          {item.label}
-                          <span className="pm-item-arrow">›</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Admin ── */}
-                {user.isAdmin && (
-                  <div className="pm-group">
-                    <div
-                      className={'pm-group-header' + (openSection === 'admin' ? ' open' : '')}
-                      onClick={() => toggleSection('admin')}
-                    >
-                      <div className="pm-group-left">
-                        <div className="pm-group-icon" style={{ background: 'rgba(124,58,237,0.15)' }}>🛡️</div>
-                        <div>
-                          <div className="pm-group-title" style={{ color: '#c4b5fd' }}>Administration</div>
-                          <div className="pm-group-sub">Manage the platform</div>
-                        </div>
-                      </div>
-                      <span className={'pm-group-chevron' + (openSection === 'admin' ? ' open' : '')}>▼</span>
-                    </div>
-                    {openSection === 'admin' && (
-                      <div className="pm-dropdown">
-                        {[
-                          { icon: '📊', label: 'Dashboard', to: '/admin', bg: 'rgba(124,58,237,0.15)' },
-                          { icon: '👤', label: 'Manage Users', to: '/admin/users', bg: 'rgba(124,58,237,0.15)' },
-                          { icon: '🛍️', label: 'Manage Listings', to: '/admin/listings', bg: 'rgba(124,58,237,0.15)' },
-                          { icon: '🚩', label: 'Reports', to: '/admin/reports', bg: 'rgba(239,68,68,0.12)' },
-                          { icon: '📈', label: 'Analytics', to: '/admin/analytics', bg: 'rgba(124,58,237,0.15)' },
-                          { icon: '💬', label: 'Activity Feed', to: '/admin/activity', bg: 'rgba(124,58,237,0.15)' },
-                        ].map(item => (
-                          <Link key={item.label} to={item.to} className="pm-item admin-item">
-                            <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                            {item.label}
-                            <span className="pm-item-arrow">›</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <hr className="pm-divider" />
-
-                {/* ── Help Centre dropdown ── */}
-                <div className="pm-group">
-                  <div
-                    className={'pm-group-header' + (openSection === 'help' ? ' open' : '')}
-                    onClick={() => toggleSection('help')}
-                  >
-                    <div className="pm-group-left">
-                      <div className="pm-group-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>🆘</div>
-                      <div>
-                        <div className="pm-group-title">Help Centre</div>
-                        <div className="pm-group-sub">Guides, safety tips, support</div>
-                      </div>
-                    </div>
-                    <span className={'pm-group-chevron' + (openSection === 'help' ? ' open' : '')}>▼</span>
-                  </div>
-                  {openSection === 'help' && (
-                    <div className="pm-dropdown">
-                      {helpItems.map(item => (
-                        <Link key={item.label} to={item.to} className="pm-item">
-                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                          {item.label}
-                          <span className="pm-item-arrow">›</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Legal & Policies dropdown ── */}
-                <div className="pm-group">
-                  <div
-                    className={'pm-group-header' + (openSection === 'legal' ? ' open' : '')}
-                    onClick={() => toggleSection('legal')}
-                  >
-                    <div className="pm-group-left">
-                      <div className="pm-group-icon" style={{ background: 'rgba(255,255,255,0.06)' }}>⚖️</div>
-                      <div>
-                        <div className="pm-group-title">Legal & Policies</div>
-                        <div className="pm-group-sub">Terms, privacy, about us</div>
-                      </div>
-                    </div>
-                    <span className={'pm-group-chevron' + (openSection === 'legal' ? ' open' : '')}>▼</span>
-                  </div>
-                  {openSection === 'legal' && (
-                    <div className="pm-dropdown">
-                      {legalItems.map(item => (
-                        <Link key={item.label} to={item.to} className="pm-item">
-                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                          {item.label}
-                          <span className="pm-item-arrow">›</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <hr className="pm-divider" />
-
-                {/* ── Logout ── */}
-                <button className="pm-direct-item danger" onClick={handleLogout}>
-                  <div className="pm-item-icon" style={{ background: 'rgba(239,68,68,0.12)' }}>🚪</div>
-                  Logout
-                  <span className="pm-item-arrow">›</span>
-                </button>
               </>
             ) : (
               <>
-                {/* ── Guest: Explore dropdown ── */}
-                <div className="pm-group">
-                  <div
-                    className={'pm-group-header' + (openSection === 'explore' ? ' open' : '')}
-                    onClick={() => toggleSection('explore')}
-                  >
-                    <div className="pm-group-left">
-                      <div className="pm-group-icon" style={{ background: 'rgba(37,99,235,0.12)' }}>🗂️</div>
-                      <div>
-                        <div className="pm-group-title">Explore Platform</div>
-                        <div className="pm-group-sub">Browse without an account</div>
-                      </div>
-                    </div>
-                    <span className={'pm-group-chevron' + (openSection === 'explore' ? ' open' : '')}>▼</span>
-                  </div>
-                  {openSection === 'explore' && (
-                    <div className="pm-dropdown">
-                      {exploreItems.map(item => (
-                        <Link key={item.label} to={item.to} className="pm-item">
-                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                          {item.label}
-                          <span className="pm-item-arrow">›</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Guest: Help ── */}
-                <div className="pm-group">
-                  <div
-                    className={'pm-group-header' + (openSection === 'help' ? ' open' : '')}
-                    onClick={() => toggleSection('help')}
-                  >
-                    <div className="pm-group-left">
-                      <div className="pm-group-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>🆘</div>
-                      <div>
-                        <div className="pm-group-title">Help Centre</div>
-                        <div className="pm-group-sub">Guides, safety tips, support</div>
-                      </div>
-                    </div>
-                    <span className={'pm-group-chevron' + (openSection === 'help' ? ' open' : '')}>▼</span>
-                  </div>
-                  {openSection === 'help' && (
-                    <div className="pm-dropdown">
-                      {helpItems.map(item => (
-                        <Link key={item.label} to={item.to} className="pm-item">
-                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                          {item.label}
-                          <span className="pm-item-arrow">›</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Guest: Legal ── */}
-                <div className="pm-group">
-                  <div
-                    className={'pm-group-header' + (openSection === 'legal' ? ' open' : '')}
-                    onClick={() => toggleSection('legal')}
-                  >
-                    <div className="pm-group-left">
-                      <div className="pm-group-icon" style={{ background: 'rgba(255,255,255,0.06)' }}>⚖️</div>
-                      <div>
-                        <div className="pm-group-title">Legal & Policies</div>
-                        <div className="pm-group-sub">Terms, privacy, about us</div>
-                      </div>
-                    </div>
-                    <span className={'pm-group-chevron' + (openSection === 'legal' ? ' open' : '')}>▼</span>
-                  </div>
-                  {openSection === 'legal' && (
-                    <div className="pm-dropdown">
-                      {legalItems.map(item => (
-                        <Link key={item.label} to={item.to} className="pm-item">
-                          <div className="pm-item-icon" style={{ background: item.bg }}>{item.icon}</div>
-                          {item.label}
-                          <span className="pm-item-arrow">›</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <hr className="pm-divider" />
-
-                <div className="pm-auth">
-                  <Link to="/login" className="pm-auth-btn"
-                    style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.12)' }}>
-                    Login to Your Account
-                  </Link>
-                  <Link to="/register" className="pm-auth-btn"
-                    style={{ background: 'linear-gradient(135deg,#00C896,#059669)', color: 'white' }}>
-                    Register Free — Join the Community
-                  </Link>
-                </div>
+                <div className="pm-avatar-guest"><User size={28} color="rgba(255,255,255,0.6)" /></div>
+                <p className="pm-guest-label">Welcome, Guest</p>
+                <p className="pm-email">Sign in to access your account</p>
               </>
             )}
-
-            <p className="pm-version">Scalable<span>nexus</span> v1.0 · Built for Campus Zimbabwe</p>
           </div>
         </div>
+
+        {/* Content */}
+        <div className="pm-content">
+          {user ? (
+            <>
+              {groups.map(function (group) {
+                const GroupIcon = group.icon
+                const isOpen = openSection === group.key
+                return (
+                  <div className="pm-card" key={group.key}>
+                    <button
+                      className={'pm-row' + (group.key === 'admin' ? ' admin' : '')}
+                      onClick={function () { toggleSection(group.key) }}
+                      aria-expanded={isOpen}
+                    >
+                      <div className="pm-row-icon" style={{ background: group.bg }}>
+                        <GroupIcon size={16} color={group.color} strokeWidth={2.25} />
+                      </div>
+                      <div className="pm-row-text">
+                        <div className="pm-row-title" style={group.key === 'admin' ? { color: '#6d28d9' } : undefined}>{group.title}</div>
+                        <div className="pm-row-sub">{group.sub}</div>
+                      </div>
+                      <ChevronDown size={16} className={'pm-row-chevron' + (isOpen ? ' open' : '')} />
+                    </button>
+
+                    {isOpen && group.items.map(function (item) {
+                      const ItemIcon = item.icon
+                      return (
+                        <Link key={item.label} to={item.to} className="pm-row pm-subrow">
+                          <div className="pm-row-icon" style={{ background: group.bg }}>
+                            <ItemIcon size={14} color={group.color} strokeWidth={2.25} />
+                          </div>
+                          <div className="pm-row-text">
+                            <div className="pm-row-title">{item.label}</div>
+                          </div>
+                          {item.badge && <span className="pm-row-badge">{item.badge}</span>}
+                          <ChevronRight size={14} color="#cbd0da" />
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )
+              })}
+
+              <div className="pm-card" style={{ marginTop: 10 }}>
+                <button className="pm-row danger" onClick={handleLogout}>
+                  <div className="pm-row-icon" style={{ background: '#fef2f2' }}>
+                    <LogOut size={16} color="#ef4444" strokeWidth={2.25} />
+                  </div>
+                  <div className="pm-row-text">
+                    <div className="pm-row-title">Logout</div>
+                  </div>
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="pm-card">
+                <div className="pm-row" style={{ cursor: 'default' }}>
+                  <div className="pm-row-icon" style={{ background: '#eff6ff' }}>
+                    <Compass size={16} color="#2563EB" strokeWidth={2.25} />
+                  </div>
+                  <div className="pm-row-text">
+                    <div className="pm-row-title">Explore Platform</div>
+                    <div className="pm-row-sub">Browse without an account</div>
+                  </div>
+                </div>
+                {GUEST_EXPLORE.map(function (item) {
+                  const ItemIcon = item.icon
+                  return (
+                    <Link key={item.label} to={item.to} className="pm-row pm-subrow">
+                      <div className="pm-row-icon" style={{ background: '#eff6ff' }}>
+                        <ItemIcon size={14} color="#2563EB" strokeWidth={2.25} />
+                      </div>
+                      <div className="pm-row-text"><div className="pm-row-title">{item.label}</div></div>
+                      <ChevronRight size={14} color="#cbd0da" />
+                    </Link>
+                  )
+                })}
+              </div>
+
+              <div className="pm-auth">
+                <Link to="/login" className="pm-auth-btn" style={{ background: 'white', color: '#08162F', border: '1px solid #e5e7eb' }}>
+                  Login to Your Account
+                </Link>
+                <Link to="/register" className="pm-auth-btn" style={{ background: 'linear-gradient(135deg,#00C896,#059669)', color: 'white' }}>
+                  Register Free — Join the Community
+                </Link>
+              </div>
+            </>
+          )}
+
+          <p className="pm-version">Scalable<span>nexus</span> v1.0 · Built for Campus Zimbabwe</p>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
