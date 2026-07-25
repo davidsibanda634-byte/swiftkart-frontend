@@ -41,6 +41,8 @@ import HowToSell from './pages/help/HowToSell'
 import StayingSafe from './pages/help/StayingSafe'
 import ContactSupport from './pages/help/ContactSupport'
 import ReportBug from './pages/help/ReportBug'
+import AdminSettings from './pages/AdminSettings'
+import AdminAnnouncements from './pages/AdminAnnouncements '
 
 export default function AppRoutes() {
   return (
@@ -87,6 +89,8 @@ export default function AppRoutes() {
         <Route path="/admin/listings" element={<AdminListings />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/activity" element={<AdminActivity />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
+        <Route path="/admin/announcements" element={<AdminAnnouncements />} />
 
         {/* ── Help Centre ── */}
         <Route path="/help/how-to-buy" element={<HowToBuy />} />
