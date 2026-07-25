@@ -3,6 +3,10 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
+import {
+  Users, ShoppingBag, Flag, Ban, Briefcase, UserCheck, UserCog, PartyPopper,
+  Eye, Bell, CalendarDays, TrendingUp, Zap, History, Pencil, Trash2, Package,
+} from 'lucide-react'
 
 // ---------- Config ----------
 // Adjust to your real storefront URL (or read from an env var, e.g. import.meta.env.VITE_SITE_URL)
@@ -29,11 +33,14 @@ function countSince(items, days) {
   return items.filter(function (i) { return i.createdAt && new Date(i.createdAt).getTime() >= cutoff }).length
 }
 
+// Returns null when there isn't enough history to say anything meaningful,
+// rather than a misleading "+1488%" style spike from a tiny sample.
 function weeklyTrend(items) {
   const thisWeek = countSince(items, 7)
   const twoWeeks = countSince(items, 14)
   const lastWeek = twoWeeks - thisWeek
-  if (lastWeek <= 0) return thisWeek > 0 ? { pct: 100, up: true, label: '+' + thisWeek + ' this week' } : null
+  if (thisWeek === 0 && lastWeek === 0) return null
+  if (lastWeek < 3) return { up: true, label: '+' + thisWeek + ' this week' }
   const pct = Math.round(((thisWeek - lastWeek) / lastWeek) * 100)
   return { pct, up: pct >= 0, label: (pct >= 0 ? '+' : '') + pct + '% this week' }
 }
@@ -66,7 +73,7 @@ function buildConicGradient(data, colors) {
 
 // ---------- Small chart components ----------
 function GrowthChart({ data }) {
-  const w = 640, h = 190, padTop = 14, padBottom = 26
+  const w = 640, h = 170, padTop = 12, padBottom = 24
   const values = data.map(function (d) { return d.value })
   const max = Math.max(...values, 1)
   const min = Math.min(...values, 0)
@@ -86,7 +93,7 @@ function GrowthChart({ data }) {
     <svg viewBox={'0 0 ' + w + ' ' + h} className="adm-linechart-svg" preserveAspectRatio="none">
       <defs>
         <linearGradient id="growthFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#00C896" stopOpacity="0.28" />
+          <stop offset="0%" stopColor="#00C896" stopOpacity="0.26" />
           <stop offset="100%" stopColor="#00C896" stopOpacity="0" />
         </linearGradient>
       </defs>
@@ -95,13 +102,13 @@ function GrowthChart({ data }) {
         return <line key={f} x1="0" x2={w} y1={y} y2={y} stroke="#eef1f6" strokeWidth="1" />
       })}
       <path d={areaD} fill="url(#growthFill)" stroke="none" />
-      <path d={pathD} fill="none" stroke="#00C896" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      {last && <circle cx={last[0]} cy={last[1]} r="4.5" fill="#00C896" stroke="white" strokeWidth="2" />}
+      <path d={pathD} fill="none" stroke="#00C896" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+      {last && <circle cx={last[0]} cy={last[1]} r="4" fill="#00C896" stroke="white" strokeWidth="2" />}
       {data.map(function (d, i) {
         if (i % labelEvery !== 0 && i !== data.length - 1) return null
         const x = i * stepX
         return (
-          <text key={i} x={x} y={h - 6} fontSize="10" fill="#9ca3af" textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}>
+          <text key={i} x={x} y={h - 5} fontSize="9.5" fill="#9ca3af" textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}>
             {d.label}
           </text>
         )
@@ -173,20 +180,20 @@ export default function AdminDashboard() {
   }, [user])
 
   if (loading) return (
-    <AdminLayout stats={null}>
+    <AdminLayout>
       <div style={{ textAlign: 'center', padding: '80px 0', color: '#9ca3af' }}>Loading dashboard...</div>
     </AdminLayout>
   )
 
   const metricCards = [
-    { label: 'Total Users', value: stats?.userCount || 0, icon: '👤', color: '#2563EB', bg: '#eff6ff', to: '/admin/users', trend: weeklyTrend(users) },
-    { label: 'Total Listings', value: stats?.listingCount || 0, icon: '🛍️', color: '#00C896', bg: '#ecfdf5', to: '/admin/listings', trend: weeklyTrend(listings) },
-    { label: 'Pending Reports', value: stats?.reportCount ?? reports.length, icon: '🚩', color: '#ef4444', bg: '#fef2f2', to: '/admin/reports', trend: null },
-    { label: 'Banned Users', value: stats?.bannedCount || 0, icon: '🚫', color: '#991b1b', bg: '#fef2f2', to: '/admin/users', trend: null },
-    { label: 'Jobs Posted', value: stats?.jobCount || 0, icon: '💼', color: '#d97706', bg: '#fffbeb', to: '/admin/jobs', trend: null },
-    { label: 'Active Users', value: (stats?.userCount || 0) - (stats?.bannedCount || 0), icon: '✅', color: '#059669', bg: '#ecfdf5', to: '/admin/users', trend: null },
-    { label: 'Services', value: stats?.serviceCount || 0, icon: '🧑‍💼', color: '#7C3AED', bg: '#f5f3ff', to: '/admin/services', trend: null },
-    { label: 'Events', value: stats?.eventCount || 0, icon: '🎉', color: '#EC4899', bg: '#fdf2f8', to: '/admin/events', trend: null },
+    { label: 'Total Users', value: stats?.userCount || 0, Icon: Users, color: '#2563EB', bg: '#eff6ff', to: '/admin/users', trend: weeklyTrend(users) },
+    { label: 'Total Listings', value: stats?.listingCount || 0, Icon: ShoppingBag, color: '#00C896', bg: '#ecfdf5', to: '/admin/listings', trend: weeklyTrend(listings) },
+    { label: 'Pending Reports', value: stats?.reportCount ?? reports.length, Icon: Flag, color: '#ef4444', bg: '#fef2f2', to: '/admin/reports', trend: null },
+    { label: 'Banned Users', value: stats?.bannedCount || 0, Icon: Ban, color: '#991b1b', bg: '#fef2f2', to: '/admin/users', trend: null },
+    { label: 'Jobs Posted', value: stats?.jobCount || 0, Icon: Briefcase, color: '#d97706', bg: '#fffbeb', to: '/admin/jobs', trend: null },
+    { label: 'Active Users', value: (stats?.userCount || 0) - (stats?.bannedCount || 0), Icon: UserCheck, color: '#059669', bg: '#ecfdf5', to: '/admin/users', trend: null },
+    { label: 'Services', value: stats?.serviceCount || 0, Icon: UserCog, color: '#7C3AED', bg: '#f5f3ff', to: '/admin/services', trend: null },
+    { label: 'Events', value: stats?.eventCount || 0, Icon: PartyPopper, color: '#EC4899', bg: '#fdf2f8', to: '/admin/events', trend: null },
   ]
 
   const totalContent = (stats?.listingCount || 0) + (stats?.jobCount || 0) + (stats?.serviceCount || 0) + (stats?.eventCount || 0)
@@ -221,20 +228,19 @@ export default function AdminDashboard() {
 
   const recentActivity = []
   reports.slice(0, 3).forEach(function (r) {
-    recentActivity.push({ icon: '🚩', bg: '#fef2f2', text: 'Report submitted for "' + (r.listing?.title || 'listing') + '"', time: r.createdAt })
+    recentActivity.push({ Icon: Flag, bg: '#fef2f2', color: '#ef4444', text: 'Report submitted for "' + (r.listing?.title || 'listing') + '"', time: r.createdAt })
   })
   listings.slice(0, 3).forEach(function (l) {
-    recentActivity.push({ icon: '🛍️', bg: '#ecfdf5', text: 'New listing "' + l.title + '" posted', time: l.createdAt })
+    recentActivity.push({ Icon: ShoppingBag, bg: '#ecfdf5', color: '#00C896', text: 'New listing "' + l.title + '" posted', time: l.createdAt })
   })
   users.slice(0, 3).forEach(function (u) {
-    recentActivity.push({ icon: '👤', bg: '#eff6ff', text: u.name + ' registered as a new user', time: u.createdAt })
+    recentActivity.push({ Icon: Users, bg: '#eff6ff', color: '#2563EB', text: u.name + ' registered as a new user', time: u.createdAt })
   })
   recentActivity.sort(function (a, b) { return new Date(b.time) - new Date(a.time) })
 
   function severityFor(report) {
     const reason = (report.reason || '').toLowerCase()
     if (reason.includes('fraud') || reason.includes('fake') || reason.includes('scam')) return { label: 'High', color: '#ef4444', bg: '#fef2f2' }
-    if (reason.includes('copyright')) return { label: 'Medium', color: '#d97706', bg: '#fffbeb' }
     return { label: 'Medium', color: '#d97706', bg: '#fffbeb' }
   }
 
@@ -249,130 +255,134 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout stats={stats}>
+    <AdminLayout>
       <style>{`
         .adm-dash { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        .adm-util-bar {
-          display: flex; align-items: center; justify-content: space-between;
-          margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
-        }
-        .adm-util-right { display: flex; align-items: center; gap: 12px; }
+        .adm-page-header { margin-bottom: 14px; }
+        .adm-page-title { font-size: 19px; font-weight: 800; color: #08162F; margin: 0 0 3px; display: flex; align-items: center; gap: 8px; }
+        .adm-page-sub { font-size: 12.5px; color: #9ca3af; margin: 0; }
+
+        /* ---------- Utility bar ---------- */
+        .adm-util-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+        .adm-util-right { display: flex; align-items: center; gap: 10px; }
         .adm-util-date {
-          font-size: 12.5px; font-weight: 600; color: #6b7280;
-          background: white; border: 1px solid #e8ecf4; border-radius: 10px;
-          padding: 8px 14px; display: flex; align-items: center; gap: 8px;
+          font-size: 11.5px; font-weight: 600; color: #6b7280;
+          background: white; border: 1px solid #e8ecf4; border-radius: 9px;
+          padding: 7px 12px; display: flex; align-items: center; gap: 6px;
         }
         .adm-util-live {
-          font-size: 12.5px; font-weight: 700; color: #2563EB;
-          background: #eff6ff; border: 1px solid #dbeafe; border-radius: 10px;
-          padding: 8px 14px; text-decoration: none; display: flex; align-items: center; gap: 6px;
-          transition: all 0.15s;
+          font-size: 11.5px; font-weight: 700; color: #2563EB;
+          background: #eff6ff; border: 1px solid #dbeafe; border-radius: 9px;
+          padding: 7px 12px; text-decoration: none; display: flex; align-items: center; gap: 6px;
         }
         .adm-util-live:hover { background: #dbeafe; }
         .adm-util-bell {
-          position: relative; width: 36px; height: 36px; border-radius: 10px;
+          position: relative; width: 33px; height: 33px; border-radius: 9px;
           background: white; border: 1px solid #e8ecf4; display: flex;
-          align-items: center; justify-content: center; font-size: 16px;
+          align-items: center; justify-content: center; color: #6b7280;
         }
         .adm-util-bell-badge {
           position: absolute; top: -4px; right: -4px; background: #ef4444; color: white;
-          font-size: 10px; font-weight: 800; border-radius: 20px; padding: 1px 5px; min-width: 16px; text-align: center;
+          font-size: 9.5px; font-weight: 800; border-radius: 20px; padding: 1px 5px; min-width: 15px; text-align: center;
         }
 
-        .adm-metric-grid {
-          display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;
-        }
+        /* ---------- Metric cards (mobile-first: 2 cols) ---------- */
+        .adm-metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
         .adm-metric-card {
-          background: white; border-radius: 16px; padding: 20px;
-          box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid #f1f5f9;
+          background: white; border-radius: 13px; padding: 14px;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
           text-decoration: none; display: block; transition: all 0.2s; position: relative; overflow: hidden;
         }
-        .adm-metric-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-        .adm-metric-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-        .adm-metric-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .adm-metric-link { font-size: 11px; font-weight: 700; color: #9ca3af; text-decoration: none; transition: color 0.2s; }
+        .adm-metric-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.09); }
+        .adm-metric-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .adm-metric-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+        .adm-metric-link { font-size: 10px; font-weight: 700; color: #9ca3af; text-decoration: none; }
         .adm-metric-card:hover .adm-metric-link { color: #00C896; }
-        .adm-metric-value { font-size: 32px; font-weight: 800; color: #08162F; letter-spacing: -1px; margin: 0 0 4px; line-height: 1; }
-        .adm-metric-label { font-size: 12.5px; color: #9ca3af; font-weight: 600; margin: 0; }
-        .adm-metric-trend { font-size: 11px; font-weight: 700; margin-top: 6px; }
+        .adm-metric-value { font-size: 21px; font-weight: 800; color: #08162F; letter-spacing: -0.5px; margin: 0 0 2px; line-height: 1; }
+        .adm-metric-label { font-size: 11px; color: #9ca3af; font-weight: 600; margin: 0; }
+        .adm-metric-trend { font-size: 10px; font-weight: 700; margin-top: 5px; display: flex; align-items: center; gap: 2px; }
 
-        .adm-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 20px; margin-bottom: 24px; align-items: stretch; }
-        .adm-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-        .adm-panel { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; }
-        .adm-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .adm-panel-title { font-size: 14px; font-weight: 800; color: #08162F; display: flex; align-items: center; gap: 8px; }
-        .adm-panel-link { font-size: 12px; font-weight: 700; color: #00C896; text-decoration: none; }
+        /* ---------- Panels / rows (mobile-first: single column) ---------- */
+        .adm-row { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
+        .adm-panel { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+        .adm-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
+        .adm-panel-title { font-size: 12.5px; font-weight: 800; color: #08162F; display: flex; align-items: center; gap: 6px; }
+        .adm-panel-link { font-size: 11px; font-weight: 700; color: #00C896; text-decoration: none; }
 
-        .adm-linechart-svg { width: 100%; height: 190px; display: block; }
+        .adm-linechart-svg { width: 100%; height: 160px; display: block; }
 
-        .adm-donut-row { display: flex; align-items: center; gap: 18px; }
+        .adm-donut-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
         .adm-donut-wrap { flex-shrink: 0; }
-        .adm-donut { width: 132px; height: 132px; border-radius: 50%; position: relative; }
+        .adm-donut { width: 108px; height: 108px; border-radius: 50%; position: relative; }
         .adm-donut-hole {
-          position: absolute; top: 18px; left: 18px; width: 96px; height: 96px;
+          position: absolute; top: 15px; left: 15px; width: 78px; height: 78px;
           background: white; border-radius: 50%; display: flex; flex-direction: column;
           align-items: center; justify-content: center;
         }
-        .adm-donut-value { font-size: 19px; font-weight: 800; color: #08162F; line-height: 1.1; }
-        .adm-donut-label { font-size: 10px; color: #9ca3af; font-weight: 600; }
-        .adm-donut-legend { flex: 1; display: flex; flex-direction: column; gap: 9px; min-width: 0; }
-        .adm-legend-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-        .adm-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .adm-donut-value { font-size: 16px; font-weight: 800; color: #08162F; line-height: 1.1; }
+        .adm-donut-label { font-size: 9px; color: #9ca3af; font-weight: 600; }
+        .adm-donut-legend { flex: 1; display: flex; flex-direction: column; gap: 7px; min-width: 140px; }
+        .adm-legend-row { display: flex; align-items: center; gap: 7px; font-size: 11.5px; }
+        .adm-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .adm-legend-label { color: #374151; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .adm-legend-value { color: #9ca3af; font-weight: 700; white-space: nowrap; }
 
-        .act-feed { display: flex; flex-direction: column; gap: 3px; }
-        .act-item { display: flex; align-items: center; gap: 11px; padding: 9px 0; border-bottom: 1px solid #f8fafc; }
+        .act-feed { display: flex; flex-direction: column; gap: 2px; }
+        .act-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f8fafc; }
         .act-item:last-child { border-bottom: none; }
-        .act-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-        .act-main { font-size: 12.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.35; }
-        .act-time { font-size: 10.5px; color: #c4c9d4; font-weight: 600; white-space: nowrap; }
+        .act-icon { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .act-main { font-size: 12px; font-weight: 600; color: #111827; margin: 0; line-height: 1.35; }
+        .act-time { font-size: 10px; color: #c4c9d4; font-weight: 600; white-space: nowrap; }
 
-        .rep-item { padding: 12px 0; border-bottom: 1px solid #f8fafc; }
+        .rep-item { padding: 10px 0; border-bottom: 1px solid #f8fafc; }
         .rep-item:last-child { border-bottom: none; }
-        .rep-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-        .rep-title { font-size: 13px; font-weight: 700; color: #111827; }
-        .rep-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
-        .rep-sub { font-size: 11.5px; color: #9ca3af; margin: 0 0 8px; }
-        .rep-cta { font-size: 11px; font-weight: 700; color: #ef4444; text-decoration: none; }
+        .rep-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+        .rep-title { font-size: 12.5px; font-weight: 700; color: #111827; }
+        .rep-badge { font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; }
+        .rep-sub { font-size: 11px; color: #9ca3af; margin: 0 0 6px; }
+        .rep-cta { font-size: 10.5px; font-weight: 700; color: #ef4444; text-decoration: none; }
 
-        .usr-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f8fafc; }
+        .usr-row { display: flex; align-items: center; gap: 9px; padding: 8px 0; border-bottom: 1px solid #f8fafc; }
         .usr-row:last-child { border-bottom: none; }
-        .usr-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#08162F,#1e3a8a); display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: 800; flex-shrink: 0; }
-        .usr-name { font-size: 12.5px; font-weight: 700; color: #111827; margin: 0; }
-        .usr-email { font-size: 11px; color: #9ca3af; margin: 0; }
-        .usr-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: #ecfdf5; color: #059669; white-space: nowrap; }
+        .usr-avatar { width: 29px; height: 29px; border-radius: 50%; background: linear-gradient(135deg,#08162F,#1e3a8a); display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: white; font-weight: 800; flex-shrink: 0; }
+        .usr-name { font-size: 12px; font-weight: 700; color: #111827; margin: 0; }
+        .usr-email { font-size: 10.5px; color: #9ca3af; margin: 0; }
+        .usr-badge { font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; background: #ecfdf5; color: #059669; white-space: nowrap; }
         .usr-badge.banned { background: #fef2f2; color: #dc2626; }
 
         .adm-table-wrap { overflow-x: auto; }
-        .adm-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-        .adm-table th { text-align: left; color: #9ca3af; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; padding: 0 10px 10px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
-        .adm-table td { padding: 12px 10px; border-bottom: 1px solid #f8fafc; vertical-align: middle; white-space: nowrap; }
+        .adm-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .adm-table th { text-align: left; color: #9ca3af; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; padding: 0 9px 9px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+        .adm-table td { padding: 11px 9px; border-bottom: 1px solid #f8fafc; vertical-align: middle; white-space: nowrap; }
         .adm-table tr:last-child td { border-bottom: none; }
         .adm-table-title { font-weight: 700; color: #111827; }
-        .adm-status-pill { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+        .adm-status-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
         .adm-status-active { background: #ecfdf5; color: #059669; }
         .adm-status-pending { background: #fffbeb; color: #d97706; }
-        .adm-table-actions { display: flex; gap: 6px; }
+        .adm-table-actions { display: flex; gap: 5px; }
         .adm-table-actions a, .adm-table-actions button {
-          width: 26px; height: 26px; border-radius: 7px; border: 1px solid #e8ecf4; background: white;
-          display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; color: #6b7280;
+          width: 25px; height: 25px; border-radius: 7px; border: 1px solid #e8ecf4; background: white;
+          display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #6b7280;
         }
         .adm-table-actions button.danger:hover { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
         .adm-table-actions a:hover { background: #eff6ff; border-color: #dbeafe; color: #2563EB; }
 
-        @media (max-width: 1200px) {
-          .adm-row { grid-template-columns: 1fr 1fr; }
+        /* ---------- Tablet ---------- */
+        @media (min-width: 640px) {
+          .adm-metric-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
         }
-        @media (max-width: 1100px) {
-          .adm-metric-grid { grid-template-columns: repeat(2,1fr); }
-          .adm-row { grid-template-columns: 1fr; }
-          .adm-row-2 { grid-template-columns: 1fr; }
+
+        /* ---------- Desktop ---------- */
+        @media (min-width: 1024px) {
+          .adm-page-title { font-size: 21px; }
+          .adm-metric-card { padding: 18px; }
+          .adm-metric-value { font-size: 26px; }
+          .adm-panel { padding: 20px; }
+          .adm-row-3 { grid-template-columns: repeat(3, 1fr); }
         }
-        @media (max-width: 600px) {
-          .adm-metric-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-          .adm-metric-value { font-size: 24px; }
+        @media (min-width: 1280px) {
+          .adm-row-growth { grid-template-columns: 1.4fr 1fr 1fr; }
         }
       `}</style>
 
@@ -380,20 +390,23 @@ export default function AdminDashboard() {
 
         {/* Page Header */}
         <div className="adm-page-header">
-          <h1 className="adm-page-title">📊 Dashboard Overview</h1>
+          <h1 className="adm-page-title">Dashboard Overview</h1>
           <p className="adm-page-sub">Welcome back, {user?.name} — here's what's happening on Scalablenexus</p>
         </div>
 
-        {/* Utility bar: live clock, view live site, notifications */}
+        {/* Utility bar */}
         <div className="adm-util-bar">
           <span className="adm-util-date">
-            🗓️ {now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+            <CalendarDays size={13} />
+            {now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
             &nbsp;·&nbsp;{now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
           </span>
           <div className="adm-util-right">
-            <a className="adm-util-live" href={LIVE_SITE_URL} target="_blank" rel="noopener noreferrer">👁️ View Live Site</a>
+            <a className="adm-util-live" href={LIVE_SITE_URL} target="_blank" rel="noopener noreferrer">
+              <Eye size={13} /> View Live Site
+            </a>
             <Link to="/admin/reports" className="adm-util-bell">
-              🔔
+              <Bell size={16} />
               {pendingReports.length > 0 && <span className="adm-util-bell-badge">{reports.length}</span>}
             </Link>
           </div>
@@ -402,11 +415,14 @@ export default function AdminDashboard() {
         {/* Metric Cards */}
         <div className="adm-metric-grid">
           {metricCards.map(function (c) {
+            const CardIcon = c.Icon
             return (
               <Link key={c.label} to={c.to} className="adm-metric-card">
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: c.color, borderRadius: '16px 16px 0 0' }} />
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: c.color, borderRadius: '13px 13px 0 0' }} />
                 <div className="adm-metric-top">
-                  <div className="adm-metric-icon" style={{ background: c.bg }}>{c.icon}</div>
+                  <div className="adm-metric-icon" style={{ background: c.bg }}>
+                    <CardIcon size={16} color={c.color} strokeWidth={2.25} />
+                  </div>
                   <span className="adm-metric-link">View →</span>
                 </div>
                 <p className="adm-metric-value">{c.value.toLocaleString()}</p>
@@ -422,10 +438,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Growth + Donuts */}
-        <div className="adm-row">
+        <div className="adm-row adm-row-growth">
           <div className="adm-panel">
             <div className="adm-panel-header">
-              <span className="adm-panel-title">📈 User Growth (Last 14 Days)</span>
+              <span className="adm-panel-title"><TrendingUp size={14} color="#00C896" /> User Growth (Last 14 Days)</span>
               <Link to="/admin/analytics" className="adm-panel-link">Full analytics →</Link>
             </div>
             <GrowthChart data={growthSeries} />
@@ -433,7 +449,7 @@ export default function AdminDashboard() {
 
           <div className="adm-panel">
             <div className="adm-panel-header">
-              <span className="adm-panel-title">🛍️ Listings by Category</span>
+              <span className="adm-panel-title"><ShoppingBag size={14} color="#00C896" /> Listings by Category</span>
             </div>
             {catData.length === 0
               ? <p style={{ color: '#9ca3af', fontSize: '13px' }}>No listings yet</p>
@@ -442,7 +458,7 @@ export default function AdminDashboard() {
 
           <div className="adm-panel">
             <div className="adm-panel-header">
-              <span className="adm-panel-title">⚡ Platform Activity</span>
+              <span className="adm-panel-title"><Zap size={14} color="#2563EB" /> Platform Activity</span>
             </div>
             {activityData.length === 0
               ? <p style={{ color: '#9ca3af', fontSize: '13px' }}>No activity yet</p>
@@ -451,20 +467,21 @@ export default function AdminDashboard() {
         </div>
 
         {/* Activity / Reports / Users */}
-        <div className="adm-row">
+        <div className="adm-row adm-row-3">
           <div className="adm-panel">
             <div className="adm-panel-header">
-              <span className="adm-panel-title">🕐 Recent Activity</span>
-              <Link to="/admin/activity" className="adm-panel-link">View all →</Link>
+              <span className="adm-panel-title"><History size={14} color="#08162F" /> Recent Activity</span>
+              <Link to="/admin/logs" className="adm-panel-link">View all →</Link>
             </div>
             {recentActivity.length === 0
               ? <p style={{ color: '#9ca3af', fontSize: '13px' }}>No recent activity</p>
               : (
                 <div className="act-feed">
                   {recentActivity.slice(0, 6).map(function (a, i) {
+                    const ActIcon = a.Icon
                     return (
                       <div key={i} className="act-item">
-                        <div className="act-icon" style={{ background: a.bg }}>{a.icon}</div>
+                        <div className="act-icon" style={{ background: a.bg }}><ActIcon size={13} color={a.color} /></div>
                         <p className="act-main">{a.text}</p>
                         <span className="act-time">{timeAgo(a.time)}</span>
                       </div>
@@ -476,11 +493,11 @@ export default function AdminDashboard() {
 
           <div className="adm-panel">
             <div className="adm-panel-header">
-              <span className="adm-panel-title">🚩 Pending Reports</span>
+              <span className="adm-panel-title"><Flag size={14} color="#ef4444" /> Pending Reports</span>
               <Link to="/admin/reports" className="adm-panel-link">View all →</Link>
             </div>
             {pendingReports.length === 0
-              ? <p style={{ color: '#9ca3af', fontSize: '13px' }}>No pending reports 🎉</p>
+              ? <p style={{ color: '#9ca3af', fontSize: '13px' }}>No pending reports</p>
               : pendingReports.map(function (r) {
                 const sev = severityFor(r)
                 return (
@@ -498,7 +515,7 @@ export default function AdminDashboard() {
 
           <div className="adm-panel">
             <div className="adm-panel-header">
-              <span className="adm-panel-title">🧑‍🤝‍🧑 Latest Users</span>
+              <span className="adm-panel-title"><Users size={14} color="#2563EB" /> Latest Users</span>
               <Link to="/admin/users" className="adm-panel-link">View all →</Link>
             </div>
             {latestUsers.length === 0
@@ -521,7 +538,7 @@ export default function AdminDashboard() {
         {/* Latest Listings Table */}
         <div className="adm-panel">
           <div className="adm-panel-header">
-            <span className="adm-panel-title">🗂️ Latest Listings</span>
+            <span className="adm-panel-title"><Package size={14} color="#08162F" /> Latest Listings</span>
             <Link to="/admin/listings" className="adm-panel-link">View all →</Link>
           </div>
           <div className="adm-table-wrap">
@@ -552,9 +569,9 @@ export default function AdminDashboard() {
                       <td>{timeAgo(l.createdAt)}</td>
                       <td>
                         <div className="adm-table-actions">
-                          <Link to={'/admin/listings/' + l._id} title="View">👁️</Link>
-                          <Link to={'/admin/listings/' + l._id + '/edit'} title="Edit">✏️</Link>
-                          <button className="danger" title="Delete" onClick={function () { handleDeleteListing(l._id) }}>🗑️</button>
+                          <Link to={'/admin/listings/' + l._id} title="View"><Eye size={13} /></Link>
+                          <Link to={'/admin/listings/' + l._id + '/edit'} title="Edit"><Pencil size={13} /></Link>
+                          <button className="danger" title="Delete" onClick={function () { handleDeleteListing(l._id) }}><Trash2 size={13} /></button>
                         </div>
                       </td>
                     </tr>
