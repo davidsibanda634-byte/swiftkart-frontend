@@ -42,7 +42,7 @@ import StayingSafe from './pages/help/StayingSafe'
 import ContactSupport from './pages/help/ContactSupport'
 import ReportBug from './pages/help/ReportBug'
 import AdminSettings from './pages/AdminSettings'
-import AdminAnnouncements from './pages/AdminAnnouncements '
+import AdminAnnouncements from './pages/AdminAnnouncements'
 
 export default function AppRoutes() {
   return (
