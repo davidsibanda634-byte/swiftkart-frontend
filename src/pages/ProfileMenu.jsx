@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -106,6 +106,36 @@ function memberSince(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.substring(0, 2), 16)
+  const g = parseInt(h.substring(2, 4), 16)
+  const b = parseInt(h.substring(4, 6), 16)
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')'
+}
+
+// Measures its real content height so open/close animates smoothly instead of
+// snapping — this is what makes the dropdown feel like part of the same
+// screen (no route change, nothing "exits" the page) rather than a jump-cut.
+function AccordionBody({ open, children }) {
+  const ref = useRef(null)
+  const [maxHeight, setMaxHeight] = useState(0)
+
+  useEffect(function () {
+    if (open && ref.current) {
+      setMaxHeight(ref.current.scrollHeight)
+    } else {
+      setMaxHeight(0)
+    }
+  }, [open, children])
+
+  return (
+    <div className={'pm-accordion-body' + (open ? ' pm-accordion-open' : '')} style={{ maxHeight }}>
+      <div ref={ref}>{children}</div>
+    </div>
+  )
+}
+
 export default function ProfileMenu() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -204,14 +234,30 @@ export default function ProfileMenu() {
         .pm-row-chevron { color: #cbd0da; flex-shrink: 0; transition: transform 0.2s; }
         .pm-row-chevron.open { transform: rotate(180deg); }
 
-        /* Sub-items sit inside the same card, slightly muted */
-        .pm-subrow { padding-left: 14px; background: #fcfcfd; }
-        .pm-subrow .pm-row-icon { width: 30px; height: 30px; }
-        .pm-subrow .pm-row-title { font-size: 13px; font-weight: 600; color: #374151; }
+        /* ---------- Accordion body: measured-height animation ---------- */
+        .pm-accordion-body { overflow: hidden; transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1); }
+        .pm-accordion-open { }
+
+        /* Sub-items: indented, tinted to match the parent group, connector line */
+        .pm-subrow-wrap { position: relative; padding-left: 20px; }
+        .pm-subrow-wrap::before {
+          content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 1px;
+          background: var(--connector, rgba(0,0,0,0.06));
+        }
+        .pm-subrow {
+          position: relative; padding-left: 10px; padding-right: 14px;
+          border-bottom: 1px solid rgba(0,0,0,0.03);
+        }
+        .pm-subrow:hover { filter: brightness(0.98); }
+        .pm-subrow .pm-row-icon { width: 28px; height: 28px; border-radius: 8px; }
+        .pm-subrow .pm-row-title { font-size: 12.5px; font-weight: 600; color: #374151; }
 
         .pm-row.danger .pm-row-title { color: #dc2626; }
         .pm-row.danger:hover { background: #fef2f2; }
         .pm-row.admin .pm-row-title { color: #6d28d9; }
+
+        .pm-card.pm-open { box-shadow: 0 4px 16px rgba(8,22,47,0.08); }
+        .pm-card .pm-row[aria-expanded="true"] { background: #fafbfc; }
 
         /* ---------- Guest auth buttons ---------- */
         .pm-auth { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
@@ -281,7 +327,7 @@ export default function ProfileMenu() {
                 const GroupIcon = group.icon
                 const isOpen = openSection === group.key
                 return (
-                  <div className="pm-card" key={group.key}>
+                  <div className={'pm-card' + (isOpen ? ' pm-open' : '')} key={group.key}>
                     <button
                       className={'pm-row' + (group.key === 'admin' ? ' admin' : '')}
                       onClick={function () { toggleSection(group.key) }}
@@ -297,21 +343,30 @@ export default function ProfileMenu() {
                       <ChevronDown size={16} className={'pm-row-chevron' + (isOpen ? ' open' : '')} />
                     </button>
 
-                    {isOpen && group.items.map(function (item) {
-                      const ItemIcon = item.icon
-                      return (
-                        <Link key={item.label} to={item.to} className="pm-row pm-subrow">
-                          <div className="pm-row-icon" style={{ background: group.bg }}>
-                            <ItemIcon size={14} color={group.color} strokeWidth={2.25} />
-                          </div>
-                          <div className="pm-row-text">
-                            <div className="pm-row-title">{item.label}</div>
-                          </div>
-                          {item.badge && <span className="pm-row-badge">{item.badge}</span>}
-                          <ChevronRight size={14} color="#cbd0da" />
-                        </Link>
-                      )
-                    })}
+                    <AccordionBody open={isOpen}>
+                      <div className="pm-subrow-wrap" style={{ '--connector': hexToRgba(group.color, 0.18) }}>
+                        {group.items.map(function (item) {
+                          const ItemIcon = item.icon
+                          return (
+                            <Link
+                              key={item.label}
+                              to={item.to}
+                              className="pm-row pm-subrow"
+                              style={{ background: hexToRgba(group.color, 0.035) }}
+                            >
+                              <div className="pm-row-icon" style={{ background: hexToRgba(group.color, 0.14) }}>
+                                <ItemIcon size={13} color={group.color} strokeWidth={2.25} />
+                              </div>
+                              <div className="pm-row-text">
+                                <div className="pm-row-title">{item.label}</div>
+                              </div>
+                              {item.badge && <span className="pm-row-badge">{item.badge}</span>}
+                              <ChevronRight size={13} color="#cbd0da" />
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    </AccordionBody>
                   </div>
                 )
               })}
