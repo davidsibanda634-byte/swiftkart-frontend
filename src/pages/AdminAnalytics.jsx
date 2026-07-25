@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { AdminLayout } from './AdminDashboard'
+import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
 
 export default function AdminAnalytics() {
@@ -14,158 +14,157 @@ export default function AdminAnalytics() {
   useEffect(function() {
     if (!user) { navigate('/login'); return }
     if (!user.isAdmin) { navigate('/'); return }
-    Promise.all([
-      api.get('/admin/stats'),
-      api.get('/admin/listings'),
-    ])
-      .then(function([s, l]) { setStats(s.data); setListings(l.data) })
+    Promise.all([api.get('/admin/stats'), api.get('/listings')])
+      .then(function(res) { setStats(res[0].data); setListings(res[1].data) })
       .catch(function() {})
       .finally(function() { setLoading(false) })
   }, [user])
 
-  if (loading) return (
-    <AdminLayout stats={stats}>
-      <div style={{ textAlign: 'center', padding: '60px', color: '#9ca3af' }}>Loading analytics...</div>
-    </AdminLayout>
-  )
+  if (loading) return <AdminLayout stats={null}><div style={{ textAlign: 'center', padding: '80px 0', color: '#9ca3af' }}>Loading analytics...</div></AdminLayout>
 
-  // Category breakdown from real listings
-  const categoryCounts = listings.reduce(function(acc, l) {
+  const prices = listings.map(function(l) { return Number(l.price) }).filter(function(p) { return p > 0 })
+  const avgPrice = prices.length ? Math.round(prices.reduce(function(a, b) { return a + b }, 0) / prices.length) : 0
+  const maxPrice = prices.length ? Math.max(...prices) : 0
+  const totalContent = (stats?.listingCount || 0) + (stats?.jobCount || 0) + (stats?.serviceCount || 0) + (stats?.eventCount || 0)
+
+  const catGroups = {}
+  listings.forEach(function(l) {
     const cat = l.category || 'Other'
-    acc[cat] = (acc[cat] || 0) + 1
-    return acc
-  }, {})
+    catGroups[cat] = (catGroups[cat] || 0) + 1
+  })
+  const catData = Object.entries(catGroups).sort(function(a, b) { return b[1] - a[1] })
+  const maxCat = catData[0]?.[1] || 1
 
-  const categoryColors = {
-    Fashion: '#ec4899', Electronics: '#3b82f6', 'Cosmetics & Hair': '#a855f7',
-    Vehicles: '#f59e0b', Furniture: '#10b981', Food: '#ef4444',
-    'Mobile & Accessories': '#06b6d4', Other: '#6b7280',
-  }
-
-  const sortedCats = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])
-  const maxCat = sortedCats[0]?.[1] || 1
-
-  // Price analysis
-  const prices = listings.map(l => l.price || 0).filter(p => p > 0)
-  const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0
-  const maxPrice = prices.length > 0 ? Math.max(...prices) : 0
-  const minPrice = prices.length > 0 ? Math.min(...prices) : 0
-
-  // Top sellers
-  const sellerMap = listings.reduce(function(acc, l) {
+  const sellerGroups = {}
+  listings.forEach(function(l) {
     const name = l.user?.name || 'Unknown'
-    const id = l.user?._id || 'unknown'
-    if (!acc[id]) acc[id] = { name, count: 0 }
-    acc[id].count++
-    return acc
-  }, {})
-  const topSellers = Object.values(sellerMap).sort((a, b) => b.count - a.count).slice(0, 5)
+    sellerGroups[name] = (sellerGroups[name] || 0) + 1
+  })
+  const topSellers = Object.entries(sellerGroups).sort(function(a, b) { return b[1] - a[1] }).slice(0, 5)
 
-  const totalContent = (stats?.listingCount || 0) + (stats?.serviceCount || 0) + (stats?.jobCount || 0) + (stats?.eventCount || 0)
+  const CAT_COLORS = ['#00C896','#2563EB','#7C3AED','#EC4899','#d97706','#ef4444','#059669','#0891b2']
+  const priceRanges = [
+    { label: 'Under R10', min: 0, max: 10 },
+    { label: 'R10 – R50', min: 10, max: 50 },
+    { label: 'R50 – R200', min: 50, max: 200 },
+    { label: 'R200 – R500', min: 200, max: 500 },
+    { label: 'Over R500', min: 500, max: Infinity },
+  ]
 
   return (
     <AdminLayout stats={stats}>
+      <style>{`
+        .ana-grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+        .ana-card {
+          background: white; border-radius: 16px; padding: 20px;
+          box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid #f1f5f9;
+        }
+        .ana-card-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; }
+        .ana-card-value { font-size: 28px; font-weight: 800; color: #08162F; letter-spacing: -0.5px; margin: 0 0 4px; }
+        .ana-card-label { font-size: 12px; color: #9ca3af; font-weight: 600; margin: 0; }
+        .ana-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .ana-panel { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; }
+        .ana-panel-title { font-size: 14px; font-weight: 800; color: #08162F; margin: 0 0 18px; display: flex; align-items: center; gap: 8px; }
+        .ana-cat-row { margin-bottom: 13px; }
+        .ana-cat-top { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+        .ana-bar-bg { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+        .ana-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+        .ana-seller-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f8fafc; }
+        .ana-seller-row:last-child { border-bottom: none; }
+        .ana-seller-rank { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+        .ana-seller-av { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#08162F,#1e3a8a); display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: 800; flex-shrink: 0; }
+        .ana-seller-name { flex: 1; font-size: 13px; font-weight: 700; color: #111827; }
+        .ana-seller-count { font-size: 12px; font-weight: 700; color: #00C896; }
+        .ana-price-row { margin-bottom: 13px; }
+        .ana-price-top { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+        .ana-price-bar { height: 8px; border-radius: 4px; background: linear-gradient(135deg,#00C896,#059669); }
+        @media (max-width: 900px) {
+          .ana-grid4 { grid-template-columns: 1fr 1fr; }
+          .ana-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 500px) {
+          .ana-grid4 { grid-template-columns: 1fr 1fr; gap: 10px; }
+        }
+      `}</style>
+
       <div className="adm-page-header">
         <h1 className="adm-page-title">📈 Analytics</h1>
         <p className="adm-page-sub">Platform performance and content insights</p>
       </div>
 
-      {/* KPI row */}
-      <div className="adm-stats-grid" style={{ marginBottom: '20px' }}>
+      <div className="ana-grid4">
         {[
-          { label: 'Total Content', value: totalContent, icon: '📦', bg: '#ecfdf5' },
-          { label: 'Avg Listing Price', value: '$' + avgPrice.toLocaleString(), icon: '💰', bg: '#fefce8' },
-          { label: 'Highest Price', value: '$' + maxPrice.toLocaleString(), icon: '📈', bg: '#eff6ff' },
-          { label: 'Active Sellers', value: Object.keys(sellerMap).length, icon: '🧑‍💼', bg: '#f5f3ff' },
-        ].map(card => (
-          <div key={card.label} className="adm-stat-card">
-            <div className="adm-stat-top">
-              <div className="adm-stat-icon" style={{ background: card.bg }}>{card.icon}</div>
-            </div>
-            <p className="adm-stat-value" style={{ fontSize: typeof card.value === 'string' && card.value.length > 6 ? '20px' : '26px' }}>{card.value}</p>
-            <p className="adm-stat-label">{card.label}</p>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-
-        {/* Category breakdown */}
-        <div className="adm-section">
-          <div className="adm-section-header">
-            <p className="adm-section-title">🛍️ Listings by Category</p>
-          </div>
-          {sortedCats.length === 0 ? (
-            <div style={{ padding: '30px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>No listings yet</div>
-          ) : sortedCats.map(function([cat, count]) {
-            const pct = Math.round((count / maxCat) * 100)
-            const color = categoryColors[cat] || '#6b7280'
-            return (
-              <div key={cat} className="adm-row-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '5px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#374151' }}>{cat}</span>
-                  <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>{count}</span>
-                </div>
-                <div style={{ background: '#f1f5f9', borderRadius: '5px', height: '6px', overflow: 'hidden' }}>
-                  <div style={{ width: pct + '%', height: '100%', background: color, borderRadius: '5px', transition: 'width 0.5s ease' }} />
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Top sellers */}
-        <div className="adm-section">
-          <div className="adm-section-header">
-            <p className="adm-section-title">🏆 Top Sellers</p>
-          </div>
-          {topSellers.length === 0 ? (
-            <div style={{ padding: '30px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>No data yet</div>
-          ) : topSellers.map(function(seller, i) {
-            return (
-              <div key={seller.name} className="adm-row-item">
-                <div style={{
-                  width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
-                  background: i === 0 ? 'linear-gradient(135deg,#f59e0b,#d97706)' : i === 1 ? 'linear-gradient(135deg,#9ca3af,#6b7280)' : i === 2 ? 'linear-gradient(135deg,#b45309,#92400e)' : '#f1f5f9',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '12px', fontWeight: 800,
-                  color: i < 3 ? 'white' : '#6b7280',
-                }}>
-                  {i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}
-                </div>
-                <p style={{ flex: 1, margin: 0, fontSize: '13px', fontWeight: 600, color: '#111827' }}>{seller.name}</p>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: '#00C896' }}>{seller.count} listing{seller.count !== 1 ? 's' : ''}</span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Price ranges */}
-      <div className="adm-section">
-        <div className="adm-section-header">
-          <p className="adm-section-title">💰 Price Distribution</p>
-        </div>
-        {[
-          { label: 'Under $10', count: listings.filter(l => l.price < 10).length },
-          { label: '$10 – $50', count: listings.filter(l => l.price >= 10 && l.price < 50).length },
-          { label: '$50 – $100', count: listings.filter(l => l.price >= 50 && l.price < 100).length },
-          { label: '$100 – $500', count: listings.filter(l => l.price >= 100 && l.price < 500).length },
-          { label: 'Over $500', count: listings.filter(l => l.price >= 500).length },
-        ].map(function(range) {
-          const pct = listings.length > 0 ? Math.round((range.count / listings.length) * 100) : 0
+          { icon: '📦', bg: '#ecfdf5', label: 'Total Content', value: totalContent },
+          { icon: '💰', bg: '#fffbeb', label: 'Avg Listing Price', value: 'R ' + avgPrice },
+          { icon: '🏷️', bg: '#eff6ff', label: 'Highest Price', value: 'R ' + maxPrice.toLocaleString() },
+          { icon: '🧑‍💼', bg: '#f5f3ff', label: 'Active Sellers', value: Object.keys(sellerGroups).length },
+        ].map(function(c) {
           return (
-            <div key={range.label} className="adm-row-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '5px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#374151' }}>{range.label}</span>
-                <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>{range.count} <span style={{ color: '#9ca3af', fontWeight: 400 }}>({pct}%)</span></span>
-              </div>
-              <div style={{ background: '#f1f5f9', borderRadius: '5px', height: '6px', overflow: 'hidden' }}>
-                <div style={{ width: pct + '%', height: '100%', background: 'linear-gradient(90deg,#00C896,#059669)', borderRadius: '5px', transition: 'width 0.5s ease' }} />
-              </div>
+            <div key={c.label} className="ana-card">
+              <div className="ana-card-icon" style={{ background: c.bg }}>{c.icon}</div>
+              <p className="ana-card-value">{c.value}</p>
+              <p className="ana-card-label">{c.label}</p>
             </div>
           )
         })}
+      </div>
+
+      <div className="ana-row">
+        <div className="ana-panel">
+          <p className="ana-panel-title">🛍️ Listings by Category</p>
+          {catData.length === 0
+            ? <p style={{ color: '#9ca3af', fontSize: '13px' }}>No data yet</p>
+            : catData.map(function(item, i) {
+              return (
+                <div key={item[0]} className="ana-cat-row">
+                  <div className="ana-cat-top">
+                    <span>{item[0]}</span>
+                    <span style={{ color: CAT_COLORS[i % CAT_COLORS.length], fontWeight: 700 }}>{item[1]}</span>
+                  </div>
+                  <div className="ana-bar-bg">
+                    <div className="ana-bar" style={{ width: Math.round((item[1] / maxCat) * 100) + '%', background: CAT_COLORS[i % CAT_COLORS.length] }} />
+                  </div>
+                </div>
+              )
+            })
+          }
+        </div>
+
+        <div className="ana-panel">
+          <p className="ana-panel-title">🏆 Top Sellers</p>
+          {topSellers.map(function(s, i) {
+            const medals = ['🥇','🥈','🥉','4','5']
+            return (
+              <div key={s[0]} className="ana-seller-row">
+                <div className="ana-seller-rank">{medals[i]}</div>
+                <div className="ana-seller-av">{s[0].charAt(0).toUpperCase()}</div>
+                <span className="ana-seller-name">{s[0]}</span>
+                <span className="ana-seller-count">{s[1]} listings</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="ana-panel">
+        <p className="ana-panel-title">💰 Price Distribution</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          {priceRanges.map(function(range) {
+            const count = prices.filter(function(p) { return p >= range.min && p < range.max }).length
+            const pct = prices.length ? Math.round((count / prices.length) * 100) : 0
+            return (
+              <div key={range.label} className="ana-price-row">
+                <div className="ana-price-top">
+                  <span>{range.label}</span>
+                  <span style={{ color: '#00C896', fontWeight: 700 }}>{count} ({pct}%)</span>
+                </div>
+                <div className="ana-bar-bg">
+                  <div className="ana-price-bar" style={{ width: pct + '%' }} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </AdminLayout>
   )

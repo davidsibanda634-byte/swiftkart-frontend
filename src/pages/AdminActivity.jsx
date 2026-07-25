@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { AdminLayout } from './AdminDashboard'
+import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
 
 export default function AdminActivity() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [stats, setStats] = useState(null)
+  const [reports, setReports] = useState([])
   const [listings, setListings] = useState([])
   const [users, setUsers] = useState([])
-  const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(function() {
@@ -18,148 +18,103 @@ export default function AdminActivity() {
     if (!user.isAdmin) { navigate('/'); return }
     Promise.all([
       api.get('/admin/stats'),
+      api.get('/admin/reports'),
       api.get('/admin/listings'),
       api.get('/admin/users'),
-      api.get('/admin/reports'),
-    ])
-      .then(function([s, l, u, r]) {
-        setStats(s.data)
-        setListings(l.data)
-        setUsers(u.data)
-        setReports(r.data)
-      })
-      .catch(function() {})
-      .finally(function() { setLoading(false) })
+    ]).then(function(res) {
+      setStats(res[0].data)
+      setReports(res[1].data)
+      setListings(res[2].data)
+      setUsers(res[3].data)
+    }).catch(function() {})
+    .finally(function() { setLoading(false) })
   }, [user])
 
-  if (loading) return (
-    <AdminLayout stats={stats}>
-      <div style={{ textAlign: 'center', padding: '60px', color: '#9ca3af' }}>Loading activity...</div>
-    </AdminLayout>
-  )
+  if (loading) return <AdminLayout stats={null}><div style={{ textAlign: 'center', padding: '80px 0', color: '#9ca3af' }}>Loading activity...</div></AdminLayout>
 
-  // Build a unified activity feed sorted by date
-  const activities = [
-    ...listings.map(l => ({
-      type: 'listing',
-      icon: '🛍️',
-      bg: '#ecfdf5',
-      color: '#059669',
-      title: 'New listing posted',
-      detail: '"' + l.title + '" by ' + (l.user?.name || 'Unknown'),
-      date: new Date(l.createdAt),
-    })),
-    ...users.map(u => ({
-      type: 'user',
-      icon: '👤',
-      bg: '#eff6ff',
-      color: '#1e40af',
-      title: 'New user registered',
-      detail: u.name + ' (' + u.email + ')',
-      date: new Date(u.createdAt),
-    })),
-    ...reports.map(r => ({
-      type: 'report',
-      icon: '🚩',
-      bg: '#fef2f2',
-      color: '#dc2626',
-      title: 'Listing reported',
-      detail: (r.listing?.title || 'Deleted listing') + ' — ' + r.reason,
-      date: new Date(r.createdAt),
-    })),
-  ]
-    .filter(a => !isNaN(a.date))
-    .sort((a, b) => b.date - a.date)
-    .slice(0, 50)
+  const activities = []
 
-  function timeAgo(date) {
-    const diff = Math.floor((Date.now() - date) / 1000)
-    if (diff < 60) return 'just now'
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago'
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago'
-    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago'
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  reports.slice(0, 5).forEach(function(r) {
+    activities.push({
+      icon: '🚩', color: '#ef4444', bg: '#fef2f2',
+      text: 'New report submitted for: ' + (r.listing?.title || 'Unknown listing'),
+      sub: 'Reported by ' + (r.reportedBy?.name || 'Unknown'),
+      time: r.createdAt,
+    })
+  })
+
+  listings.slice(0, 5).forEach(function(l) {
+    activities.push({
+      icon: '🛍️', color: '#00C896', bg: '#ecfdf5',
+      text: 'New listing posted: ' + l.title,
+      sub: 'by ' + (l.user?.name || 'Unknown') + ' • R' + l.price,
+      time: l.createdAt,
+    })
+  })
+
+  users.slice(0, 5).forEach(function(u) {
+    activities.push({
+      icon: '👤', color: '#2563EB', bg: '#eff6ff',
+      text: 'New user registered: ' + u.name,
+      sub: u.email,
+      time: u.createdAt,
+    })
+  })
+
+  activities.sort(function(a, b) { return new Date(b.time) - new Date(a.time) })
+
+  function timeAgo(dateStr) {
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    const hrs = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    if (days > 0) return days + 'd ago'
+    if (hrs > 0) return hrs + 'h ago'
+    if (mins > 0) return mins + 'm ago'
+    return 'Just now'
   }
-
-  const recentListings = [...listings].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5)
-  const recentUsers = [...users].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5)
 
   return (
     <AdminLayout stats={stats}>
+      <style>{`
+        .act-feed { display: flex; flex-direction: column; gap: 10px; }
+        .act-item {
+          background: white; border-radius: 14px; padding: 16px 18px;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
+          display: flex; align-items: center; gap: 14px; transition: all 0.2s;
+        }
+        .act-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        .act-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .act-text { flex: 1; }
+        .act-main { font-size: 13.5px; font-weight: 700; color: #111827; margin: 0 0 2px; }
+        .act-sub { font-size: 12px; color: #9ca3af; margin: 0; }
+        .act-time { font-size: 11px; font-weight: 600; color: #c4c9d4; white-space: nowrap; }
+        .act-empty { text-align: center; padding: 80px 20px; color: #9ca3af; font-size: 14px; }
+      `}</style>
+
       <div className="adm-page-header">
-        <h1 className="adm-page-title">💬 Activity Feed</h1>
-        <p className="adm-page-sub">Recent platform activity across all users and content</p>
+        <h1 className="adm-page-title">🕐 Activity Log</h1>
+        <p className="adm-page-sub">Recent platform activity across all modules</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
-
-        {/* Main feed */}
-        <div className="adm-section">
-          <div className="adm-section-header">
-            <p className="adm-section-title">🕐 Recent Activity</p>
-            <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 600 }}>{activities.length} events</span>
-          </div>
-          {activities.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>No activity yet</div>
-          ) : activities.map(function(a, i) {
+      {activities.length === 0 ? (
+        <div className="act-empty">No activity recorded yet</div>
+      ) : (
+        <div className="act-feed">
+          {activities.map(function(a, i) {
             return (
-              <div key={i} className="adm-row-item">
-                <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: a.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>
-                  {a.icon}
+              <div key={i} className="act-item">
+                <div className="act-icon" style={{ background: a.bg }}>{a.icon}</div>
+                <div className="act-text">
+                  <p className="act-main">{a.text}</p>
+                  <p className="act-sub">{a.sub}</p>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#111827' }}>{a.title}</p>
-                  <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.detail}</p>
-                </div>
-                <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 600, white_space: 'nowrap', flexShrink: 0 }}>
-                  {timeAgo(a.date)}
-                </span>
+                <span className="act-time">{timeAgo(a.time)}</span>
               </div>
             )
           })}
         </div>
-
-        {/* Right column */}
-        <div>
-          <div className="adm-section" style={{ marginBottom: '16px' }}>
-            <div className="adm-section-header">
-              <p className="adm-section-title">🆕 Newest Users</p>
-            </div>
-            {recentUsers.map(function(u) {
-              return (
-                <div key={u._id} className="adm-row-item">
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg,#08162F,#1e3a8a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: 'white', fontWeight: 800, flexShrink: 0 }}>
-                    {u.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: '12.5px', fontWeight: 700, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.name}</p>
-                    <p style={{ margin: '1px 0 0', fontSize: '10.5px', color: '#9ca3af' }}>{u.email}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="adm-section">
-            <div className="adm-section-header">
-              <p className="adm-section-title">🆕 Latest Listings</p>
-            </div>
-            {recentListings.map(function(l) {
-              return (
-                <div key={l._id} className="adm-row-item">
-                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>
-                    🛍️
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: '12.5px', fontWeight: 700, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.title}</p>
-                    <p style={{ margin: '1px 0 0', fontSize: '10.5px', color: '#9ca3af' }}>${l.price} • {l.user?.name}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
+      )}
     </AdminLayout>
   )
 }

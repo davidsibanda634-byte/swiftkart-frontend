@@ -1,463 +1,409 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
 
-export function AdminLayout({ children, stats }) {
-  const { user, authReady } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-
-  const navItems = [
-    { to: '/admin', icon: '📊', label: 'Dashboard', exact: true },
-    { to: '/admin/users', icon: '👤', label: 'Users', badge: stats?.userCount },
-    { to: '/admin/listings', icon: '🛍️', label: 'Listings', badge: stats?.listingCount },
-    { to: '/admin/reports', icon: '🚩', label: 'Reports', badge: stats?.reportCount, alert: stats?.reportCount > 0 },
-    { to: '/admin/analytics', icon: '📈', label: 'Analytics' },
-    { to: '/admin/activity', icon: '💬', label: 'Activity' },
-  ]
-
-  const isActive = (to, exact) => exact
-    ? location.pathname === to
-    : location.pathname === to
-
-  if (!authReady) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f7fb' }}>
-        <p style={{ color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '14px' }}>Loading...</p>
-      </div>
-    )
-  }
-
-  return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        * { box-sizing: border-box; }
-
-        .adm-wrap {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          display: flex;
-          min-height: calc(100vh - 60px);
-          background: #f4f7fb;
-        }
-
-        /* ── Desktop Sidebar ── */
-        .adm-sidebar {
-          width: 220px;
-          flex-shrink: 0;
-          background: linear-gradient(180deg, #08162F 0%, #0f2167 100%);
-          display: flex;
-          flex-direction: column;
-          position: sticky;
-          top: 60px;
-          height: calc(100vh - 60px);
-          overflow-y: auto;
-        }
-
-        .adm-sidebar-top {
-          padding: 20px 14px 14px;
-          border-bottom: 1px solid rgba(255,255,255,0.07);
-        }
-        .adm-sidebar-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          background: rgba(0,200,150,0.15);
-          border: 1px solid rgba(0,200,150,0.3);
-          color: #34d399;
-          font-size: 9.5px;
-          font-weight: 800;
-          padding: 3px 9px;
-          border-radius: 20px;
-          letter-spacing: 0.5px;
-          margin-bottom: 8px;
-        }
-        .adm-sidebar-title { font-size: 14px; font-weight: 800; color: white; margin: 0 0 2px; }
-        .adm-sidebar-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin: 0; }
-
-        .adm-nav { padding: 10px 8px; flex: 1; }
-        .adm-nav-label {
-          font-size: 9.5px; font-weight: 800; color: rgba(255,255,255,0.28);
-          text-transform: uppercase; letter-spacing: 0.8px;
-          padding: 0 8px; margin: 10px 0 5px;
-        }
-        .adm-nav-item {
-          display: flex; align-items: center; gap: 9px;
-          padding: 9px 10px; border-radius: 10px; font-size: 13px; font-weight: 600;
-          color: rgba(255,255,255,0.55); text-decoration: none; transition: all 0.2s;
-          margin-bottom: 2px;
-        }
-        .adm-nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
-        .adm-nav-item.active { background: rgba(0,200,150,0.14); color: #34d399; }
-        .adm-nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
-        .adm-nav-badge {
-          margin-left: auto; background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.5);
-          font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 10px;
-          min-width: 20px; text-align: center;
-        }
-        .adm-nav-item.active .adm-nav-badge { background: rgba(0,200,150,0.2); color: #34d399; }
-        .adm-nav-badge.alert { background: rgba(239,68,68,0.2); color: #f87171; }
-
-        .adm-sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.07); }
-        .adm-back-btn {
-          display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 10px;
-          font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4);
-          transition: all 0.2s; cursor: pointer; border: none; background: none;
-          width: 100%; font-family: inherit; text-decoration: none;
-        }
-        .adm-back-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
-
-        /* ── Mobile Top Tab Bar ── */
-        .adm-mobile-nav {
-          display: none;
-          background: linear-gradient(135deg, #08162F 0%, #0f2167 100%);
-          border-bottom: 1px solid rgba(255,255,255,0.08);
-          position: sticky;
-          top: 60px;
-          z-index: 100;
-        }
-
-        .adm-mobile-nav-scroll {
-          display: flex;
-          overflow-x: auto;
-          scrollbar-width: none;
-          padding: 8px 12px;
-          gap: 6px;
-        }
-        .adm-mobile-nav-scroll::-webkit-scrollbar { display: none; }
-
-        .adm-mobile-tab {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          padding: 8px 14px;
-          border-radius: 12px;
-          border: none;
-          background: rgba(255,255,255,0.06);
-          color: rgba(255,255,255,0.5);
-          font-family: inherit;
-          font-size: 10.5px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s;
-          flex-shrink: 0;
-          white-space: nowrap;
-          position: relative;
-          text-decoration: none;
-        }
-        .adm-mobile-tab:hover { background: rgba(255,255,255,0.1); color: white; }
-        .adm-mobile-tab.active {
-          background: rgba(0,200,150,0.18);
-          color: #34d399;
-          border: 1px solid rgba(0,200,150,0.3);
-        }
-
-        .adm-mobile-tab-icon { font-size: 18px; line-height: 1; }
-
-        .adm-mobile-badge {
-          position: absolute;
-          top: 4px;
-          right: 4px;
-          background: #ef4444;
-          color: white;
-          font-size: 9px;
-          font-weight: 800;
-          min-width: 16px;
-          height: 16px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0 4px;
-        }
-
-        .adm-mobile-back-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 8px 14px 0;
-        }
-        .adm-mobile-back {
-          background: none; border: none; color: rgba(255,255,255,0.5);
-          font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
-          display: flex; align-items: center; gap: 5px; padding: 0;
-        }
-        .adm-mobile-back:hover { color: white; }
-        .adm-mobile-admin-label {
-          font-size: 10px; font-weight: 800; color: #34d399;
-          letter-spacing: 0.5px; text-transform: uppercase;
-        }
-
-        /* ── Main content ── */
-        .adm-main { flex: 1; padding: 26px 26px 60px; min-width: 0; overflow: hidden; }
-
-        .adm-page-header { margin-bottom: 22px; }
-        .adm-page-title { font-size: 21px; font-weight: 800; color: #08162F; margin: 0 0 4px; letter-spacing: -0.4px; }
-        .adm-page-sub { font-size: 13px; color: #9ca3af; margin: 0; }
-
-        .adm-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-
-        .adm-stat-card {
-          background: white; border-radius: 14px; padding: 16px 18px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
-          text-decoration: none; display: block; transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .adm-stat-card.clickable:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.09); }
-
-        .adm-stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .adm-stat-icon { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
-        .adm-stat-value { font-size: 26px; font-weight: 800; color: #08162F; line-height: 1; margin: 0 0 3px; letter-spacing: -1px; }
-        .adm-stat-label { font-size: 11.5px; color: #9ca3af; font-weight: 600; margin: 0; }
-
-        .adm-section {
-          background: white; border-radius: 14px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
-          overflow: hidden; margin-bottom: 16px;
-        }
-        .adm-section-header {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 14px 18px; border-bottom: 1px solid #f8fafc;
-        }
-        .adm-section-title { font-size: 13.5px; font-weight: 800; color: #0f172a; margin: 0; }
-        .adm-section-link { font-size: 12px; font-weight: 700; color: #00C896; text-decoration: none; }
-        .adm-section-link:hover { text-decoration: underline; }
-
-        .adm-row-item {
-          display: flex; align-items: center; gap: 12px;
-          padding: 11px 18px; border-bottom: 1px solid #f8fafc; transition: background 0.15s;
-        }
-        .adm-row-item:last-child { border-bottom: none; }
-        .adm-row-item:hover { background: #fafbfc; }
-
-        .adm-search {
-          width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-          font-size: 13px; outline: none; font-family: inherit; transition: border 0.2s; margin-bottom: 14px;
-        }
-        .adm-search:focus { border-color: #00C896; }
-
-        .adm-action-btn {
-          display: inline-flex; align-items: center; gap: 7px;
-          padding: 9px 18px; border-radius: 10px; font-size: 12.5px; font-weight: 700;
-          text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; font-family: inherit;
-        }
-        .adm-action-btn:hover { opacity: 0.88; transform: translateY(-1px); }
-
-        /* ── Responsive ── */
-        @media (max-width: 900px) {
-          .adm-sidebar { display: none; }
-          .adm-mobile-nav { display: block; }
-          .adm-main { padding: 16px 14px 80px; }
-          .adm-stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 480px) {
-          .adm-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-          .adm-main { padding: 14px 12px 80px; }
-        }
-      `}</style>
-
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 60px)' }}>
-
-        {/* Mobile top nav — only visible on mobile */}
-        <div className="adm-mobile-nav">
-          <div className="adm-mobile-back-row">
-            <button className="adm-mobile-back" onClick={() => navigate('/')}>
-              ← Back to Site
-            </button>
-            <span className="adm-mobile-admin-label">🛡️ Admin</span>
-          </div>
-          <div className="adm-mobile-nav-scroll">
-            {navItems.map(item => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={'adm-mobile-tab' + (isActive(item.to, item.exact) ? ' active' : '')}
-              >
-                {item.alert && item.badge > 0 && (
-                  <span className="adm-mobile-badge">{item.badge}</span>
-                )}
-                <span className="adm-mobile-tab-icon">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Desktop layout */}
-        <div className="adm-wrap">
-          <aside className="adm-sidebar">
-            <div className="adm-sidebar-top">
-              <div className="adm-sidebar-badge">🛡️ ADMIN</div>
-              <p className="adm-sidebar-title">Scalablenexus Admin</p>
-              <p className="adm-sidebar-sub">{user?.name}</p>
-            </div>
-
-            <nav className="adm-nav">
-              <p className="adm-nav-label">Main</p>
-              {navItems.slice(0, 4).map(item => (
-                <Link key={item.to} to={item.to} className={'adm-nav-item' + (isActive(item.to, item.exact) ? ' active' : '')}>
-                  <span className="adm-nav-icon">{item.icon}</span>
-                  {item.label}
-                  {item.badge !== undefined && (
-                    <span className={'adm-nav-badge' + (item.alert ? ' alert' : '')}>{item.badge}</span>
-                  )}
-                </Link>
-              ))}
-              <p className="adm-nav-label" style={{ marginTop: '14px' }}>Insights</p>
-              {navItems.slice(4).map(item => (
-                <Link key={item.to} to={item.to} className={'adm-nav-item' + (isActive(item.to, item.exact) ? ' active' : '')}>
-                  <span className="adm-nav-icon">{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-
-            <div className="adm-sidebar-footer">
-              <button className="adm-back-btn" onClick={() => navigate('/')}>← Back to Site</button>
-            </div>
-          </aside>
-
-          <main className="adm-main">{children}</main>
-        </div>
-      </div>
-    </>
-  )
-}
-
 export default function AdminDashboard() {
-  const { user, authReady } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const [stats, setStats] = useState(null)
+  const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(function() {
-    if (!authReady) return
     if (!user) { navigate('/login'); return }
     if (!user.isAdmin) { navigate('/'); return }
-    api.get('/admin/stats')
-      .then(function(res) { setStats(res.data) })
-      .catch(function() { navigate('/') })
-      .finally(function() { setLoading(false) })
-  }, [user, authReady])
-
-  if (!authReady) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f7fb' }}>
-      <p style={{ color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '14px' }}>Loading...</p>
-    </div>
-  )
+    Promise.all([
+      api.get('/admin/stats'),
+      api.get('/listings'),
+    ]).then(function(results) {
+      setStats(results[0].data)
+      setListings(results[1].data)
+    }).catch(function() {})
+    .finally(function() { setLoading(false) })
+  }, [user])
 
   if (loading) return (
-    <div style={{ textAlign: 'center', padding: '80px', color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-      Loading dashboard...
-    </div>
+    <AdminLayout stats={null}>
+      <div style={{ textAlign: 'center', padding: '80px 0', color: '#9ca3af' }}>Loading dashboard...</div>
+    </AdminLayout>
   )
 
-  const topCards = [
-    { label: 'Total Users', value: stats?.userCount || 0, icon: '👤', bg: '#eff6ff', to: '/admin/users' },
-    { label: 'Listings', value: stats?.listingCount || 0, icon: '🛍️', bg: '#ecfdf5', to: '/admin/listings' },
-    { label: 'Pending Reports', value: stats?.reportCount || 0, icon: '🚩', bg: '#fef2f2', to: '/admin/reports' },
-    { label: 'Banned Users', value: stats?.bannedCount || 0, icon: '🚫', bg: '#fff7ed', to: '/admin/users' },
+  const metricCards = [
+    { label: 'Total Users', value: stats?.userCount || 0, icon: '👤', color: '#2563EB', bg: '#eff6ff', to: '/admin/users', trend: '+2 this week' },
+    { label: 'Total Listings', value: stats?.listingCount || 0, icon: '🛍️', color: '#00C896', bg: '#ecfdf5', to: '/admin/listings', trend: '+14 today' },
+    { label: 'Pending Reports', value: stats?.reportCount || 0, icon: '🚩', color: '#ef4444', bg: '#fef2f2', to: '/admin/reports', trend: 'Needs review' },
+    { label: 'Banned Users', value: stats?.bannedCount || 0, icon: '🚫', color: '#991b1b', bg: '#fef2f2', to: '/admin/users', trend: '' },
+    { label: 'Jobs Posted', value: stats?.jobCount || 0, icon: '💼', color: '#d97706', bg: '#fffbeb', to: '/admin/jobs', trend: '' },
+    { label: 'Active Users', value: (stats?.userCount || 0) - (stats?.bannedCount || 0), icon: '✅', color: '#059669', bg: '#ecfdf5', to: '/admin/users', trend: '' },
+    { label: 'Services', value: stats?.serviceCount || 0, icon: '🧑‍💼', color: '#7C3AED', bg: '#f5f3ff', to: '/admin/services', trend: '' },
+    { label: 'Events', value: stats?.eventCount || 0, icon: '🎉', color: '#EC4899', bg: '#fdf2f8', to: '/admin/events', trend: '' },
   ]
 
-  const bottomCards = [
-    { label: 'Services', value: stats?.serviceCount || 0, icon: '🧑‍💼', bg: '#f5f3ff' },
-    { label: 'Jobs', value: stats?.jobCount || 0, icon: '💼', bg: '#fefce8' },
-    { label: 'Events', value: stats?.eventCount || 0, icon: '🎉', bg: '#fdf2f8' },
-    { label: 'Active Users', value: (stats?.userCount || 0) - (stats?.bannedCount || 0), icon: '✅', bg: '#f0fdf4' },
-  ]
+  const totalContent = (stats?.listingCount || 0) + (stats?.jobCount || 0) + (stats?.serviceCount || 0) + (stats?.eventCount || 0)
 
-  const totalContent = (stats?.listingCount || 0) + (stats?.serviceCount || 0) + (stats?.jobCount || 0) + (stats?.eventCount || 0)
+  const catGroups = {}
+  listings.forEach(function(l) {
+    const cat = l.category || 'Other'
+    catGroups[cat] = (catGroups[cat] || 0) + 1
+  })
+  const catData = Object.entries(catGroups).sort(function(a, b) { return b[1] - a[1] })
+  const maxCat = catData[0]?.[1] || 1
+
+  const sellerGroups = {}
+  listings.forEach(function(l) {
+    const name = l.user?.name || 'Unknown'
+    sellerGroups[name] = (sellerGroups[name] || 0) + 1
+  })
+  const topSellers = Object.entries(sellerGroups)
+    .sort(function(a, b) { return b[1] - a[1] })
+    .slice(0, 5)
+
+  const prices = listings.map(function(l) { return Number(l.price) }).filter(function(p) { return p > 0 })
+  const avgPrice = prices.length ? Math.round(prices.reduce(function(a, b) { return a + b }, 0) / prices.length) : 0
+  const maxPrice = prices.length ? Math.max(...prices) : 0
+
+  const CAT_COLORS = ['#00C896','#2563EB','#7C3AED','#EC4899','#d97706','#ef4444','#059669','#0891b2']
 
   return (
     <AdminLayout stats={stats}>
-      <div className="adm-page-header">
-        <h1 className="adm-page-title">📊 Dashboard Overview</h1>
-        <p className="adm-page-sub">Welcome back, {user?.name} — here's what's happening on Scalablenexus</p>
-      </div>
+      <style>{`
+        .adm-dash { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-      {stats?.reportCount > 0 && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '18px' }}>⚠️</span>
-          <p style={{ margin: 0, fontSize: '13px', color: '#dc2626', fontWeight: 600, flex: 1 }}>
-            {stats.reportCount} pending report{stats.reportCount !== 1 ? 's' : ''} need your attention
+        .adm-metric-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+          margin-bottom: 28px;
+        }
+
+        .adm-metric-card {
+          background: white;
+          border-radius: 16px;
+          padding: 20px;
+          box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+          border: 1px solid #f1f5f9;
+          text-decoration: none;
+          display: block;
+          transition: all 0.2s;
+          position: relative;
+          overflow: hidden;
+        }
+        .adm-metric-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        .adm-metric-card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 3px;
+        }
+
+        .adm-metric-top {
+          display: flex; align-items: center;
+          justify-content: space-between; margin-bottom: 14px;
+        }
+        .adm-metric-icon {
+          width: 42px; height: 42px; border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px;
+        }
+        .adm-metric-link {
+          font-size: 11px; font-weight: 700; color: #9ca3af;
+          text-decoration: none; transition: color 0.2s;
+        }
+        .adm-metric-card:hover .adm-metric-link { color: #00C896; }
+
+        .adm-metric-value {
+          font-size: 32px; font-weight: 800; color: #08162F;
+          letter-spacing: -1px; margin: 0 0 4px; line-height: 1;
+        }
+        .adm-metric-label { font-size: 12.5px; color: #9ca3af; font-weight: 600; margin: 0; }
+        .adm-metric-trend { font-size: 11px; font-weight: 600; margin-top: 6px; }
+
+        .adm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .adm-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+        .adm-panel {
+          background: white; border-radius: 16px;
+          padding: 22px; box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+          border: 1px solid #f1f5f9;
+        }
+
+        .adm-panel-header {
+          display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 18px;
+        }
+        .adm-panel-title {
+          font-size: 14px; font-weight: 800; color: #08162F;
+          display: flex; align-items: center; gap: 8px;
+        }
+        .adm-panel-link {
+          font-size: 12px; font-weight: 700; color: #00C896;
+          text-decoration: none;
+        }
+
+        .adm-cat-row { margin-bottom: 12px; }
+        .adm-cat-name { font-size: 12.5px; font-weight: 600; color: #374151; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .adm-cat-bar-bg { height: 7px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+        .adm-cat-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+        .adm-seller-row {
+          display: flex; align-items: center; gap: 12px;
+          padding: 10px 0; border-bottom: 1px solid #f8fafc;
+        }
+        .adm-seller-row:last-child { border-bottom: none; }
+        .adm-seller-rank {
+          width: 22px; height: 22px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 10px; font-weight: 800; flex-shrink: 0;
+        }
+        .adm-seller-avatar {
+          width: 34px; height: 34px; border-radius: 50%;
+          background: linear-gradient(135deg,#08162F,#1e3a8a);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 13px; color: white; font-weight: 800; flex-shrink: 0;
+        }
+        .adm-seller-name { font-size: 13px; font-weight: 700; color: #111827; flex: 1; }
+        .adm-seller-count { font-size: 12px; font-weight: 700; color: #00C896; }
+
+        .adm-summary-row {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 13px 0; border-bottom: 1px solid #f8fafc;
+        }
+        .adm-summary-row:last-child { border-bottom: none; }
+        .adm-summary-left { display: flex; align-items: center; gap: 10px; }
+        .adm-summary-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+        .adm-summary-label { font-size: 13px; font-weight: 600; color: #374151; }
+        .adm-summary-value { font-size: 15px; font-weight: 800; color: #00C896; }
+
+        .adm-price-row { margin-bottom: 14px; }
+        .adm-price-label { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+        .adm-price-bar-bg { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+        .adm-price-bar { height: 100%; border-radius: 4px; background: linear-gradient(135deg,#00C896,#059669); }
+
+        .adm-quick-actions {
+          display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+          margin-bottom: 24px;
+        }
+        .adm-quick-btn {
+          background: white; border: 1.5px solid #e8ecf4;
+          border-radius: 14px; padding: 16px 12px;
+          display: flex; flex-direction: column; align-items: center; gap: 8px;
+          cursor: pointer; font-family: inherit; text-decoration: none;
+          transition: all 0.2s;
+        }
+        .adm-quick-btn:hover { border-color: #00C896; background: #ecfdf5; transform: translateY(-2px); }
+        .adm-quick-icon { font-size: 22px; }
+        .adm-quick-label { font-size: 11.5px; font-weight: 700; color: #374151; text-align: center; }
+
+        @media (max-width: 1100px) {
+          .adm-metric-grid { grid-template-columns: repeat(2,1fr); }
+          .adm-row { grid-template-columns: 1fr; }
+          .adm-row-3 { grid-template-columns: 1fr 1fr; }
+          .adm-quick-actions { grid-template-columns: repeat(2,1fr); }
+        }
+        @media (max-width: 600px) {
+          .adm-metric-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+          .adm-metric-value { font-size: 24px; }
+          .adm-row-3 { grid-template-columns: 1fr; }
+          .adm-quick-actions { grid-template-columns: repeat(2,1fr); }
+        }
+      `}</style>
+
+      <div className="adm-dash">
+
+        {/* Page Header */}
+        <div className="adm-page-header">
+          <h1 className="adm-page-title">📊 Dashboard Overview</h1>
+          <p className="adm-page-sub">
+            Welcome back, {user?.name} — here's what's happening on Scalablenexus
           </p>
-          <Link to="/admin/reports" className="adm-action-btn" style={{ background: '#dc2626', color: 'white', padding: '6px 14px', fontSize: '12px' }}>
-            Review Now
-          </Link>
         </div>
-      )}
 
-      <div className="adm-stats-grid">
-        {topCards.map(card => (
-          <Link key={card.label} to={card.to} className="adm-stat-card clickable">
-            <div className="adm-stat-top">
-              <div className="adm-stat-icon" style={{ background: card.bg }}>{card.icon}</div>
-              <span style={{ fontSize: '10.5px', color: '#9ca3af', fontWeight: 600 }}>View →</span>
-            </div>
-            <p className="adm-stat-value">{card.value}</p>
-            <p className="adm-stat-label">{card.label}</p>
-          </Link>
-        ))}
-      </div>
+        {/* Quick Actions */}
+        <div className="adm-quick-actions">
+          {[
+            { icon: '👤', label: 'Manage Users', to: '/admin/users' },
+            { icon: '🛍️', label: 'View Listings', to: '/admin/listings' },
+            { icon: '🚩', label: 'Review Reports', to: '/admin/reports' },
+            { icon: '📈', label: 'Analytics', to: '/admin/analytics' },
+          ].map(function(q) {
+            return (
+              <Link key={q.to} to={q.to} className="adm-quick-btn">
+                <span className="adm-quick-icon">{q.icon}</span>
+                <span className="adm-quick-label">{q.label}</span>
+              </Link>
+            )
+          })}
+        </div>
 
-      <div className="adm-stats-grid" style={{ marginBottom: '20px' }}>
-        {bottomCards.map(card => (
-          <div key={card.label} className="adm-stat-card">
-            <div className="adm-stat-top">
-              <div className="adm-stat-icon" style={{ background: card.bg }}>{card.icon}</div>
+        {/* Metric Cards */}
+        <div className="adm-metric-grid">
+          {metricCards.map(function(c) {
+            return (
+              <Link key={c.label} to={c.to} className="adm-metric-card"
+                style={{ '--card-color': c.color }}
+              >
+                <div style={{
+                  position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
+                  background: c.color, borderRadius: '16px 16px 0 0'
+                }} />
+                <div className="adm-metric-top">
+                  <div className="adm-metric-icon" style={{ background: c.bg }}>
+                    {c.icon}
+                  </div>
+                  <span className="adm-metric-link">View →</span>
+                </div>
+                <p className="adm-metric-value">{c.value.toLocaleString()}</p>
+                <p className="adm-metric-label">{c.label}</p>
+                {c.trend && (
+                  <p className="adm-metric-trend" style={{ color: c.color }}>{c.trend}</p>
+                )}
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Charts Row */}
+        <div className="adm-row">
+
+          {/* Listings by Category */}
+          <div className="adm-panel">
+            <div className="adm-panel-header">
+              <span className="adm-panel-title">🛍️ Listings by Category</span>
+              <Link to="/admin/listings" className="adm-panel-link">View all →</Link>
             </div>
-            <p className="adm-stat-value">{card.value}</p>
-            <p className="adm-stat-label">{card.label}</p>
+            {catData.length === 0 ? (
+              <p style={{ color: '#9ca3af', fontSize: '13px' }}>No listings yet</p>
+            ) : catData.map(function(item, i) {
+              return (
+                <div key={item[0]} className="adm-cat-row">
+                  <div className="adm-cat-name">
+                    <span>{item[0]}</span>
+                    <span style={{ color: CAT_COLORS[i % CAT_COLORS.length], fontWeight: 700 }}>{item[1]}</span>
+                  </div>
+                  <div className="adm-cat-bar-bg">
+                    <div
+                      className="adm-cat-bar"
+                      style={{
+                        width: Math.round((item[1] / maxCat) * 100) + '%',
+                        background: CAT_COLORS[i % CAT_COLORS.length]
+                      }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
           </div>
-        ))}
-      </div>
 
-      <div className="adm-section">
-        <div className="adm-section-header">
-          <p className="adm-section-title">📈 Platform Summary</p>
-          <Link to="/admin/analytics" className="adm-section-link">Full analytics →</Link>
-        </div>
-        {[
-          { label: 'Total content posted', value: totalContent, icon: '📦', bg: '#ecfdf5', color: '#059669' },
-          { label: 'Active users (not banned)', value: (stats?.userCount || 0) - (stats?.bannedCount || 0), icon: '✅', bg: '#eff6ff', color: '#1e40af' },
-          { label: 'Marketplace items', value: stats?.listingCount || 0, icon: '🛍️', bg: '#ecfdf5', color: '#059669' },
-          { label: 'Banned accounts', value: stats?.bannedCount || 0, icon: '🚫', bg: '#fef2f2', color: '#dc2626' },
-          { label: 'Pending moderation', value: stats?.reportCount || 0, icon: '🚩', bg: '#fef2f2', color: '#dc2626' },
-        ].map(item => (
-          <div key={item.label} className="adm-row-item">
-            <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>
-              {item.icon}
+          {/* Top Sellers */}
+          <div className="adm-panel">
+            <div className="adm-panel-header">
+              <span className="adm-panel-title">🏆 Top Sellers</span>
+              <Link to="/admin/users" className="adm-panel-link">View all →</Link>
             </div>
-            <p style={{ flex: 1, margin: 0, fontSize: '13px', color: '#374151', fontWeight: 500 }}>{item.label}</p>
-            <p style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: item.color }}>{item.value}</p>
+            {topSellers.length === 0 ? (
+              <p style={{ color: '#9ca3af', fontSize: '13px' }}>No sellers yet</p>
+            ) : topSellers.map(function(seller, i) {
+              const rankColors = ['#f59e0b','#9ca3af','#d97706','#6b7280','#374151']
+              const medals = ['🥇','🥈','🥉']
+              return (
+                <div key={seller[0]} className="adm-seller-row">
+                  <div className="adm-seller-rank"
+                    style={{ background: rankColors[i] + '22', color: rankColors[i] }}>
+                    {medals[i] || i + 1}
+                  </div>
+                  <div className="adm-seller-avatar">{seller[0].charAt(0).toUpperCase()}</div>
+                  <span className="adm-seller-name">{seller[0]}</span>
+                  <span className="adm-seller-count">{seller[1]} listings</span>
+                </div>
+              )
+            })}
           </div>
-        ))}
-      </div>
-
-      <div className="adm-section">
-        <div className="adm-section-header">
-          <p className="adm-section-title">📦 Content Breakdown</p>
         </div>
-        {[
-          { label: 'Marketplace Listings', value: stats?.listingCount || 0, total: totalContent, color: '#00C896' },
-          { label: 'Services', value: stats?.serviceCount || 0, total: totalContent, color: '#7c3aed' },
-          { label: 'Jobs', value: stats?.jobCount || 0, total: totalContent, color: '#d97706' },
-          { label: 'Events', value: stats?.eventCount || 0, total: totalContent, color: '#be185d' },
-        ].map(item => {
-          const pct = totalContent > 0 ? Math.round((item.value / totalContent) * 100) : 0
-          return (
-            <div key={item.label} className="adm-row-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#374151' }}>{item.label}</span>
-                <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>{item.value} <span style={{ color: '#9ca3af', fontWeight: 500 }}>({pct}%)</span></span>
-              </div>
-              <div style={{ background: '#f1f5f9', borderRadius: '6px', height: '7px', overflow: 'hidden' }}>
-                <div style={{ width: pct + '%', height: '100%', background: item.color, borderRadius: '6px', transition: 'width 0.6s ease' }} />
-              </div>
+
+        {/* Bottom Row */}
+        <div className="adm-row">
+
+          {/* Platform Summary */}
+          <div className="adm-panel">
+            <div className="adm-panel-header">
+              <span className="adm-panel-title">📋 Platform Summary</span>
+              <Link to="/admin/analytics" className="adm-panel-link">Full analytics →</Link>
             </div>
-          )
-        })}
+            {[
+              { icon: '📦', bg: '#ecfdf5', label: 'Total content posted', value: totalContent },
+              { icon: '✅', bg: '#ecfdf5', label: 'Active users (not banned)', value: (stats?.userCount || 0) - (stats?.bannedCount || 0) },
+              { icon: '🛍️', bg: '#eff6ff', label: 'Marketplace items', value: stats?.listingCount || 0 },
+              { icon: '🚫', bg: '#fef2f2', label: 'Banned accounts', value: stats?.bannedCount || 0 },
+              { icon: '🚩', bg: '#fef2f2', label: 'Pending reports', value: stats?.reportCount || 0 },
+              { icon: '💰', bg: '#fffbeb', label: 'Avg listing price', value: 'R ' + avgPrice },
+              { icon: '🏷️', bg: '#fffbeb', label: 'Highest priced listing', value: 'R ' + maxPrice.toLocaleString() },
+            ].map(function(row) {
+              return (
+                <div key={row.label} className="adm-summary-row">
+                  <div className="adm-summary-left">
+                    <div className="adm-summary-icon" style={{ background: row.bg }}>{row.icon}</div>
+                    <span className="adm-summary-label">{row.label}</span>
+                  </div>
+                  <span className="adm-summary-value">{row.value}</span>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Price Distribution */}
+          <div className="adm-panel">
+            <div className="adm-panel-header">
+              <span className="adm-panel-title">💰 Price Distribution</span>
+            </div>
+            {(function() {
+              const ranges = [
+                { label: 'Under R10', min: 0, max: 10 },
+                { label: 'R10 – R50', min: 10, max: 50 },
+                { label: 'R50 – R200', min: 50, max: 200 },
+                { label: 'R200 – R500', min: 200, max: 500 },
+                { label: 'Over R500', min: 500, max: Infinity },
+              ]
+              return ranges.map(function(range) {
+                const count = prices.filter(function(p) { return p >= range.min && p < range.max }).length
+                const pct = prices.length ? Math.round((count / prices.length) * 100) : 0
+                return (
+                  <div key={range.label} className="adm-price-row">
+                    <div className="adm-price-label">
+                      <span>{range.label}</span>
+                      <span style={{ color: '#00C896' }}>{count} ({pct}%)</span>
+                    </div>
+                    <div className="adm-price-bar-bg">
+                      <div className="adm-price-bar" style={{ width: pct + '%' }} />
+                    </div>
+                  </div>
+                )
+              })
+            })()}
+
+            {/* Reports quick view */}
+            {stats?.reportCount > 0 && (
+              <div style={{ marginTop: '20px', padding: '14px', background: '#fef2f2', borderRadius: '12px', border: '1px solid #fecaca' }}>
+                <p style={{ fontSize: '13px', fontWeight: 700, color: '#dc2626', margin: '0 0 8px' }}>
+                  🚩 {stats.reportCount} Pending Report{stats.reportCount !== 1 ? 's' : ''}
+                </p>
+                <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 10px' }}>
+                  Reports need your attention
+                </p>
+                <Link to="/admin/reports" style={{
+                  display: 'inline-block', background: '#ef4444', color: 'white',
+                  padding: '7px 16px', borderRadius: '8px', fontSize: '12px',
+                  fontWeight: 700, textDecoration: 'none'
+                }}>Review Now →</Link>
+              </div>
+            )}
+          </div>
+
+        </div>
       </div>
     </AdminLayout>
   )

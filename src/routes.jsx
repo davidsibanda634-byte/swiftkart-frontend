@@ -12,6 +12,9 @@ import MyListings from './pages/MyListings'
 import ListingDetail from './pages/ListingDetail'
 import Search from './pages/Search'
 import EditListing from './pages/EditListing'
+import EditService from './pages/EditService'
+import EditJob from './pages/EditJob'
+import EditEvent from './pages/EditEvent'
 import UserProfile from './pages/UserProfile'
 import Saved from './pages/Saved'
 import AdminDashboard from './pages/AdminDashboard'
@@ -43,44 +46,66 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
+
+        {/* ── Main Pages ── */}
         <Route path="/" element={<Home />} />
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/services" element={<Services />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/events" element={<Events />} />
-        <Route path="/create" element={<CreateListing />} />
+        <Route path="/accommodation" element={<Accommodation />} />
+        <Route path="/search" element={<Search />} />
+
+        {/* ── Auth ── */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/my-listings" element={<MyListings />} />
+
+        {/* ── Listing Detail Pages ── */}
         <Route path="/listings/:id" element={<ListingDetail />} />
+        <Route path="/services/:id" element={<ServiceDetail />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
+        <Route path="/events/:id" element={<EventDetail />} />
+        <Route path="/accommodation/:id" element={<AccommodationDetail />} />
+
+        {/* ── Create & Edit ── */}
+        <Route path="/create" element={<CreateListing />} />
         <Route path="/listings/edit/:id" element={<EditListing />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/profile/:id" element={<UserProfile />} />
+        <Route path="/services/edit/:id" element={<EditService />} />
+        <Route path="/jobs/edit/:id" element={<EditJob />} />
+        <Route path="/events/edit/:id" element={<EditEvent />} />
+
+        {/* ── User Pages ── */}
+        <Route path="/my-listings" element={<MyListings />} />
         <Route path="/saved" element={<Saved />} />
+        <Route path="/profile/:id" element={<UserProfile />} />
+        <Route path="/profile-menu" element={<ProfileMenu />} />
+
+        {/* ── Admin Pages ── */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/reports" element={<AdminReports />} />
         <Route path="/admin/listings" element={<AdminListings />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/activity" element={<AdminActivity />} />
-        <Route path="/jobs/:id" element={<JobDetail />} />
-        <Route path="/accommodation" element={<Accommodation />} />
-        <Route path="/accommodation/:id" element={<AccommodationDetail />} />
-        <Route path="/events/:id" element={<EventDetail />} />
-        <Route path="/services/:id" element={<ServiceDetail />} />
-        <Route path="/profile-menu" element={<ProfileMenu />} />
+
+        {/* ── Help Centre ── */}
+        <Route path="/help/how-to-buy" element={<HowToBuy />} />
+        <Route path="/help/how-to-sell" element={<HowToSell />} />
+        <Route path="/help/safety" element={<StayingSafe />} />
+        <Route path="/help/contact" element={<ContactSupport />} />
+        <Route path="/help/bug" element={<ReportBug />} />
+
+        {/* ── Legal Pages ── */}
         <Route path="/about" element={<AboutUs />} />
         <Route path="/legal/terms" element={<TermsOfUse />} />
         <Route path="/legal/privacy" element={<PrivacyPolicy />} />
         <Route path="/legal/privacy-centre" element={<PrivacyCentre />} />
         <Route path="/legal/cookies" element={<CookiePolicy />} />
         <Route path="/legal/guidelines" element={<CommunityGuidelines />} />
-        <Route path="/help/how-to-buy" element={<HowToBuy />} />
-        <Route path="/help/how-to-sell" element={<HowToSell />} />
-        <Route path="/help/safety" element={<StayingSafe />} />
-        <Route path="/help/contact" element={<ContactSupport />} />
-        <Route path="/help/bug" element={<ReportBug />} />
+
+        {/* ── 404 ── */}
         <Route path="*" element={<NotFound />} />
+
       </Route>
     </Routes>
   )

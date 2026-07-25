@@ -47,18 +47,6 @@ export default function MyListings() {
     return 'https://swiftkart2-backend.onrender.com/' + img.replace(/\\/g, '/')
   }
 
-  const getDaysOld = (createdAt) => {
-    return Math.floor((new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24))
-  }
-
-  const getExpiryStatus = (createdAt) => {
-    const days = getDaysOld(createdAt)
-    if (days >= 30) return { label: 'Expired', color: '#dc2626', bg: '#fef2f2', urgent: true }
-    if (days >= 21) return { label: `Expires in ${30 - days}d`, color: '#d97706', bg: '#fffbeb', urgent: true }
-    if (days >= 14) return { label: `${30 - days}d left`, color: '#d97706', bg: '#fffbeb', urgent: false }
-    return { label: `${30 - days}d left`, color: '#059669', bg: '#ecfdf5', urgent: false }
-  }
-
   const deleteItem = async (type, id) => {
     if (!window.confirm('Are you sure you want to delete this?')) return
     setDeletingId(id)
@@ -84,13 +72,23 @@ export default function MyListings() {
         ...item,
         _repostedAt: new Date().toISOString()
       })
-      alert('✅ Listing reposted! It now appears as new in search results.')
+      alert('✅ Listing reposted successfully!')
       fetchAll()
     } catch {
       alert('Failed to repost. Please try again.')
     } finally {
       setRepostingId(null)
     }
+  }
+
+  // Edit route per type
+  const getEditRoute = (type, id) => {
+    if (type === 'listings') return '/listings/edit/' + id
+    if (type === 'services') return '/services/edit/' + id
+    if (type === 'jobs') return '/jobs/edit/' + id
+    if (type === 'events') return '/events/edit/' + id
+    if (type === 'accommodations') return '/accommodation/edit/' + id
+    return '/'
   }
 
   const total = listings.length + services.length + jobs.length + events.length + accommodations.length
@@ -149,12 +147,6 @@ export default function MyListings() {
 
         .ml-content { max-width: 900px; margin: 0 auto; padding: 20px 20px 60px; }
 
-        .ml-expiry-alert {
-          background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px;
-          padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
-        }
-        .ml-expiry-alert-text { font-size: 13px; color: #dc2626; font-weight: 600; flex: 1; }
-
         .ml-tabs {
           display: flex; gap: 8px; margin-bottom: 20px;
           overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
@@ -178,8 +170,6 @@ export default function MyListings() {
           border: 1px solid #f1f5f9; transition: box-shadow 0.2s;
         }
         .ml-item-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-        .ml-item-card.expired { border-color: #fecaca; }
-        .ml-item-card.expiring-soon { border-color: #fde68a; }
 
         .ml-item-img { width: 76px; height: 76px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
         .ml-item-img-placeholder {
@@ -193,10 +183,6 @@ export default function MyListings() {
         .ml-item-price { font-weight: 800; font-size: 15px; color: #08162F; margin: 0 0 4px; }
         .ml-item-meta { font-size: 12px; color: #9ca3af; margin: 0; }
         .ml-item-date { font-size: 11px; color: #c4c9d4; margin: 3px 0 0; }
-        .ml-expiry-badge {
-          display: inline-flex; align-items: center; gap: 4px;
-          font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-top: 4px;
-        }
 
         .ml-item-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
         .ml-edit-btn {
@@ -212,8 +198,6 @@ export default function MyListings() {
         }
         .ml-repost-btn:hover { background: #dcfce7; }
         .ml-repost-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .ml-repost-btn.urgent { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
-        .ml-repost-btn.urgent:hover { background: #fee2e2; }
         .ml-delete-btn {
           background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 14px;
           border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
@@ -291,32 +275,6 @@ export default function MyListings() {
         </div>
 
         <div className="ml-content">
-
-          {/* Expiry alert */}
-          {(() => {
-            const expiredCount = currentItems[activeTab].filter(i => getDaysOld(i.createdAt) >= 30).length
-            const expiringCount = currentItems[activeTab].filter(i => {
-              const d = getDaysOld(i.createdAt); return d >= 21 && d < 30
-            }).length
-            if (expiredCount > 0) return (
-              <div className="ml-expiry-alert">
-                <span style={{ fontSize: '18px' }}>⚠️</span>
-                <p className="ml-expiry-alert-text">
-                  {expiredCount} listing{expiredCount > 1 ? 's' : ''} have expired. Repost to stay visible.
-                </p>
-              </div>
-            )
-            if (expiringCount > 0) return (
-              <div className="ml-expiry-alert" style={{ background: '#fffbeb', borderColor: '#fde68a' }}>
-                <span style={{ fontSize: '18px' }}>🕐</span>
-                <p className="ml-expiry-alert-text" style={{ color: '#d97706' }}>
-                  {expiringCount} listing{expiringCount > 1 ? 's' : ''} expiring soon. Repost to keep them visible.
-                </p>
-              </div>
-            )
-            return null
-          })()}
-
           <div className="ml-tabs">
             {tabs.map(tab => (
               <button
@@ -351,13 +309,9 @@ export default function MyListings() {
             currentItems[activeTab].map(item => {
               const imgUrl = item.images?.[0] ? getImageUrl(item.images[0]) : null
               const placeholderIcons = { listings: '🛍️', services: '🧑‍💼', jobs: '💼', events: '🎉', accommodations: '🏠' }
-              const expiry = getExpiryStatus(item.createdAt)
-              const daysOld = getDaysOld(item.createdAt)
-              const isExpired = daysOld >= 30
-              const isExpiringSoon = daysOld >= 21 && daysOld < 30
 
               return (
-                <div key={item._id} className={`ml-item-card${isExpired ? ' expired' : isExpiringSoon ? ' expiring-soon' : ''}`}>
+                <div key={item._id} className="ml-item-card">
                   {imgUrl
                     ? <img className="ml-item-img" src={imgUrl} alt={item.title} />
                     : <div className="ml-item-img-placeholder">{placeholderIcons[activeTab]}</div>
@@ -382,19 +336,18 @@ export default function MyListings() {
                       📍 {item.location?.city}{item.location?.area ? ', ' + item.location.area : ''}
                     </p>
                     <p className="ml-item-date">Posted {new Date(item.createdAt).toLocaleDateString()}</p>
-                    <span className="ml-expiry-badge" style={{ background: expiry.bg, color: expiry.color }}>
-                      {isExpired ? '⚠️' : '🕐'} {expiry.label}
-                    </span>
                   </div>
 
                   <div className="ml-item-actions">
-                    {activeTab === 'listings' && (
-                      <button className="ml-edit-btn" onClick={() => navigate('/listings/edit/' + item._id)}>
-                        ✏️ Edit
-                      </button>
-                    )}
+                    {/* Edit button for ALL types */}
                     <button
-                      className={`ml-repost-btn${isExpired || isExpiringSoon ? ' urgent' : ''}`}
+                      className="ml-edit-btn"
+                      onClick={() => navigate(getEditRoute(activeTab, item._id))}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      className="ml-repost-btn"
                       disabled={repostingId === item._id}
                       onClick={() => repostItem(typeEndpoints[activeTab], item)}
                     >
@@ -406,7 +359,7 @@ export default function MyListings() {
                       onClick={() => deleteItem(typeEndpoints[activeTab], item._id)}
                     >
                       {deletingId === item._id ? '...' : '🗑️ Delete'}
-                  </button>
+                    </button>
                   </div>
                 </div>
               )

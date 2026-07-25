@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { AdminLayout } from './AdminDashboard'
+import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
 
 export default function AdminUsers() {
@@ -16,156 +16,221 @@ export default function AdminUsers() {
   useEffect(function() {
     if (!user) { navigate('/login'); return }
     if (!user.isAdmin) { navigate('/'); return }
-    fetchAll()
+    fetchData()
   }, [])
 
-  function fetchAll() {
+  function fetchData() {
     setLoading(true)
-    Promise.all([
-      api.get('/admin/users'),
-      api.get('/admin/stats'),
-    ])
-      .then(function([u, s]) { setUsers(u.data); setStats(s.data) })
+    Promise.all([api.get('/admin/users'), api.get('/admin/stats')])
+      .then(function(res) { setUsers(res[0].data); setStats(res[1].data) })
       .catch(function() {})
       .finally(function() { setLoading(false) })
   }
 
   function toggleBan(id) {
-    if (!window.confirm('Change this user\'s ban status?')) return
-    api.put('/admin/users/' + id + '/ban')
-      .then(function() { fetchAll() })
-      .catch(function() { alert('Failed to update user.') })
+    if (!window.confirm('Change ban status?')) return
+    api.put('/admin/users/' + id + '/ban').then(fetchData).catch(function() { alert('Failed') })
   }
 
   function toggleAdmin(id) {
-    if (!window.confirm('Change this user\'s admin status?')) return
-    api.put('/admin/users/' + id + '/admin')
-      .then(function() { fetchAll() })
-      .catch(function() { alert('Failed to update user.') })
+    if (!window.confirm('Change admin status?')) return
+    api.put('/admin/users/' + id + '/admin').then(fetchData).catch(function() { alert('Failed') })
   }
 
   function deleteUser(id) {
     if (!window.confirm('Permanently delete this user?')) return
-    api.delete('/admin/users/' + id)
-      .then(function() { fetchAll() })
-      .catch(function() { alert('Failed to delete user.') })
+    api.delete('/admin/users/' + id).then(fetchData).catch(function() { alert('Failed') })
   }
 
   const filtered = users.filter(function(u) {
-    const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
+    const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase())
-    if (filter === 'banned') return matchesSearch && u.isBanned
-    if (filter === 'admins') return matchesSearch && u.isAdmin
-    return matchesSearch
+    if (filter === 'admins') return matchSearch && u.isAdmin
+    if (filter === 'banned') return matchSearch && u.isBanned
+    return matchSearch
   })
 
   return (
     <AdminLayout stats={stats}>
-      <div className="adm-page-header">
-        <h1 className="adm-page-title">👤 Manage Users</h1>
-        <p className="adm-page-sub">{users.length} total users on Scalablenexus</p>
-      </div>
+      <style>{`
+        .au-page { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .au-filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .au-filter-btn {
+          padding: 7px 16px; border-radius: 20px; border: 1.5px solid #e8ecf4;
+          background: white; font-size: 12.5px; font-weight: 700; color: #6b7280;
+          cursor: pointer; font-family: inherit; transition: all 0.2s;
+          display: flex; align-items: center; gap: 6px;
+        }
+        .au-filter-btn.active { background: #08162F; color: white; border-color: #08162F; }
+        .au-filter-btn:hover:not(.active) { border-color: #00C896; color: #00C896; }
+        .au-count-pill {
+          background: rgba(255,255,255,0.2); color: inherit;
+          font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: 700;
+        }
+        .au-filter-btn:not(.active) .au-count-pill { background: #f1f5f9; color: #6b7280; }
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
-        {[
-          { key: 'all', label: 'All Users', count: users.length },
-          { key: 'admins', label: 'Admins', count: users.filter(u => u.isAdmin).length },
-          { key: 'banned', label: 'Banned', count: users.filter(u => u.isBanned).length },
-        ].map(f => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            style={{
-              padding: '7px 16px', borderRadius: '20px', border: '1.5px solid',
-              borderColor: filter === f.key ? '#00C896' : '#e2e8f0',
-              background: filter === f.key ? '#ecfdf5' : 'white',
-              color: filter === f.key ? '#059669' : '#374151',
-              fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-              display: 'flex', alignItems: 'center', gap: '6px',
-            }}
-          >
-            {f.label}
-            <span style={{
-              background: filter === f.key ? '#00C896' : '#f1f5f9',
-              color: filter === f.key ? 'white' : '#6b7280',
-              fontSize: '10px', fontWeight: 800, padding: '1px 7px', borderRadius: '10px'
-            }}>{f.count}</span>
-          </button>
-        ))}
-      </div>
+        .au-search {
+          display: flex; align-items: center; gap: 10px;
+          background: white; border: 1.5px solid #e8ecf4;
+          border-radius: 12px; padding: 0 16px; height: 44px;
+          margin-bottom: 20px; transition: all 0.2s;
+        }
+        .au-search:focus-within { border-color: #00C896; box-shadow: 0 0 0 3px rgba(0,200,150,0.1); }
+        .au-search input {
+          border: none; outline: none; font-size: 13.5px;
+          color: #374151; font-family: inherit; flex: 1; background: transparent;
+        }
 
-      <input
-        className="adm-search"
-        type="text"
-        placeholder="🔍 Search by name or email..."
-        value={search}
-        onChange={function(e) { setSearch(e.target.value) }}
-      />
+        .au-table { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; }
+        .au-table-header {
+          display: grid; grid-template-columns: 2fr 2fr 1.5fr 1fr auto;
+          gap: 16px; padding: 12px 20px;
+          background: #f8fafc; border-bottom: 1px solid #f1f5f9;
+          font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .au-user-row {
+          display: grid; grid-template-columns: 2fr 2fr 1.5fr 1fr auto;
+          gap: 16px; padding: 14px 20px; align-items: center;
+          border-bottom: 1px solid #f8fafc; transition: background 0.15s;
+        }
+        .au-user-row:last-child { border-bottom: none; }
+        .au-user-row:hover { background: #fafbff; }
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: '#9ca3af' }}>Loading users...</div>
-      ) : (
-        <div className="adm-section">
-          {filtered.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#9ca3af', fontSize: '14px' }}>
-              No users found
-            </div>
+        .au-user-info { display: flex; align-items: center; gap: 10px; }
+        .au-avatar {
+          width: 38px; height: 38px; border-radius: 50%;
+          background: linear-gradient(135deg,#08162F,#1e3a8a);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 15px; color: white; font-weight: 800; flex-shrink: 0;
+        }
+        .au-name { font-size: 13.5px; font-weight: 700; color: #111827; }
+        .au-email { font-size: 11.5px; color: #9ca3af; margin-top: 1px; }
+        .au-phone { font-size: 12.5px; color: #6b7280; font-weight: 500; }
+        .au-joined { font-size: 12px; color: #9ca3af; }
+
+        .au-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+        .au-badge {
+          font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: 8px;
+        }
+        .au-badge-admin { background: #ecfdf5; color: #059669; }
+        .au-badge-banned { background: #fef2f2; color: #dc2626; }
+        .au-badge-active { background: #f0fdf4; color: #16a34a; }
+
+        .au-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .au-btn {
+          padding: 5px 12px; border-radius: 8px; font-size: 11px;
+          font-weight: 700; cursor: pointer; font-family: inherit; border: 1.5px solid;
+          transition: all 0.2s;
+        }
+        .au-btn-ban { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+        .au-btn-ban:hover { background: #fef3c7; }
+        .au-btn-unban { background: #ecfdf5; color: #059669; border-color: #bbf7d0; }
+        .au-btn-unban:hover { background: #d1fae5; }
+        .au-btn-admin { background: #eff6ff; color: #2563EB; border-color: #bfdbfe; }
+        .au-btn-admin:hover { background: #dbeafe; }
+        .au-btn-delete { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+        .au-btn-delete:hover { background: #fee2e2; }
+
+        .au-empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
+        .au-loading { text-align: center; padding: 60px 20px; color: #9ca3af; }
+
+        @media (max-width: 900px) {
+          .au-table-header { display: none; }
+          .au-user-row {
+            grid-template-columns: 1fr;
+            gap: 10px; padding: 16px;
+          }
+          .au-actions { justify-content: flex-start; }
+        }
+      `}</style>
+
+      <div className="au-page">
+        <div className="adm-page-header">
+          <h1 className="adm-page-title">👤 Manage Users</h1>
+          <p className="adm-page-sub">{users.length} total users on Scalablenexus</p>
+        </div>
+
+        <div className="au-filters">
+          {[
+            { key: 'all', label: 'All Users', count: users.length },
+            { key: 'admins', label: 'Admins', count: users.filter(function(u) { return u.isAdmin }).length },
+            { key: 'banned', label: 'Banned', count: users.filter(function(u) { return u.isBanned }).length },
+          ].map(function(f) {
+            return (
+              <button key={f.key} className={'au-filter-btn' + (filter === f.key ? ' active' : '')}
+                onClick={function() { setFilter(f.key) }}>
+                {f.label} <span className="au-count-pill">{f.count}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="au-search">
+          <span style={{ color: '#9ca3af' }}>🔍</span>
+          <input
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={function(e) { setSearch(e.target.value) }}
+          />
+        </div>
+
+        <div className="au-table">
+          <div className="au-table-header">
+            <span>User</span>
+            <span>Contact</span>
+            <span>Joined</span>
+            <span>Status</span>
+            <span>Actions</span>
+          </div>
+
+          {loading ? (
+            <div className="au-loading">Loading users...</div>
+          ) : filtered.length === 0 ? (
+            <div className="au-empty">No users found</div>
           ) : filtered.map(function(u) {
             return (
-              <div key={u._id} className="adm-row-item">
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0,
-                  background: u.isBanned ? '#fef2f2' : 'linear-gradient(135deg,#08162F,#1e3a8a)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '15px', color: u.isBanned ? '#dc2626' : 'white', fontWeight: 800,
-                }}>
-                  {u.isBanned ? '🚫' : u.name.charAt(0).toUpperCase()}
-                </div>
-
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    <p style={{ margin: 0, fontSize: '13.5px', fontWeight: 700, color: '#111827' }}>{u.name}</p>
-                    {u.isAdmin && (
-                      <span style={{ fontSize: '9px', background: '#ecfdf5', color: '#059669', padding: '2px 7px', borderRadius: '8px', fontWeight: 800 }}>ADMIN</span>
-                    )}
-                    {u.isBanned && (
-                      <span style={{ fontSize: '9px', background: '#fef2f2', color: '#dc2626', padding: '2px 7px', borderRadius: '8px', fontWeight: 800 }}>BANNED</span>
-                    )}
+              <div key={u._id} className="au-user-row">
+                <div className="au-user-info">
+                  <div className="au-avatar">{u.name.charAt(0).toUpperCase()}</div>
+                  <div>
+                    <p className="au-name">{u.name}</p>
+                    <p className="au-email">{u.email}</p>
                   </div>
-                  <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: '#9ca3af' }}>
-                    {u.email} • {u.phone || 'No phone'}
-                  </p>
-                  <p style={{ margin: '1px 0 0', fontSize: '10.5px', color: '#c4c9d4' }}>
-                    Joined {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </p>
                 </div>
-
-                <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: 'wrap' }}>
-                  <button onClick={() => toggleBan(u._id)} style={{
-                    background: u.isBanned ? '#f0fdf4' : '#fef2f2',
-                    color: u.isBanned ? '#16a34a' : '#dc2626',
-                    border: '1px solid ' + (u.isBanned ? '#bbf7d0' : '#fecaca'),
-                    padding: '5px 11px', borderRadius: '8px', fontSize: '11px',
-                    fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-                  }}>{u.isBanned ? 'Unban' : 'Ban'}</button>
-
-                  <button onClick={() => toggleAdmin(u._id)} style={{
-                    background: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe',
-                    padding: '5px 11px', borderRadius: '8px', fontSize: '11px',
-                    fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-                  }}>{u.isAdmin ? 'Remove Admin' : 'Make Admin'}</button>
-
-                  <button onClick={() => deleteUser(u._id)} style={{
-                    background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca',
-                    padding: '5px 11px', borderRadius: '8px', fontSize: '11px',
-                    fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-                  }}>Delete</button>
+                <div>
+                  <p className="au-phone">{u.phone}</p>
+                  <p className="au-email">{u.location?.city}{u.location?.country ? ', ' + u.location.country : ''}</p>
+                </div>
+                <p className="au-joined">
+                  {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+                <div className="au-badges">
+                  {u.isAdmin && <span className="au-badge au-badge-admin">ADMIN</span>}
+                  {u.isBanned ? (
+                    <span className="au-badge au-badge-banned">BANNED</span>
+                  ) : (
+                    <span className="au-badge au-badge-active">ACTIVE</span>
+                  )}
+                </div>
+                <div className="au-actions">
+                  <button
+                    className={u.isBanned ? 'au-btn au-btn-unban' : 'au-btn au-btn-ban'}
+                    onClick={function() { toggleBan(u._id) }}
+                  >
+                    {u.isBanned ? 'Unban' : 'Ban'}
+                  </button>
+                  <button className="au-btn au-btn-admin" onClick={function() { toggleAdmin(u._id) }}>
+                    {u.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                  </button>
+                  <button className="au-btn au-btn-delete" onClick={function() { deleteUser(u._id) }}>
+                    Delete
+                  </button>
                 </div>
               </div>
             )
           })}
         </div>
-      )}
+      </div>
     </AdminLayout>
   )
 }
