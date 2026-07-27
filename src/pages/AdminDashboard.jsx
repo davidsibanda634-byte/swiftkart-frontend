@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
+import { formatPrice } from '../utils/format'
 import {
   Users, ShoppingBag, Flag, Ban, Briefcase, UserCheck, UserCog, PartyPopper,
   Eye, Bell, CalendarDays, TrendingUp, Zap, History, Pencil, Trash2, Package,
@@ -564,7 +565,7 @@ export default function AdminDashboard() {
                       <td className="adm-table-title">{l.title}</td>
                       <td>{l.user?.name || 'Unknown'}</td>
                       <td>{l.category || 'Other'}</td>
-                      <td>R {Number(l.price || 0).toLocaleString()}</td>
+                      <td>{formatPrice(l.price)}</td>
                       <td><span className={'adm-status-pill ' + (isPending ? 'adm-status-pending' : 'adm-status-active')}>{l.status || 'Active'}</span></td>
                       <td>{timeAgo(l.createdAt)}</td>
                       <td>

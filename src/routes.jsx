@@ -43,6 +43,9 @@ import ContactSupport from './pages/help/ContactSupport'
 import ReportBug from './pages/help/ReportBug'
 import AdminSettings from './pages/AdminSettings'
 import AdminAnnouncements from './pages/AdminAnnouncements'
+import AdminJobs from './pages/AdminJobs' // adjust the path to match your other admin imports
+import AdminServices from './pages/AdminServices'
+import AdminEvents from './pages/AdminEvents'
 
 export default function AppRoutes() {
   return (
@@ -91,6 +94,9 @@ export default function AppRoutes() {
         <Route path="/admin/activity" element={<AdminActivity />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+        <Route path="/admin/jobs" element={<AdminJobs />} />
+        <Route path="/admin/services" element={<AdminServices />} />
+        <Route path="/admin/events" element={<AdminEvents />} />
 
         {/* ── Help Centre ── */}
         <Route path="/help/how-to-buy" element={<HowToBuy />} />

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
+import { formatPrice } from '../utils/format'
 
 export default function AdminAnalytics() {
   const { user } = useAuth()
@@ -44,12 +45,12 @@ export default function AdminAnalytics() {
 
   const CAT_COLORS = ['#00C896','#2563EB','#7C3AED','#EC4899','#d97706','#ef4444','#059669','#0891b2']
   const priceRanges = [
-    { label: 'Under R10', min: 0, max: 10 },
-    { label: 'R10 – R50', min: 10, max: 50 },
-    { label: 'R50 – R200', min: 50, max: 200 },
-    { label: 'R200 – R500', min: 200, max: 500 },
-    { label: 'Over R500', min: 500, max: Infinity },
-  ]
+  { label: 'Under $10', min: 0, max: 10 },
+  { label: '$10 – $50', min: 10, max: 50 },
+  { label: '$50 – $200', min: 50, max: 200 },
+  { label: '$200 – $500', min: 200, max: 500 },
+  { label: 'Over $500', min: 500, max: Infinity },
+]
 
   return (
     <AdminLayout stats={stats}>
@@ -95,8 +96,8 @@ export default function AdminAnalytics() {
       <div className="ana-grid4">
         {[
           { icon: '📦', bg: '#ecfdf5', label: 'Total Content', value: totalContent },
-          { icon: '💰', bg: '#fffbeb', label: 'Avg Listing Price', value: 'R ' + avgPrice },
-          { icon: '🏷️', bg: '#eff6ff', label: 'Highest Price', value: 'R ' + maxPrice.toLocaleString() },
+          { icon: '💰', bg: '#fffbeb', label: 'Avg Listing Price', value: formatPrice(avgPrice) },
+          { icon: '🏷️', bg: '#eff6ff', label: 'Highest Price', value: formatPrice(maxPrice) },
           { icon: '🧑‍💼', bg: '#f5f3ff', label: 'Active Sellers', value: Object.keys(sellerGroups).length },
         ].map(function(c) {
           return (

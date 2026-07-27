@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
+import { formatPrice } from '../utils/format'
 
 export default function AdminActivity() {
   const { user } = useAuth()
@@ -47,7 +48,7 @@ export default function AdminActivity() {
     activities.push({
       icon: '🛍️', color: '#00C896', bg: '#ecfdf5',
       text: 'New listing posted: ' + l.title,
-      sub: 'by ' + (l.user?.name || 'Unknown') + ' • R' + l.price,
+      sub: 'by ' + (l.user?.name || 'Unknown') + ' • ' + formatPrice(l.price),
       time: l.createdAt,
     })
   })

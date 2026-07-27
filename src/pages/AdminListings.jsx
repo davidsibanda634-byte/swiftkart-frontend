@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminLayout from '../layouts/AdminLayout'
 import api from '../services/api'
+import { formatPrice } from '../utils/format'
 
 export default function AdminListings() {
   const { user } = useAuth()
@@ -160,7 +161,7 @@ export default function AdminListings() {
                   <div className="al-card-body">
                     {l.category && <div className="al-card-cat">{l.category}</div>}
                     <p className="al-card-title">{l.title}</p>
-                    <p className="al-card-price">R {Number(l.price).toLocaleString()}</p>
+                    <p className="al-card-price">{formatPrice(l.price)}</p>
                     <p className="al-card-seller">by {l.user?.name || 'Unknown'}</p>
                     <button className="al-card-delete" onClick={function() { deleteListing(l._id) }}>
                       🗑️ Delete Listing
