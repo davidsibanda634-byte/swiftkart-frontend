@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  ShoppingBag, UserCog, Briefcase, PartyPopper, Home, Package,
+  Shirt, Smartphone, Sparkles, Car, Sofa, UtensilsCrossed,
+  ShieldCheck, MessageCircle, Zap, Lock, Search, Plus,
+} from 'lucide-react'
 
 const SLIDES = [
   {
-    badge: '🛍️ CAMPUS MARKETPLACE',
+    badgeIcon: ShoppingBag,
+    badge: 'CAMPUS MARKETPLACE',
     title: 'Find Amazing Deals\nAround Campus',
     sub: 'Buy and sell fashion, electronics, furniture, accessories and more.',
     cta: 'Explore Marketplace',
@@ -12,7 +18,8 @@ const SLIDES = [
     accent: '#00C896',
   },
   {
-    badge: '🧑‍💼 STUDENT SERVICES',
+    badgeIcon: UserCog,
+    badge: 'STUDENT SERVICES',
     title: 'Need a Service?\nFind Trusted Talent',
     sub: 'Discover tutors, designers, photographers and student service providers.',
     cta: 'Browse Services',
@@ -21,7 +28,8 @@ const SLIDES = [
     accent: '#2563EB',
   },
   {
-    badge: '💼 JOBS & OPPORTUNITIES',
+    badgeIcon: Briefcase,
+    badge: 'JOBS & OPPORTUNITIES',
     title: 'Discover Jobs &\nSide Hustles',
     sub: 'Find internships, part-time jobs, freelance gigs and campus opportunities.',
     cta: 'Browse Jobs',
@@ -30,7 +38,8 @@ const SLIDES = [
     accent: '#7C3AED',
   },
   {
-    badge: '🎉 CAMPUS EVENTS',
+    badgeIcon: PartyPopper,
+    badge: 'CAMPUS EVENTS',
     title: "What's Happening\nOn Campus?",
     sub: 'Discover workshops, social gatherings, concerts and campus activities.',
     cta: 'Explore Events',
@@ -39,7 +48,8 @@ const SLIDES = [
     accent: '#F59E0B',
   },
   {
-    badge: '🏠 ACCOMMODATION',
+    badgeIcon: Home,
+    badge: 'ACCOMMODATION',
     title: 'Find Your Home\nNear Campus',
     sub: 'Browse rooms, apartments and houses for rent or sale near your campus.',
     cta: 'Find Accommodation',
@@ -50,31 +60,31 @@ const SLIDES = [
 ]
 
 const CATEGORIES = [
-  { icon: '👗', label: 'Fashion', category: 'Fashion' },
-  { icon: '📱', label: 'Electronics', category: 'Electronics' },
-  { icon: '💄', label: 'Cosmetics', category: 'Cosmetics & Hair' },
-  { icon: '🚗', label: 'Vehicles', category: 'Vehicles' },
-  { icon: '🛋️', label: 'Furniture', category: 'Furniture' },
-  { icon: '🍔', label: 'Food', category: 'Food' },
-  { icon: '🧑‍💼', label: 'Services', category: null, to: '/services' },
-  { icon: '💼', label: 'Jobs', category: null, to: '/jobs' },
-  { icon: '🏠', label: 'Accommodation', category: null, to: '/accommodation' },
-  { icon: '📦', label: 'Other', category: 'Other' },
+  { icon: Shirt, label: 'Fashion', category: 'Fashion' },
+  { icon: Smartphone, label: 'Electronics', category: 'Electronics' },
+  { icon: Sparkles, label: 'Cosmetics', category: 'Cosmetics & Hair' },
+  { icon: Car, label: 'Vehicles', category: 'Vehicles' },
+  { icon: Sofa, label: 'Furniture', category: 'Furniture' },
+  { icon: UtensilsCrossed, label: 'Food', category: 'Food' },
+  { icon: UserCog, label: 'Services', category: null, to: '/services' },
+  { icon: Briefcase, label: 'Jobs', category: null, to: '/jobs' },
+  { icon: Home, label: 'Accommodation', category: null, to: '/accommodation' },
+  { icon: Package, label: 'Other', category: 'Other' },
 ]
 
 const TRUST_ITEMS = [
-  { icon: '🛡️', bg: 'rgba(0,200,150,0.15)', label: 'Verified Sellers', sub: 'Trusted community' },
-  { icon: '💬', bg: 'rgba(0,200,150,0.15)', label: 'WhatsApp Contact', sub: 'Direct communication' },
-  { icon: '⚡', bg: 'rgba(245,158,11,0.15)', label: 'Fast & Reliable', sub: 'Quick responses' },
-  { icon: '🔒', bg: 'rgba(37,99,235,0.15)', label: 'Safe & Secure', sub: 'Your safety first' },
+  { icon: ShieldCheck, bg: 'rgba(0,200,150,0.15)', label: 'Verified Sellers', sub: 'Trusted community' },
+  { icon: MessageCircle, bg: 'rgba(0,200,150,0.15)', label: 'WhatsApp Contact', sub: 'Direct communication' },
+  { icon: Zap, bg: 'rgba(245,158,11,0.15)', label: 'Fast & Reliable', sub: 'Quick responses' },
+  { icon: Lock, bg: 'rgba(37,99,235,0.15)', label: 'Safe & Secure', sub: 'Your safety first' },
 ]
 
 const QUICK_LINKS = [
-  { icon: '🛍️', label: 'Marketplace', to: '/marketplace', color: '#00C896' },
-  { icon: '🧑‍💼', label: 'Services', to: '/services', color: '#2563EB' },
-  { icon: '💼', label: 'Jobs', to: '/jobs', color: '#7C3AED' },
-  { icon: '🎉', label: 'Events', to: '/events', color: '#F59E0B' },
-  { icon: '🏠', label: 'Accommodation', to: '/accommodation', color: '#EF4444' },
+  { icon: ShoppingBag, label: 'Marketplace', to: '/marketplace', color: '#00C896' },
+  { icon: UserCog, label: 'Services', to: '/services', color: '#2563EB' },
+  { icon: Briefcase, label: 'Jobs', to: '/jobs', color: '#7C3AED' },
+  { icon: PartyPopper, label: 'Events', to: '/events', color: '#F59E0B' },
+  { icon: Home, label: 'Accommodation', to: '/accommodation', color: '#EF4444' },
 ]
 
 export default function Hero() {
@@ -130,10 +140,14 @@ export default function Hero() {
           background: #08162F;
           padding: 6px 12px 8px;
           display: flex;
-          justify-content: space-around;
           align-items: center;
+          gap: 4px;
           border-bottom: 1px solid rgba(255,255,255,0.07);
+          overflow-x: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
         }
+        .sk-quick-row::-webkit-scrollbar { display: none; }
         .sk-quick-item {
           display: flex;
           flex-direction: column;
@@ -143,11 +157,10 @@ export default function Hero() {
           background: none;
           border: none;
           font-family: inherit;
-          padding: 3px 4px;
+          padding: 3px 8px;
           border-radius: 8px;
           transition: background 0.18s;
-          flex: 1;
-          max-width: 60px;
+          flex-shrink: 0;
         }
         .sk-quick-item:hover { background: rgba(255,255,255,0.07); }
         .sk-quick-circle {
@@ -325,6 +338,8 @@ export default function Hero() {
           font-size: 15px;
           flex-shrink: 0;
           color: rgba(255,255,255,0.4);
+          display: flex;
+          align-items: center;
         }
         .sk-search-input {
           flex: 1;
@@ -484,7 +499,7 @@ export default function Hero() {
           {QUICK_LINKS.map(item => (
             <button key={item.label} className="sk-quick-item" onClick={() => navigate(item.to)}>
               <div className="sk-quick-circle" style={{ borderColor: `${item.color}44` }}>
-                {item.icon}
+                <item.icon size={16} color="white" strokeWidth={2} />
               </div>
               <span className="sk-quick-label">{item.label}</span>
             </button>
@@ -500,7 +515,7 @@ export default function Hero() {
                 borderColor: `${current.accent}44`,
                 background: `${current.accent}18`,
               }}>
-                {current.badge}
+                <current.badgeIcon size={12} /> {current.badge}
               </div>
               <h1>{current.title}</h1>
               <p className="sk-carousel-sub">{current.sub}</p>
@@ -526,7 +541,7 @@ export default function Hero() {
           <div className="sk-search-section">
             <div className="sk-search-inner">
               <div className="sk-search-bar">
-                <span className="sk-search-icon">🔍</span>
+                <span className="sk-search-icon"><Search size={15} /></span>
                 <input
                   className="sk-search-input"
                   type="text"
@@ -538,7 +553,7 @@ export default function Hero() {
               </div>
               <button className="sk-search-submit" onClick={handleSearch}>Search</button>
               <button className="sk-post-quick" onClick={() => navigate('/create')}>
-                ➕ Sell
+                <Plus size={13} /> Sell
               </button>
             </div>
           </div>
@@ -547,7 +562,7 @@ export default function Hero() {
         <div className="sk-trust-strip">
           <div className={`sk-trust-slide-wrap ${trustAnimating ? 'trust-out' : 'trust-in'}`}>
             <div className="sk-trust-icon-wrap" style={{ background: trustItem.bg }}>
-              {trustItem.icon}
+              <trustItem.icon size={18} color={trustItem.icon === Zap ? '#F59E0B' : trustItem.icon === Lock ? '#2563EB' : '#00C896'} />
             </div>
             <div>
               <div className="sk-trust-label">{trustItem.label}</div>
@@ -571,7 +586,9 @@ export default function Hero() {
         <div className="sk-cat-section">
           <div className="sk-cat-section-inner">
             <div className="sk-cat-sec-header">
-              <span className="sk-cat-sec-title">🛍️ Shop by Category</span>
+              <span className="sk-cat-sec-title" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <ShoppingBag size={14} /> Shop by Category
+              </span>
               <button className="sk-cat-sec-viewall" onClick={() => navigate('/marketplace')}>
                 View All →
               </button>
@@ -586,7 +603,7 @@ export default function Hero() {
                     : navigate('/marketplace?category=' + encodeURIComponent(cat.category))
                   }
                 >
-                  <div className="sk-cat-icon-circle">{cat.icon}</div>
+                  <div className="sk-cat-icon-circle"><cat.icon size={20} color="#374151" /></div>
                   <span className="sk-cat-icon-label">{cat.label}</span>
                 </button>
               ))}
