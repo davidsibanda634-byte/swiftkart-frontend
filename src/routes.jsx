@@ -46,6 +46,7 @@ import AdminAnnouncements from './pages/AdminAnnouncements'
 import AdminJobs from './pages/AdminJobs' // adjust the path to match your other admin imports
 import AdminServices from './pages/AdminServices'
 import AdminEvents from './pages/AdminEvents'
+import AdminAdvertisements from './pages/AdminAdvertisements'
 
 export default function AppRoutes() {
   return (
@@ -97,6 +98,8 @@ export default function AppRoutes() {
         <Route path="/admin/jobs" element={<AdminJobs />} />
         <Route path="/admin/services" element={<AdminServices />} />
         <Route path="/admin/events" element={<AdminEvents />} />
+        <Route path="/admin/advertisements" element={<AdminAdvertisements />} />
+
 
         {/* ── Help Centre ── */}
         <Route path="/help/how-to-buy" element={<HowToBuy />} />

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useState } from 'react'
+import { ShoppingCart, User } from 'lucide-react'
 
 export default function Navbar() {
   const { user } = useAuth()
@@ -61,7 +62,12 @@ export default function Navbar() {
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
+          max-width: 52vw;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
         }
+        .sk-nav-center::-webkit-scrollbar { display: none; }
         .sk-nav-link {
           color: rgba(255,255,255,0.72);
           font-size: 13px;
@@ -71,6 +77,7 @@ export default function Navbar() {
           text-decoration: none;
           transition: all 0.2s;
           white-space: nowrap;
+          flex-shrink: 0;
         }
         .sk-nav-link:hover { color: white; background: rgba(255,255,255,0.1); }
 
@@ -173,7 +180,7 @@ export default function Navbar() {
       <nav className="sk-navbar">
         <div className="sk-navbar-inner">
           <Link to="/" className="sk-logo">
-            <div className="sk-logo-icon">🛒</div>
+            <div className="sk-logo-icon"><ShoppingCart size={17} color="white" strokeWidth={2.25} /></div>
             <span className="sk-logo-text">Scalable<span>nexus</span></span>
           </Link>
 
@@ -183,6 +190,7 @@ export default function Navbar() {
               { label: 'Services', to: '/services' },
               { label: 'Jobs', to: '/jobs' },
               { label: 'Events', to: '/events' },
+              { label: 'Accommodation', to: '/accommodation' },
             ].map(item => (
               <Link key={item.label} to={item.to} className="sk-nav-link">{item.label}</Link>
             ))}
@@ -211,7 +219,7 @@ export default function Navbar() {
             onClick={() => navigate('/profile-menu')}
             aria-label="Profile menu"
           >
-            {user ? user.name?.charAt(0).toUpperCase() : '👤'}
+            {user ? user.name?.charAt(0).toUpperCase() : <User size={17} />}
           </button>
         </div>
       </nav>

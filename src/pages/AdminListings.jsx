@@ -14,7 +14,8 @@ export default function AdminListings() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
 
-  const CATS = ['All', 'Fashion', 'Electronics', 'Cosmetics & Hair', 'Vehicles', 'Furniture', 'Food', 'Mobile & Accessories', 'Other']
+
+  const CATS = ['All', 'Fashion', 'Cosmetics & Hair', 'Mobile & Accessories', 'Vehicles', 'Furniture', 'Electronics', 'Food', 'Other']
 
   useEffect(function() {
     if (!user) { navigate('/login'); return }
