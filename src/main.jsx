@@ -9,10 +9,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>
 )
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js')
-      .then(function(reg) { console.log('SW registered:', reg.scope) })
-      .catch(function(err) { console.log('SW failed:', err) })
-  })
-}
+// ── PWA service worker is handled entirely by vite-plugin-pwa ──
+// The manual sw.js registration below has been removed because
+// vite-plugin-pwa auto-registers its own service worker.
+// Having two registrations caused conflicts and broke the install prompt.
