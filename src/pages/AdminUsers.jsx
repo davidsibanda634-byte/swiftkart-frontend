@@ -25,6 +25,18 @@ function exportCSV(rows, headers, filename) {
   URL.revokeObjectURL(url)
 }
 
+function timeAgo(dateStr) {
+  if (!dateStr) return 'Never'
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  const hrs = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  if (days > 0) return days + 'd ago'
+  if (hrs > 0) return hrs + 'h ago'
+  if (mins > 0) return mins + 'm ago'
+  return 'Just now'
+}
+
 export default function AdminUsers() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -60,6 +72,10 @@ export default function AdminUsers() {
     api.put('/admin/users/' + id + '/admin').then(fetchData).catch(function() { alert('Failed') })
   }
 
+  function toggleVerify(id) {
+    api.put('/admin/users/' + id + '/verify').then(fetchData).catch(function() { alert('Failed') })
+  }
+
   function deleteUser(id) {
     if (!window.confirm('Permanently delete this user?')) return
     api.delete('/admin/users/' + id).then(fetchData).catch(function() { alert('Failed') })
@@ -81,6 +97,14 @@ export default function AdminUsers() {
       .catch(function() { alert('Some updates failed.'); fetchData() })
   }
 
+  function verifySelected() {
+    if (selectedIds.size === 0) return
+    if (!window.confirm('Toggle verified status for ' + selectedIds.size + ' user' + (selectedIds.size !== 1 ? 's' : '') + '?')) return
+    Promise.all(Array.from(selectedIds).map(function(id) { return api.put('/admin/users/' + id + '/verify') }))
+      .then(function() { setSelectedIds(new Set()); fetchData() })
+      .catch(function() { alert('Some updates failed.'); fetchData() })
+  }
+
   function deleteSelected() {
     if (selectedIds.size === 0) return
     if (!window.confirm('Permanently delete ' + selectedIds.size + ' user' + (selectedIds.size !== 1 ? 's' : '') + '?')) return
@@ -95,6 +119,11 @@ export default function AdminUsers() {
         u.email.toLowerCase().includes(search.toLowerCase())
       if (filter === 'admins') return matchSearch && u.isAdmin
       if (filter === 'banned') return matchSearch && u.isBanned
+      if (filter === 'verified') return matchSearch && u.isVerified
+      if (filter === 'active') {
+        const activeCutoff = Date.now() - 7 * 86400000
+        return matchSearch && u.lastActiveAt && new Date(u.lastActiveAt).getTime() >= activeCutoff
+      }
       return matchSearch
     })
   }, [users, search, filter])
@@ -131,12 +160,19 @@ export default function AdminUsers() {
       { label: 'Phone', get: function(u) { return u.phone } },
       { label: 'City', get: function(u) { return u.location?.city || '' } },
       { label: 'Joined', get: function(u) { return new Date(u.createdAt).toLocaleDateString() } },
+      { label: 'Last Active', get: function(u) { return u.lastActiveAt ? new Date(u.lastActiveAt).toLocaleDateString() : 'Never' } },
+      { label: 'Verified', get: function(u) { return u.isVerified ? 'Yes' : 'No' } },
       { label: 'Status', get: function(u) { return u.isBanned ? 'Banned' : 'Active' } },
     ], 'users.csv')
   }
 
   const pageIds = pageItems.map(function(u) { return u._id })
   const allOnPageSelected = pageIds.length > 0 && pageIds.every(function(id) { return selectedIds.has(id) })
+
+  const activeCount = useMemo(function() {
+    const cutoff = Date.now() - 7 * 86400000
+    return users.filter(function(u) { return u.lastActiveAt && new Date(u.lastActiveAt).getTime() >= cutoff }).length
+  }, [users])
 
   return (
     <AdminLayout stats={stats}>
@@ -185,6 +221,8 @@ export default function AdminUsers() {
           background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;
           padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
         }
+        .au-bulk-btn.blue { background: #2563EB; border-color: #2563EB; }
+        .au-bulk-btn.blue:hover { background: #1d4ed8; }
         .au-bulk-btn.green { background: #00C896; border-color: #00C896; }
         .au-bulk-btn.green:hover { background: #059669; }
         .au-bulk-btn.amber { background: #d97706; border-color: #d97706; }
@@ -196,14 +234,14 @@ export default function AdminUsers() {
 
         .au-table { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; }
         .au-table-header {
-          display: grid; grid-template-columns: 26px 2fr 2fr 1.5fr 1fr auto;
-          gap: 16px; padding: 12px 20px;
+          display: grid; grid-template-columns: 26px 2fr 1.5fr 1fr 1fr 1.3fr auto;
+          gap: 14px; padding: 12px 20px;
           background: #f8fafc; border-bottom: 1px solid #f1f5f9;
           font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;
         }
         .au-user-row {
-          display: grid; grid-template-columns: 26px 2fr 2fr 1.5fr 1fr auto;
-          gap: 16px; padding: 14px 20px; align-items: center;
+          display: grid; grid-template-columns: 26px 2fr 1.5fr 1fr 1fr 1.3fr auto;
+          gap: 14px; padding: 14px 20px; align-items: center;
           border-bottom: 1px solid #f8fafc; transition: background 0.15s;
         }
         .au-user-row:last-child { border-bottom: none; }
@@ -216,10 +254,10 @@ export default function AdminUsers() {
           display: flex; align-items: center; justify-content: center;
           font-size: 15px; color: white; font-weight: 800; flex-shrink: 0;
         }
-        .au-name { font-size: 13.5px; font-weight: 700; color: #111827; }
+        .au-name { font-size: 13.5px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 5px; }
         .au-email { font-size: 11.5px; color: #9ca3af; margin-top: 1px; }
-        .au-phone { font-size: 12.5px; color: #6b7280; font-weight: 500; }
         .au-joined { font-size: 12px; color: #9ca3af; }
+        .au-active { font-size: 12px; color: #9ca3af; }
 
         .au-badges { display: flex; gap: 5px; flex-wrap: wrap; }
         .au-badge {
@@ -228,6 +266,7 @@ export default function AdminUsers() {
         .au-badge-admin { background: #ecfdf5; color: #059669; }
         .au-badge-banned { background: #fef2f2; color: #dc2626; }
         .au-badge-active { background: #f0fdf4; color: #16a34a; }
+        .au-badge-verified { background: #eff6ff; color: #2563EB; }
 
         .au-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .au-btn {
@@ -241,6 +280,10 @@ export default function AdminUsers() {
         .au-btn-unban:hover { background: #d1fae5; }
         .au-btn-admin { background: #eff6ff; color: #2563EB; border-color: #bfdbfe; }
         .au-btn-admin:hover { background: #dbeafe; }
+        .au-btn-verify { background: #eff6ff; color: #2563EB; border-color: #bfdbfe; }
+        .au-btn-verify:hover { background: #dbeafe; }
+        .au-btn-unverify { background: #f8fafc; color: #6b7280; border-color: #e5e7eb; }
+        .au-btn-unverify:hover { background: #f1f5f9; }
         .au-btn-delete { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
         .au-btn-delete:hover { background: #fee2e2; }
 
@@ -271,7 +314,7 @@ export default function AdminUsers() {
         <div className="au-toolbar">
           <div className="adm-page-header" style={{ marginBottom: 0 }}>
             <h1 className="adm-page-title">Users</h1>
-            <p className="adm-page-sub">{users.length} total users on Scalablenexus</p>
+            <p className="adm-page-sub">{users.length} total users · {activeCount} active in last 7 days</p>
           </div>
           <Link to="/register" className="au-add-btn"><UserPlus size={14} /> Add User</Link>
         </div>
@@ -279,7 +322,9 @@ export default function AdminUsers() {
         <div className="au-tabs">
           {[
             { key: 'all', label: 'All Users', count: users.length },
+            { key: 'active', label: 'Active (7d)', count: activeCount },
             { key: 'admins', label: 'Admins', count: users.filter(function(u) { return u.isAdmin }).length },
+            { key: 'verified', label: 'Verified', count: users.filter(function(u) { return u.isVerified }).length },
             { key: 'banned', label: 'Banned Users', count: users.filter(function(u) { return u.isBanned }).length },
           ].map(function(f) {
             return (
@@ -306,6 +351,7 @@ export default function AdminUsers() {
         {selectedIds.size > 0 && (
           <div className="au-bulk-bar">
             <span className="au-bulk-count">{selectedIds.size} selected</span>
+            <button className="au-bulk-btn blue" onClick={verifySelected}>Verify</button>
             <button className="au-bulk-btn green" onClick={makeAdminSelected}>Make Admin</button>
             <button className="au-bulk-btn amber" onClick={banSelected}>Ban</button>
             <button className="au-bulk-btn danger" onClick={deleteSelected}>Delete</button>
@@ -317,9 +363,10 @@ export default function AdminUsers() {
           <div className="au-table-header">
             <input type="checkbox" checked={allOnPageSelected} onChange={toggleAllOnPage} />
             <span>User</span>
-            <span>Contact</span>
             <span>Joined</span>
+            <span>Last Active</span>
             <span>Status</span>
+            <span>Badges</span>
             <span>Actions</span>
           </div>
 
@@ -338,22 +385,28 @@ export default function AdminUsers() {
                     <p className="au-email">{u.email}</p>
                   </div>
                 </div>
-                <div>
-                  <p className="au-phone">{u.phone}</p>
-                  <p className="au-email">{u.location?.city}{u.location?.country ? ', ' + u.location.country : ''}</p>
-                </div>
                 <p className="au-joined">
                   {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
+                <p className="au-active">{timeAgo(u.lastActiveAt)}</p>
                 <div className="au-badges">
-                  {u.isAdmin && <span className="au-badge au-badge-admin">ADMIN</span>}
                   {u.isBanned ? (
                     <span className="au-badge au-badge-banned">BANNED</span>
                   ) : (
                     <span className="au-badge au-badge-active">ACTIVE</span>
                   )}
                 </div>
+                <div className="au-badges">
+                  {u.isAdmin && <span className="au-badge au-badge-admin">ADMIN</span>}
+                  {u.isVerified && <span className="au-badge au-badge-verified">VERIFIED</span>}
+                </div>
                 <div className="au-actions">
+                  <button
+                    className={u.isVerified ? 'au-btn au-btn-unverify' : 'au-btn au-btn-verify'}
+                    onClick={function() { toggleVerify(u._id) }}
+                  >
+                    {u.isVerified ? 'Unverify' : 'Verify'}
+                  </button>
                   <button
                     className={u.isBanned ? 'au-btn au-btn-unban' : 'au-btn au-btn-ban'}
                     onClick={function() { toggleBan(u._id) }}

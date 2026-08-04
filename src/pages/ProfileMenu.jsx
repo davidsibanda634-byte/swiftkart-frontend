@@ -289,7 +289,9 @@ export default function ProfileMenu() {
                 <div className="pm-avatar">{(user.name || '?').charAt(0).toUpperCase()}</div>
                 <p className="pm-name">{user.name}</p>
                 <p className="pm-email">{user.email}</p>
-                <div className="pm-verified-badge"><BadgeCheck size={12} /> Campus Member</div>
+                {user.isVerified && (
+                  <div className="pm-verified-badge"><BadgeCheck size={12} /> Campus Member</div>
+                )}
                 <div className="pm-stats">
                   <div className="pm-stat">
                     <div className="pm-stat-num">{user.listingsCount ?? '—'}</div>

@@ -43,10 +43,25 @@ import ContactSupport from './pages/help/ContactSupport'
 import ReportBug from './pages/help/ReportBug'
 import AdminSettings from './pages/AdminSettings'
 import AdminAnnouncements from './pages/AdminAnnouncements'
-import AdminJobs from './pages/AdminJobs' // adjust the path to match your other admin imports
+import AdminJobs from './pages/AdminJobs'
 import AdminServices from './pages/AdminServices'
 import AdminEvents from './pages/AdminEvents'
 import AdminAdvertisements from './pages/AdminAdvertisements'
+
+import GetTicket from './pages/GetTicket'
+
+
+import TicketView from './pages/TicketView'
+
+
+import MyTickets from './pages/MyTickets'
+
+
+import EventAttendees from './pages/EventAttendees'
+
+
+import ScanTicket from './pages/ScanTicket'
+
 
 export default function AppRoutes() {
   return (
@@ -54,67 +69,85 @@ export default function AppRoutes() {
       <Route element={<MainLayout />}>
 
         {/* ── Main Pages ── */}
-        <Route path="/" element={<Home />} />
-        <Route path="/marketplace" element={<Marketplace />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/jobs" element={<Jobs />} />
-        <Route path="/events" element={<Events />} />
+        <Route path="/"             element={<Home />} />
+        <Route path="/marketplace"  element={<Marketplace />} />
+        <Route path="/services"     element={<Services />} />
+        <Route path="/jobs"         element={<Jobs />} />
+        <Route path="/events"       element={<Events />} />
         <Route path="/accommodation" element={<Accommodation />} />
-        <Route path="/search" element={<Search />} />
+        <Route path="/search"       element={<Search />} />
 
         {/* ── Auth ── */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login"    element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         {/* ── Listing Detail Pages ── */}
-        <Route path="/listings/:id" element={<ListingDetail />} />
-        <Route path="/services/:id" element={<ServiceDetail />} />
-        <Route path="/jobs/:id" element={<JobDetail />} />
-        <Route path="/events/:id" element={<EventDetail />} />
+        <Route path="/listings/:id"      element={<ListingDetail />} />
+        <Route path="/services/:id"      element={<ServiceDetail />} />
+        <Route path="/jobs/:id"          element={<JobDetail />} />
+        <Route path="/events/:id"        element={<EventDetail />} />
         <Route path="/accommodation/:id" element={<AccommodationDetail />} />
 
         {/* ── Create & Edit ── */}
-        <Route path="/create" element={<CreateListing />} />
+        <Route path="/create"             element={<CreateListing />} />
         <Route path="/listings/edit/:id" element={<EditListing />} />
         <Route path="/services/edit/:id" element={<EditService />} />
-        <Route path="/jobs/edit/:id" element={<EditJob />} />
-        <Route path="/events/edit/:id" element={<EditEvent />} />
+        <Route path="/jobs/edit/:id"     element={<EditJob />} />
+        <Route path="/events/edit/:id"   element={<EditEvent />} />
 
         {/* ── User Pages ── */}
-        <Route path="/my-listings" element={<MyListings />} />
-        <Route path="/saved" element={<Saved />} />
-        <Route path="/profile/:id" element={<UserProfile />} />
+        <Route path="/my-listings"  element={<MyListings />} />
+        <Route path="/saved"        element={<Saved />} />
+        <Route path="/profile/:id"  element={<UserProfile />} />
         <Route path="/profile-menu" element={<ProfileMenu />} />
 
         {/* ── Admin Pages ── */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/admin/reports" element={<AdminReports />} />
-        <Route path="/admin/listings" element={<AdminListings />} />
-        <Route path="/admin/analytics" element={<AdminAnalytics />} />
-        <Route path="/admin/activity" element={<AdminActivity />} />
-        <Route path="/admin/settings" element={<AdminSettings />} />
-        <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-        <Route path="/admin/jobs" element={<AdminJobs />} />
-        <Route path="/admin/services" element={<AdminServices />} />
-        <Route path="/admin/events" element={<AdminEvents />} />
-        <Route path="/admin/advertisements" element={<AdminAdvertisements />} />
+        <Route path="/admin"                 element={<AdminDashboard />} />
+        <Route path="/admin/users"           element={<AdminUsers />} />
+        <Route path="/admin/reports"         element={<AdminReports />} />
+        <Route path="/admin/listings"        element={<AdminListings />} />
+        <Route path="/admin/analytics"       element={<AdminAnalytics />} />
+        <Route path="/admin/activity"        element={<AdminActivity />} />
+        <Route path="/admin/settings"        element={<AdminSettings />} />
+        <Route path="/admin/announcements"   element={<AdminAnnouncements />} />
+        <Route path="/admin/jobs"            element={<AdminJobs />} />
+        <Route path="/admin/services"        element={<AdminServices />} />
+        <Route path="/admin/events"          element={<AdminEvents />} />
+        <Route path="/admin/advertisements"  element={<AdminAdvertisements />} />
+
+
+        {/* ── Ticketing Pages ── */}
+
+
+        <Route path="/events/:id/get-ticket"  element={<GetTicket />} />
+
+
+        <Route path="/tickets/:id"            element={<TicketView />} />
+
+
+        <Route path="/my-tickets"            element={<MyTickets />} />
+
+
+        <Route path="/events/:id/attendees"  element={<EventAttendees />} />
+
+
+        <Route path="/scan-ticket"           element={<ScanTicket />} />
 
 
         {/* ── Help Centre ── */}
         <Route path="/help/how-to-buy" element={<HowToBuy />} />
         <Route path="/help/how-to-sell" element={<HowToSell />} />
-        <Route path="/help/safety" element={<StayingSafe />} />
-        <Route path="/help/contact" element={<ContactSupport />} />
-        <Route path="/help/bug" element={<ReportBug />} />
+        <Route path="/help/safety"      element={<StayingSafe />} />
+        <Route path="/help/contact"     element={<HowToBuy />} />
+        <Route path="/help/bug"         element={<ReportBug />} />
 
         {/* ── Legal Pages ── */}
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/legal/terms" element={<TermsOfUse />} />
-        <Route path="/legal/privacy" element={<PrivacyPolicy />} />
-        <Route path="/legal/privacy-centre" element={<PrivacyCentre />} />
-        <Route path="/legal/cookies" element={<CookiePolicy />} />
-        <Route path="/legal/guidelines" element={<CommunityGuidelines />} />
+        <Route path="/about"                  element={<AboutUs />} />
+        <Route path="/legal/terms"            element={<TermsOfUse />} />
+        <Route path="/legal/privacy"          element={<PrivacyPolicy />} />
+        <Route path="/legal/privacy-centre"   element={<PrivacyCentre />} />
+        <Route path="/legal/cookies"          element={<CookiePolicy />} />
+        <Route path="/legal/guidelines"       element={<CommunityGuidelines />} />
 
         {/* ── 404 ── */}
         <Route path="*" element={<NotFound />} />
