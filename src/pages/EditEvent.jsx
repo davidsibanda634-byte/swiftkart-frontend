@@ -9,67 +9,172 @@ export default function EditEvent() {
   const { id } = useParams()
 
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
+  const [saving, setSaving]   = useState(false)
+  const [error, setError]     = useState('')
   const [success, setSuccess] = useState('')
-
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    date: '',
-    phone: '',
+  const [form, setForm]       = useState({
+    title: '', description: '', date: '', phone: '',
     location: { country: '', city: '', area: '' }
   })
+
+
+  // ── Ticket state ──────────────────────────────────────
+
+
+  const [ticketsEnabled, setTicketsEnabled] = useState(false)
+
+
+  const [capacity, setCapacity]             = useState('')
+
+
+  const [ticketTypes, setTicketTypes]       = useState([])
+
+
+  const [ttSaving, setTtSaving]             = useState(false)
+
 
   useEffect(() => {
     if (!authReady) return
     if (!user) { navigate('/login'); return }
-    api.get('/events/' + id)
-      .then(res => {
-        const data = res.data
+    const load = async () => {
+      try {
+
+        const [evRes, ttRes] = await Promise.all([
+
+
+          api.get('/events/' + id),
+
+
+          api.get(`/ticket-types/event/${id}`),
+
+
+        ])
+
+        const data = evRes.data
         const ownerId = data.user?._id || data.user
         if (ownerId !== user._id) { navigate('/'); return }
         setForm({
-          title: data.title || '',
+          title:       data.title       || '',
           description: data.description || '',
-          date: data.date ? data.date.slice(0, 10) : '',
-          phone: data.phone || '',
+          date:        data.date ? data.date.slice(0, 10) : '',
+          phone:       data.phone       || '',
           location: {
             country: data.location?.country || '',
-            city: data.location?.city || '',
-            area: data.location?.area || ''
+            city:    data.location?.city    || '',
+            area:    data.location?.area    || '',
           }
         })
-      })
-      .catch(() => navigate('/'))
-      .finally(() => setLoading(false))
+
+        setTicketsEnabled(data.ticketsEnabled || false)
+
+
+        setCapacity(data.capacity || '')
+
+
+        setTicketTypes(ttRes.data.map(tt => ({
+
+
+          _id:         tt._id,
+
+
+          name:        tt.name,
+
+
+          price:       String(tt.price),
+
+
+          quantity:    String(tt.quantity),
+
+
+          description: tt.description || '',
+
+
+        })))
+
+      } catch {
+        navigate('/')
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [id, authReady])
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+  function handleChange(e)   { setForm({ ...form, [e.target.name]: e.target.value }) }
+  function handleLocation(e) { setForm({ ...form, location: { ...form.location, [e.target.name]: e.target.value } }) }
 
-  function handleLocation(e) {
-    setForm({ ...form, location: { ...form.location, [e.target.name]: e.target.value } })
-  }
 
-  function handleSubmit(e) {
+  const addTt    = () => setTicketTypes(prev => [...prev, { name: '', price: '0', quantity: '', description: '' }])
+
+
+  const removeTt = (i) => setTicketTypes(prev => prev.filter((_, idx) => idx !== i))
+
+
+  const updateTt = (i, field, val) => setTicketTypes(prev => prev.map((tt, idx) => idx === i ? { ...tt, [field]: val } : tt))
+
+
+  async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     setSuccess('')
     setSaving(true)
-    api.put('/events/' + id, form)
-      .then(() => {
-        setSuccess('Event updated successfully!')
-        setTimeout(() => navigate('/my-listings'), 1500)
-      })
-      .catch(err => setError(err.response?.data?.message || 'Failed to update.'))
-      .finally(() => setSaving(false))
+    try {
+
+      await api.put('/events/' + id, { ...form, ticketsEnabled, capacity: capacity || 0 })
+
+
+
+      // Sync ticket types — update existing, create new ones
+
+
+      if (ticketsEnabled) {
+
+
+        setTtSaving(true)
+
+
+        await Promise.all(
+
+
+          ticketTypes
+
+
+            .filter(tt => tt.name.trim())
+
+
+            .map(tt => tt._id
+
+
+              ? api.put(`/ticket-types/${tt._id}`, { name: tt.name, price: parseFloat(tt.price) || 0, quantity: parseInt(tt.quantity) || 0, description: tt.description })
+
+
+              : api.post('/ticket-types', { eventId: id, name: tt.name, price: parseFloat(tt.price) || 0, quantity: parseInt(tt.quantity) || 0, description: tt.description })
+
+
+            )
+
+
+        )
+
+
+        setTtSaving(false)
+
+
+      }
+
+
+      setSuccess('Event updated successfully!')
+      setTimeout(() => navigate('/my-listings'), 1500)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (!authReady || loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#08162F' }}>
-      <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Loading...</p>
+    <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#08162F' }}>
+      <p style={{ color:'rgba(255,255,255,0.5)', fontFamily:'Plus Jakarta Sans, sans-serif' }}>Loading...</p>
     </div>
   )
 
@@ -102,7 +207,15 @@ export default function EditEvent() {
         .ee-save-btn { flex:2; background:linear-gradient(135deg,#be185d,#9d174d); color:white; border:none; padding:13px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 6px 20px rgba(190,24,93,0.4); transition:all 0.2s; }
         .ee-save-btn:hover { transform:translateY(-1px); }
         .ee-save-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-        @media(max-width:480px){ .ee-card { padding:24px 16px; } }
+        .ee-toggle-row { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:11px; padding:12px 14px; margin-bottom:14px; cursor:pointer; }
+        .ee-toggle-label { font-size:13px; font-weight:600; color:rgba(255,255,255,0.85); }
+        .ee-toggle-sub { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
+        .ee-tt-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:14px; margin-bottom:10px; }
+        .ee-tt-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+        .ee-tt-remove { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; padding:5px 10px; border-radius:7px; font-size:11px; cursor:pointer; font-family:inherit; float:right; margin-bottom:8px; }
+        .ee-add-tt { width:100%; padding:10px; background:rgba(190,24,93,0.1); border:1.5px dashed rgba(190,24,93,0.4); color:#f9a8d4; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:4px; }
+        .ee-add-tt:hover { background:rgba(190,24,93,0.18); }
+        @media(max-width:480px){ .ee-card { padding:24px 16px; } .ee-tt-row { grid-template-columns:1fr; } }
       `}</style>
 
       <div className="ee-bg">
@@ -115,7 +228,7 @@ export default function EditEvent() {
               <p className="ee-sub">Update your event details below</p>
             </div>
 
-            {error && <div className="ee-error">{error}</div>}
+            {error   && <div className="ee-error">{error}</div>}
             {success && <div className="ee-success">{success}</div>}
 
             <form onSubmit={handleSubmit}>
@@ -125,7 +238,7 @@ export default function EditEvent() {
               </div>
               <div className="ee-field">
                 <label className="ee-label">Description</label>
-                <textarea className="ee-input" name="description" value={form.description} onChange={handleChange} placeholder="Describe your event..." rows={4} style={{ resize: 'vertical' }} />
+                <textarea className="ee-input" name="description" value={form.description} onChange={handleChange} placeholder="Describe your event..." rows={4} style={{ resize:'vertical' }} />
               </div>
               <div className="ee-field">
                 <label className="ee-label">Event Date *</label>
@@ -142,9 +255,116 @@ export default function EditEvent() {
                 <input className="ee-input" type="text" name="city" value={form.location.city} onChange={handleLocation} placeholder="City" required />
                 <input className="ee-input" type="text" name="area" value={form.location.area} onChange={handleLocation} placeholder="Area / Campus (optional)" />
               </div>
+
+
+              {/* ── Ticketing section ───────────────────────── */}
+
+
+              <p className="ee-section-label">Ticketing</p>
+
+
+              <div className="ee-toggle-row" onClick={() => setTicketsEnabled(!ticketsEnabled)}>
+
+
+                <div>
+
+
+                  <div className="ee-toggle-label">🎟 Enable Ticketing</div>
+
+
+                  <div className="ee-toggle-sub">Let people book tickets for this event</div>
+
+
+                </div>
+
+
+                <div style={{ width:42, height:24, borderRadius:12, background: ticketsEnabled ? '#be185d' : 'rgba(255,255,255,0.2)', position:'relative', flexShrink:0, transition:'background 0.2s' }}>
+
+
+                  <div style={{ position:'absolute', top:3, left: ticketsEnabled ? 21 : 3, width:18, height:18, borderRadius:'50%', background:'white', transition:'left 0.2s' }} />
+
+
+                </div>
+
+
+              </div>
+
+
+
+              {ticketsEnabled && (<>
+
+
+                <div className="ee-field">
+
+
+                  <label className="ee-label">Total Capacity (0 = unlimited)</label>
+
+
+                  <input className="ee-input" type="number" min="0"
+
+
+                    value={capacity} onChange={e => setCapacity(e.target.value)}
+
+
+                    placeholder="0 = unlimited" />
+
+
+                </div>
+
+
+                <p className="ee-section-label">Ticket Types</p>
+
+
+                {ticketTypes.map((tt, i) => (
+
+
+                  <div key={i} className="ee-tt-card">
+
+
+                    {ticketTypes.length > 1 && <button type="button" className="ee-tt-remove" onClick={() => removeTt(i)}>Remove</button>}
+
+
+                    <div className="ee-tt-row">
+
+
+                      <div><label className="ee-label">Name *</label><input className="ee-input" placeholder="e.g. General, VIP" value={tt.name} onChange={e => updateTt(i, 'name', e.target.value)} /></div>
+
+
+                      <div><label className="ee-label">Price ($) — 0 = Free</label><input className="ee-input" type="number" min="0" value={tt.price} onChange={e => updateTt(i, 'price', e.target.value)} /></div>
+
+
+                    </div>
+
+
+                    <div className="ee-tt-row">
+
+
+                      <div><label className="ee-label">Quantity (0 = unlimited)</label><input className="ee-input" type="number" min="0" value={tt.quantity} onChange={e => updateTt(i, 'quantity', e.target.value)} /></div>
+
+
+                      <div><label className="ee-label">Description (optional)</label><input className="ee-input" placeholder="e.g. Includes food" value={tt.description} onChange={e => updateTt(i, 'description', e.target.value)} /></div>
+
+
+                    </div>
+
+
+                  </div>
+
+
+                ))}
+
+
+                <button type="button" className="ee-add-tt" onClick={addTt}>+ Add ticket type</button>
+
+
+              </>)}
+
+
               <div className="ee-btn-row">
                 <button type="button" className="ee-cancel-btn" onClick={() => navigate('/my-listings')}>Cancel</button>
-                <button type="submit" className="ee-save-btn" disabled={saving}>{saving ? 'Saving...' : '💾 Save Changes'}</button>
+                <button type="submit" className="ee-save-btn" disabled={saving || ttSaving}>
+                  {saving || ttSaving ? 'Saving...' : '💾 Save Changes'}
+                </button>
               </div>
             </form>
           </div>

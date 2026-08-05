@@ -120,17 +120,9 @@ export default function AppRoutes() {
 
 
         <Route path="/events/:id/get-ticket"  element={<GetTicket />} />
-
-
         <Route path="/tickets/:id"            element={<TicketView />} />
-
-
         <Route path="/my-tickets"            element={<MyTickets />} />
-
-
         <Route path="/events/:id/attendees"  element={<EventAttendees />} />
-
-
         <Route path="/scan-ticket"           element={<ScanTicket />} />
 
 
@@ -138,7 +130,7 @@ export default function AppRoutes() {
         <Route path="/help/how-to-buy" element={<HowToBuy />} />
         <Route path="/help/how-to-sell" element={<HowToSell />} />
         <Route path="/help/safety"      element={<StayingSafe />} />
-        <Route path="/help/contact"     element={<HowToBuy />} />
+        <Route path="/help/contact"     element={<ContactSupport />} />
         <Route path="/help/bug"         element={<ReportBug />} />
 
         {/* ── Legal Pages ── */}
