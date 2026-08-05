@@ -1,4 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 export default function EventCard({ event }) {
+
+  const navigate = useNavigate()
+
+
   function getImageUrl(img) {
     if (!img) return null
     if (img.startsWith('http')) return img
@@ -9,6 +14,10 @@ export default function EventCard({ event }) {
   const phone = event.phone?.replace(/\D/g, '') || ''
   const waLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent('Hi, I am interested in the event: ' + event.title)
 
+  function handleCardClick() {
+
+    navigate(`/events/${event._id}`)
+  }
   function handleWhatsApp(e) {
     e.stopPropagation()
     window.open(waLink, '_blank')
@@ -38,6 +47,7 @@ export default function EventCard({ event }) {
           border: 1px solid rgba(0,0,0,0.04);
           transition: transform 0.25s ease, box-shadow 0.25s ease;
           position: relative;
+          cursor: pointer;
         }
         .ec-card:hover { transform: translateY(-5px); box-shadow: 0 16px 36px rgba(0,0,0,0.12); }
 
@@ -133,7 +143,9 @@ export default function EventCard({ event }) {
         .ec-wa-btn:hover { background: linear-gradient(135deg, #16a34a, #15803d); transform: translateY(-1px); box-shadow: 0 5px 14px rgba(34,197,94,0.38); }
       `}</style>
 
-      <div className="ec-card">
+
+      <div className="ec-card" onClick={handleCardClick}>
+
         <div className="ec-img-wrap">
           {imageUrl
             ? <img src={imageUrl} alt={event.title} loading="lazy" />
