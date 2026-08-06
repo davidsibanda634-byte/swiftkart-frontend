@@ -7,15 +7,15 @@ export default function MyListings() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  const [listings, setListings] = useState([])
-  const [services, setServices] = useState([])
-  const [jobs, setJobs] = useState([])
-  const [events, setEvents] = useState([])
+  const [listings, setListings]           = useState([])
+  const [services, setServices]           = useState([])
+  const [jobs, setJobs]                   = useState([])
+  const [events, setEvents]               = useState([])
   const [accommodations, setAccommodations] = useState([])
-  const [activeTab, setActiveTab] = useState('listings')
-  const [loading, setLoading] = useState(true)
-  const [deletingId, setDeletingId] = useState(null)
-  const [repostingId, setRepostingId] = useState(null)
+  const [activeTab, setActiveTab]         = useState('listings')
+  const [loading, setLoading]             = useState(true)
+  const [deletingId, setDeletingId]       = useState(null)
+  const [repostingId, setRepostingId]     = useState(null)
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
@@ -52,10 +52,10 @@ export default function MyListings() {
     setDeletingId(id)
     try {
       await api.delete('/' + type + '/' + id)
-      if (type === 'listings') setListings(listings.filter(x => x._id !== id))
-      if (type === 'services') setServices(services.filter(x => x._id !== id))
-      if (type === 'jobs') setJobs(jobs.filter(x => x._id !== id))
-      if (type === 'events') setEvents(events.filter(x => x._id !== id))
+      if (type === 'listings')      setListings(listings.filter(x => x._id !== id))
+      if (type === 'services')      setServices(services.filter(x => x._id !== id))
+      if (type === 'jobs')          setJobs(jobs.filter(x => x._id !== id))
+      if (type === 'events')        setEvents(events.filter(x => x._id !== id))
       if (type === 'accommodations') setAccommodations(accommodations.filter(x => x._id !== id))
     } catch {
       alert('Failed to delete. Please try again.')
@@ -82,10 +82,10 @@ export default function MyListings() {
   }
 
   const getEditRoute = (type, id) => {
-    if (type === 'listings') return '/listings/edit/' + id
-    if (type === 'services') return '/services/edit/' + id
-    if (type === 'jobs') return '/jobs/edit/' + id
-    if (type === 'events') return '/events/edit/' + id
+    if (type === 'listings')      return '/listings/edit/' + id
+    if (type === 'services')      return '/services/edit/' + id
+    if (type === 'jobs')          return '/jobs/edit/' + id
+    if (type === 'events')        return '/events/edit/' + id
     if (type === 'accommodations') return '/accommodation/edit/' + id
     return '/'
   }
@@ -93,20 +93,19 @@ export default function MyListings() {
   const total = listings.length + services.length + jobs.length + events.length + accommodations.length
 
   const tabs = [
-    { key: 'listings', label: '🛍️ Items', count: listings.length, color: '#00C896' },
-    { key: 'services', label: '🧑‍💼 Services', count: services.length, color: '#7c3aed' },
-    { key: 'jobs', label: '💼 Jobs', count: jobs.length, color: '#d97706' },
-    { key: 'events', label: '🎉 Events', count: events.length, color: '#be185d' },
-    { key: 'accommodations', label: '🏠 Properties', count: accommodations.length, color: '#0f4c81' },
+    { key: 'listings',      label: '🛍️ Items',      count: listings.length,      color: '#00C896' },
+    { key: 'services',      label: '🧑‍💼 Services',    count: services.length,      color: '#7c3aed' },
+    { key: 'jobs',          label: '💼 Jobs',         count: jobs.length,          color: '#d97706' },
+    { key: 'events',        label: '🎉 Events',       count: events.length,        color: '#be185d' },
+    { key: 'accommodations', label: '🏠 Properties',   count: accommodations.length, color: '#0f4c81' },
   ]
 
-  const currentItems = { listings, services, jobs, events, accommodations }
-  const currentTabMeta = tabs.find(t => t.key === activeTab)
-  const typeEndpoints = {
+  const currentItems    = { listings, services, jobs, events, accommodations }
+  const currentTabMeta  = tabs.find(t => t.key === activeTab)
+  const typeEndpoints   = {
     listings: 'listings', services: 'services',
     jobs: 'jobs', events: 'events', accommodations: 'accommodations',
   }
-
   const placeholderIcons = {
     listings: '🛍️', services: '🧑‍💼', jobs: '💼', events: '🎉', accommodations: '🏠'
   }
@@ -135,6 +134,10 @@ export default function MyListings() {
         .ml-title { font-size: 26px; font-weight: 800; color: white; margin: 0 0 5px; letter-spacing: -0.5px; }
         .ml-sub { color: rgba(255,255,255,0.55); font-size: 13.5px; margin: 0; }
 
+        .ml-btn-group {
+          display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        }
+
         .ml-new-btn {
           background: linear-gradient(135deg, #00C896, #059669); color: white; border: none;
           padding: 11px 22px; border-radius: 12px; font-size: 13.5px; font-weight: 700;
@@ -142,6 +145,15 @@ export default function MyListings() {
           box-shadow: 0 4px 14px rgba(0,200,150,0.35); display: flex; align-items: center; gap: 6px;
         }
         .ml-new-btn:hover { transform: translateY(-1px); }
+
+        .ml-tickets-btn {
+          background: rgba(255,255,255,0.12); color: white;
+          border: 1px solid rgba(255,255,255,0.25);
+          padding: 11px 18px; border-radius: 12px; font-size: 13px; font-weight: 700;
+          cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap;
+          display: flex; align-items: center; gap: 6px;
+        }
+        .ml-tickets-btn:hover { background: rgba(255,255,255,0.2); }
 
         .ml-stats-row { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
         .ml-stat-card {
@@ -220,6 +232,13 @@ export default function MyListings() {
         .ml-delete-btn:hover { background: #fee2e2; }
         .ml-delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        .ml-attendees-btn {
+          background: #fdf4ff; color: #7c3aed; border: 1px solid #e9d5ff; padding: 6px 14px;
+          border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;
+          white-space: nowrap; font-family: inherit; transition: all 0.2s;
+        }
+        .ml-attendees-btn:hover { background: #f3e8ff; }
+
         .ml-empty {
           text-align: center; padding: 60px 20px; background: white; border-radius: 16px;
           border: 2px dashed #e2e8f0;
@@ -250,8 +269,9 @@ export default function MyListings() {
           .ml-content { padding: 16px 14px 60px; }
           .ml-item-card { flex-wrap: wrap; }
           .ml-item-actions { flex-direction: row; width: 100%; flex-wrap: wrap; }
-          .ml-edit-btn, .ml-delete-btn, .ml-repost-btn { flex: 1; text-align: center; }
+          .ml-edit-btn, .ml-delete-btn, .ml-repost-btn, .ml-attendees-btn { flex: 1; text-align: center; }
           .ml-stats-row { gap: 8px; }
+          .ml-btn-group { width: 100%; }
         }
       `}</style>
 
@@ -264,7 +284,22 @@ export default function MyListings() {
                 <h1 className="ml-title">📋 My Listings</h1>
                 <p className="ml-sub">Manage everything you've posted on Scalablenexus</p>
               </div>
-              <button className="ml-new-btn" onClick={() => navigate('/create')}>➕ New Post</button>
+
+              <div className="ml-btn-group">
+
+
+                <button className="ml-tickets-btn" onClick={() => navigate('/my-tickets')}>
+
+
+                  🎟 My Tickets
+
+
+                </button>
+
+                <button className="ml-new-btn" onClick={() => navigate('/create')}>➕ New Post</button>
+
+              </div>
+
             </div>
 
             <div className="ml-stats-row">
@@ -386,6 +421,30 @@ export default function MyListings() {
                     >
                       {repostingId === item._id ? '...' : '🔄 Repost'}
                     </button>
+
+                    {activeTab === 'events' && item.ticketsEnabled && (
+
+
+                      <button
+
+
+                        className="ml-attendees-btn"
+
+
+                        onClick={() => navigate(`/events/${item._id}/attendees`)}
+
+
+                      >
+
+
+                        👥 Attendees
+
+
+                      </button>
+
+
+                    )}
+
                     <button
                       className="ml-delete-btn"
                       disabled={deletingId === item._id}
