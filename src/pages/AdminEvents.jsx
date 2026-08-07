@@ -73,7 +73,7 @@ export default function AdminEvents() {
   const filtered = useMemo(function() {
     let result = events.filter(function(e) {
       return e.title.toLowerCase().includes(search.toLowerCase()) ||
-        (e.location && e.location.toLowerCase().includes(search.toLowerCase())) ||
+        (e.location?.city && e.location.city.toLowerCase().includes(search.toLowerCase())) ||
         (e.user?.name && e.user.name.toLowerCase().includes(search.toLowerCase()))
     })
     if (sort === 'date') result.sort(function(a, b) { return new Date(a.date || 0) - new Date(b.date || 0) })
@@ -111,7 +111,12 @@ export default function AdminEvents() {
     exportCSV(filtered, [
       { label: 'Title', get: function(e) { return e.title } },
       { label: 'Date', get: function(e) { return e.date ? new Date(e.date).toLocaleDateString() : 'TBA' } },
-      { label: 'Location', get: function(e) { return e.location || '' } },
+      { label: 'Location', get: function(e) {
+       return e.location?.city
+       ? e.location.city.trim() + (e.location.area ? ', ' + e.location.area.trim() : '')
+       : ''
+      }},
+      
       { label: 'Price', get: function(e) { return e.price || 'Free' } },
       { label: 'Organizer', get: function(e) { return e.user?.name || 'Unknown' } },
       { label: 'Posted At', get: function(e) { return new Date(e.createdAt).toLocaleDateString() } },
@@ -270,7 +275,12 @@ export default function AdminEvents() {
                           </div>
                         </td>
                         <td><span className="ae-date-pill">{dateLabel}</span></td>
-                        <td>{e.location || 'TBA'}</td>
+                        <td>
+                         {e.location?.city
+                         ? e.location.city.trim() + (e.location.area ? ', ' + e.location.area.trim() : '')
+                         : 'TBA'}
+                        </td>
+                  
                         <td className="ae-price">{e.price ? formatPrice(e.price) : 'Free'}</td>
                         <td>{e.user?.name || 'Unknown'}</td>
                         <td>{new Date(e.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
