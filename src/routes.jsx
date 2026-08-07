@@ -47,7 +47,7 @@ import AdminJobs from './pages/AdminJobs'
 import AdminServices from './pages/AdminServices'
 import AdminEvents from './pages/AdminEvents'
 import AdminAdvertisements from './pages/AdminAdvertisements'
-
+import AdminLogs from './pages/AdminLogs'
 import GetTicket from './pages/GetTicket'
 
 
@@ -114,6 +114,7 @@ export default function AppRoutes() {
         <Route path="/admin/services"        element={<AdminServices />} />
         <Route path="/admin/events"          element={<AdminEvents />} />
         <Route path="/admin/advertisements"  element={<AdminAdvertisements />} />
+        <Route path="/admin/logs"            element={<AdminLogs />} />
 
 
         {/* ── Ticketing Pages ── */}
