@@ -113,7 +113,12 @@ export default function AdminJobs() {
       { label: 'Title', get: function(j) { return j.title } },
       { label: 'Company', get: function(j) { return j.company || '' } },
       { label: 'Type', get: function(j) { return j.type || '' } },
-      { label: 'Location', get: function(j) { return j.location || 'Remote' } },
+      
+      { label: 'Location', get: function(j) {
+         return j.location?.city
+         ? j.location.city.trim() + (j.location.area ? ', ' + j.location.area.trim() : '')
+         : 'Remote'
+      }},
       { label: 'Posted By', get: function(j) { return j.user?.name || 'Unknown' } },
       { label: 'Posted At', get: function(j) { return new Date(j.createdAt).toLocaleDateString() } },
     ], 'jobs.csv')
@@ -281,7 +286,12 @@ export default function AdminJobs() {
                         </td>
                         <td>{j.company || '—'}</td>
                         <td>{j.type ? <span className="aj-type-pill">{j.type}</span> : '—'}</td>
-                        <td>{j.location || 'Remote'}</td>
+                      
+                        <td>
+                           {j.location?.city
+                           ? j.location.city.trim() + (j.location.area ? ', ' + j.location.area.trim() : '')
+                           : 'Remote'}
+                        </td>
                         <td>{j.user?.name || 'Unknown'}</td>
                         <td>{new Date(j.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
                         <td>
