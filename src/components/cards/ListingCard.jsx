@@ -235,8 +235,9 @@ export default function ListingCard({ listing, savedIds = [], onToggleSave }) {
           <span style={s.location}>
             📍 {listing.location?.city}{listing.location?.area ? ', ' + listing.location.area : ''}
           </span>
-          {listing.user && (
-            <span style={s.verified}>✔ Verified</span>
+          {/* ── Verified badge: only show if seller is actually verified ── */}
+          {listing.user?.isVerified && (
+            <span style={s.verified}>✅ Verified</span>
           )}
         </div>
       </div>

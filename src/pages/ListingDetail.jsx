@@ -591,13 +591,16 @@ export default function ListingDetail() {
                   <div className="skd-avatar">
                     {listing.user.name?.charAt(0).toUpperCase()}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: 0 }}>
+                 <div style={{ flex: 1 }}>
+                   <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: 0 }}>
                       {listing.user.name}
-                    </p>
-                    <p style={{ fontSize: '11px', color: '#059669', fontWeight: 600, margin: '2px 0 0' }}>
-                      ✔ Verified Seller
-                    </p>
+                     </p>
+                     {/* ── Only show verified badge if seller is actually verified ── */}
+                     {listing.user?.isVerified && (
+                     <p style={{ fontSize: '11px', color: '#059669', fontWeight: 600, margin: '2px 0 0' }}>
+                     ✅ Verified Seller
+                     </p>
+                     )}
                   </div>
                   <span style={{ fontSize: '12px', color: '#9ca3af' }}>→</span>
                 </div>

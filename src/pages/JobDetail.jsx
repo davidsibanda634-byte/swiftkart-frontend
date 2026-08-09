@@ -240,16 +240,28 @@ export default function JobDetail() {
             <div className="jd-icon-row">
               <div className="jd-icon">💼</div>
               <div className="jd-header-info">
-                {job.category && (
-                  <span className="jd-cat-badge" style={{ background: catStyle.bg, color: catStyle.color }}>
-                    {job.category}
-                  </span>
-                )}
-                <h1 className="jd-title">{job.title}</h1>
-                {job.company && (
-                  <p className="jd-company">🏢 {job.company}</p>
-                )}
-              </div>
+               {job.category && (
+          <span className="jd-cat-badge" style={{ background: catStyle.bg, color: catStyle.color }}>
+             {job.category}
+             </span>
+          )}
+            <h1 className="jd-title">{job.title}</h1>
+          {job.company && (
+             <p className="jd-company">🏢 {job.company}</p>
+          )}
+          {/* ── Verified organizer badge ── */}
+          {job.user?.isVerified && (
+          <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: '4px',
+          background: 'rgba(0,200,150,0.15)', color: '#34d399',
+          fontSize: '10.5px', fontWeight: 700,
+          padding: '3px 10px', borderRadius: '20px',
+          border: '1px solid rgba(0,200,150,0.25)', marginTop: '8px'
+      }}>
+          ✅ Verified Poster
+        </span>
+     )}
+          </div>
             </div>
 
             <div className="jd-meta-row">

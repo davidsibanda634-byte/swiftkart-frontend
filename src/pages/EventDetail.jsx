@@ -182,12 +182,22 @@ export default function EventDetail() {
               {event.ticketsEnabled && <span className="edd-badge upcoming">🎟 Tickets Available</span>}
 
             </div>
-            <h1 className="edd-title">{event.title}</h1>
+           <h1 className="edd-title">{event.title}</h1>
             <div className="edd-meta">
-              {event.location?.city && <span className="edd-meta-item">📍 {event.location.city}{event.location.area ? ', ' + event.location.area : ''}</span>}
-              {postedDate && <span className="edd-meta-item">🗓️ Posted {postedDate}</span>}
-            </div>
-          </div>
+           {event.location?.city && <span className="edd-meta-item">📍 {event.location.city}{event.location.area ? ', ' + event.location.area : ''}</span>}
+           {postedDate && <span className="edd-meta-item">🗓️ Posted {postedDate}</span>}
+           {/* ── Verified organizer badge ── */}
+          {event.user?.isVerified && (
+          <span className="edd-meta-item" style={{
+             background: 'rgba(0,200,150,0.15)', color: '#34d399',
+              padding: '3px 10px', borderRadius: '20px',
+               border: '1px solid rgba(0,200,150,0.25)', fontWeight: 700
+          }}>
+             ✅ Verified Organizer
+              </span>
+          )}
+        </div>
+             </div>
         </div>
 
         {event.images?.length > 0 && (
