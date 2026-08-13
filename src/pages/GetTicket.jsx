@@ -93,7 +93,7 @@ if (bookedTicket) {
           </p>
 
           {bookedTicket.organizerWhatsApp && (
-            
+            <a
               href={bookedTicket.organizerWhatsApp}
               target="_blank"
               rel="noreferrer"
