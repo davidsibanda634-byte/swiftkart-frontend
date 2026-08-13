@@ -49,19 +49,11 @@ import AdminEvents from './pages/AdminEvents'
 import AdminAdvertisements from './pages/AdminAdvertisements'
 import AdminLogs from './pages/AdminLogs'
 import GetTicket from './pages/GetTicket'
-
-
 import TicketView from './pages/TicketView'
-
-
 import MyTickets from './pages/MyTickets'
-
-
 import EventAttendees from './pages/EventAttendees'
-
-
 import ScanTicket from './pages/ScanTicket'
-
+import FindTicket from './pages/FindTicket'
 
 export default function AppRoutes() {
   return (
@@ -125,7 +117,7 @@ export default function AppRoutes() {
         <Route path="/my-tickets"            element={<MyTickets />} />
         <Route path="/events/:id/attendees"  element={<EventAttendees />} />
         <Route path="/scan-ticket"           element={<ScanTicket />} />
-
+        <Route path="/find-ticket" element={<FindTicket />} />
 
         {/* ── Help Centre ── */}
         <Route path="/help/how-to-buy" element={<HowToBuy />} />

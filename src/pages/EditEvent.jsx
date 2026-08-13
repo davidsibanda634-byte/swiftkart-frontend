@@ -17,37 +17,25 @@ export default function EditEvent() {
     location: { country: '', city: '', area: '' }
   })
 
-
   // ── Ticket state ──────────────────────────────────────
-
-
   const [ticketsEnabled, setTicketsEnabled] = useState(false)
-
-
   const [capacity, setCapacity]             = useState('')
 
-
   const [ticketTypes, setTicketTypes]       = useState([])
-
-
   const [ttSaving, setTtSaving]             = useState(false)
-
-
-  useEffect(() => {
+  const [ecocashNumber, setEcocashNumber]             = useState('')
+  const [ecocashName, setEcocashName]                 = useState('')
+  const [upiId, setUpiId]                             = useState('')
+  const [upiName, setUpiName]                         = useState('')
+  const [paymentInstructions, setPaymentInstructions] = useState('')
+   useEffect(() => {
     if (!authReady) return
     if (!user) { navigate('/login'); return }
     const load = async () => {
       try {
-
         const [evRes, ttRes] = await Promise.all([
-
-
           api.get('/events/' + id),
-
-
           api.get(`/ticket-types/event/${id}`),
-
-
         ])
 
         const data = evRes.data
@@ -64,30 +52,20 @@ export default function EditEvent() {
             area:    data.location?.area    || '',
           }
         })
-
         setTicketsEnabled(data.ticketsEnabled || false)
-
-
+        setEcocashNumber(data.ecocashNumber       || '')
+        setEcocashName(data.ecocashName           || '')
+        setUpiId(data.upiId                       || '')
+        setUpiName(data.upiName                   || '')
+        setPaymentInstructions(data.paymentInstructions || '')
         setCapacity(data.capacity || '')
-
-
         setTicketTypes(ttRes.data.map(tt => ({
 
-
           _id:         tt._id,
-
-
           name:        tt.name,
-
-
           price:       String(tt.price),
-
-
           quantity:    String(tt.quantity),
-
-
           description: tt.description || '',
-
 
         })))
 
@@ -102,67 +80,42 @@ export default function EditEvent() {
 
   function handleChange(e)   { setForm({ ...form, [e.target.name]: e.target.value }) }
   function handleLocation(e) { setForm({ ...form, location: { ...form.location, [e.target.name]: e.target.value } }) }
-
-
   const addTt    = () => setTicketTypes(prev => [...prev, { name: '', price: '0', quantity: '', description: '' }])
-
-
   const removeTt = (i) => setTicketTypes(prev => prev.filter((_, idx) => idx !== i))
 
-
   const updateTt = (i, field, val) => setTicketTypes(prev => prev.map((tt, idx) => idx === i ? { ...tt, [field]: val } : tt))
-
-
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     setSuccess('')
     setSaving(true)
     try {
-
-      await api.put('/events/' + id, { ...form, ticketsEnabled, capacity: capacity || 0 })
-
-
+      await api.put('/events/' + id, {
+  ...form,
+  ticketsEnabled,
+  capacity:            capacity || 0,
+  ecocashNumber,
+  ecocashName,
+  upiId,
+  upiName,
+  paymentInstructions,
+})
 
       // Sync ticket types — update existing, create new ones
-
-
       if (ticketsEnabled) {
-
-
         setTtSaving(true)
 
-
         await Promise.all(
-
-
           ticketTypes
-
-
             .filter(tt => tt.name.trim())
-
-
             .map(tt => tt._id
-
-
               ? api.put(`/ticket-types/${tt._id}`, { name: tt.name, price: parseFloat(tt.price) || 0, quantity: parseInt(tt.quantity) || 0, description: tt.description })
 
-
               : api.post('/ticket-types', { eventId: id, name: tt.name, price: parseFloat(tt.price) || 0, quantity: parseInt(tt.quantity) || 0, description: tt.description })
-
-
             )
-
-
         )
-
-
         setTtSaving(false)
-
-
       }
-
-
       setSuccess('Event updated successfully!')
       setTimeout(() => navigate('/my-listings'), 1500)
     } catch (err) {
@@ -282,15 +235,8 @@ export default function EditEvent() {
 
 
                   <div style={{ position:'absolute', top:3, left: ticketsEnabled ? 21 : 3, width:18, height:18, borderRadius:'50%', background:'white', transition:'left 0.2s' }} />
-
-
                 </div>
-
-
               </div>
-
-
-
               {ticketsEnabled && (<>
 
 
@@ -326,40 +272,56 @@ export default function EditEvent() {
 
                     <div className="ee-tt-row">
 
-
                       <div><label className="ee-label">Name *</label><input className="ee-input" placeholder="e.g. General, VIP" value={tt.name} onChange={e => updateTt(i, 'name', e.target.value)} /></div>
 
-
                       <div><label className="ee-label">Price ($) — 0 = Free</label><input className="ee-input" type="number" min="0" value={tt.price} onChange={e => updateTt(i, 'price', e.target.value)} /></div>
-
-
                     </div>
-
-
                     <div className="ee-tt-row">
-
-
                       <div><label className="ee-label">Quantity (0 = unlimited)</label><input className="ee-input" type="number" min="0" value={tt.quantity} onChange={e => updateTt(i, 'quantity', e.target.value)} /></div>
-
-
                       <div><label className="ee-label">Description (optional)</label><input className="ee-input" placeholder="e.g. Includes food" value={tt.description} onChange={e => updateTt(i, 'description', e.target.value)} /></div>
-
-
                     </div>
-
-
                   </div>
-
-
                 ))}
-
-
                 <button type="button" className="ee-add-tt" onClick={addTt}>+ Add ticket type</button>
+                <p className="ee-section-label">Payment Details</p>
+<p style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)', marginBottom: 12 }}>
+  How buyers pay for paid tickets. Leave blank if all tickets are free.
+</p>
 
+<div className="ee-tt-row">
+  <div>
+    <label className="ee-label">EcoCash Number</label>
+    <input className="ee-input" placeholder="e.g. 0771234567"
+      value={ecocashNumber} onChange={e => setEcocashNumber(e.target.value)} />
+  </div>
+  <div>
+    <label className="ee-label">EcoCash Name</label>
+         <input className="ee-input" placeholder="e.g. David Sibanda"
+         value={ecocashName} onChange={e => setEcocashName(e.target.value)} />
+         </div>
+       </div>
 
+           <div className="ee-tt-row">
+        <div>
+       <label className="ee-label">UPI ID</label>
+        <input className="ee-input" placeholder="e.g. david@upi"
+        value={upiId} onChange={e => setUpiId(e.target.value)} />
+     </div>
+      <div>
+        <label className="ee-label">UPI Name</label>
+          <input className="ee-input" placeholder="e.g. David Sibanda"
+           value={upiName} onChange={e => setUpiName(e.target.value)} />
+        </div>
+       </div>
+
+        <div className="ee-field">
+          <label className="ee-label">Payment Instructions (optional)</label>
+          <input className="ee-input"
+            placeholder="e.g. Send exact amount, include your name as reference"
+             value={paymentInstructions}
+             onChange={e => setPaymentInstructions(e.target.value)} />
+           </div>
               </>)}
-
-
               <div className="ee-btn-row">
                 <button type="button" className="ee-cancel-btn" onClick={() => navigate('/my-listings')}>Cancel</button>
                 <button type="submit" className="ee-save-btn" disabled={saving || ttSaving}>

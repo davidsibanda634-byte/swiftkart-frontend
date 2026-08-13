@@ -147,6 +147,20 @@ export default function EventAttendees() {
                           {ticket.ticketNumber}
                         </span>
                       </div>
+                      {/* Payment reference — shown for pending paid tickets */}
+                        {ticket.status === "pending" && ticket.paymentReference && (
+                           <div style={{ fontSize: 11, color: "#00b09b", marginTop: 3, fontWeight: 600 }}>
+                            💳 Ref: {ticket.paymentReference}
+                            {ticket.paymentMethod && (
+                               <span style={{ color: "#888", fontWeight: 400 }}> via {ticket.paymentMethod}</span>
+                           )}
+                        </div>
+                       )}
+                        {ticket.paymentProofNote && (
+  <div style={{ fontSize: 11, color: "#888", marginTop: 2, fontStyle: "italic" }}>
+    "{ticket.paymentProofNote}"
+  </div>
+                        )}
                     </div>
                   </div>
 

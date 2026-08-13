@@ -20,7 +20,7 @@ export default function TicketView() {
 
   useEffect(() => {
     if (!authReady) return
-    if (!user) { navigate("/login"); return }
+  
     api.get(`/tickets/${id}`)
       .then(r => setTicket(r.data))
       .catch(() => setError("Ticket not found."))
@@ -109,9 +109,27 @@ export default function TicketView() {
           ) : null}
 
           <div style={s.actions}>
-            <Link to="/my-tickets" style={s.linkBtn}>View all my tickets</Link>
-            <Link to={`/events/${ticket.event?._id}`} style={s.linkBtn}>Back to event</Link>
+             <Link to="/my-tickets" style={s.linkBtn}>View all my tickets</Link>
+             <Link to={`/events/${ticket.event?._id}`} style={s.linkBtn}>Back to event</Link>
           </div>
+
+        {/* Cancel button — only for pending or confirmed tickets */}
+        {(ticket.status === "pending" || ticket.status === "confirmed") && (
+           <button
+             style={{ ...s.linkBtn, width: "100%", marginTop: 10, border: "1.5px solid #ef4444", color: "#ef4444", background: "none", cursor: "pointer" }}
+             onClick={async () => {
+           if (!window.confirm("Are you sure you want to cancel this ticket? This cannot be undone.")) return
+           try {
+           await api.put(`/tickets/${ticket._id}/cancel`, { attendeePhone: ticket.attendeePhone })
+           window.location.reload()
+        } catch {
+          alert("Failed to cancel. Please try again.")
+        }
+      }}
+    >
+       Cancel Ticket
+     </button>
+    )}
         </div>
       </div>
     </div>

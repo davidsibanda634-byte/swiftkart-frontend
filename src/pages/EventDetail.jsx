@@ -16,45 +16,30 @@ export default function EventDetail() {
   const [copied, setCopied]     = useState(false)
 
   const [ticketTypes, setTicketTypes] = useState([])
-
-
   useEffect(() => {
-    api.get('/events')
-      .then(res => {
-        const found = res.data.find(e => e._id === id)
-        if (!found) { navigate('/events'); return }
-        setEvent(found)
-        setSimilar(res.data.filter(e => e._id !== id).slice(0, 3))
-      })
-      .catch(() => navigate('/events'))
-      .finally(() => setLoading(false))
-  }, [id])
-
+  Promise.all([
+    api.get(`/events/${id}`),
+    api.get('/events'),
+  ])
+    .then(([evRes, allRes]) => {
+      setEvent(evRes.data)
+      setSimilar(allRes.data.filter(e => e._id !== id).slice(0, 3))
+    })
+    .catch(() => navigate('/events'))
+    .finally(() => setLoading(false))
+}, [id])
 
   // Fetch ticket types for this event
-
-
   useEffect(() => {
-
-
     api.get(`/ticket-types/event/${id}`)
-
-
       .then(res => setTicketTypes(res.data))
-
-
       .catch(() => {})
-
-
   }, [id])
-
-
   function handleCopyLink() {
     navigator.clipboard.writeText(window.location.href)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-
   function handleShareWA() {
     const text = 'Check out this event on Scalablenexus: *' + (event?.title || '') + '*\n' + window.location.href
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
@@ -65,9 +50,7 @@ export default function EventDetail() {
       <p style={{ color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Loading...</p>
     </div>
   )
-
   if (!event) return null
-
   const phone     = event.phone ? event.phone.replace(/\D/g, '') : ''
   const waLink    = 'https://wa.me/' + phone + '?text=' + encodeURIComponent('Hi, I am interested in the event: ' + event.title)
   const eventDate = event.date
@@ -77,11 +60,7 @@ export default function EventDetail() {
   const postedDate = event.createdAt
     ? new Date(event.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : ''
-
-
   const isOrganizer = user && (event.user?._id === user._id || event.user === user._id)
-
-
   return (
     <>
       <style>{`
@@ -237,117 +216,110 @@ export default function EventDetail() {
             </div>
           )}
 
+          {/* ── Organizer Management Panel ─────────────────── */}
+{isOrganizer && (
+  <div style={{
+    background:    'linear-gradient(135deg,#0f2167,#08162F)',
+    borderRadius:  16,
+    padding:       '18px 16px',
+    marginBottom:  14,
+    border:        '1px solid rgba(255,255,255,0.1)',
+  }}>
+    <p style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
+      🎛 Organizer Panel
+    </p>
+
+    {/* Stats strip */}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
+      {[
+        { label: 'Sold',    val: event.ticketsSold || 0 },
+        { label: 'Capacity', val: event.capacity > 0 ? event.capacity : '∞' },
+        { label: 'Spots Left', val: event.capacity > 0 ? Math.max(0, event.capacity - (event.ticketsSold || 0)) : '∞' },
+      ].map(stat => (
+        <div key={stat.label} style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 10, padding: '10px 8px', textAlign: 'center' }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: 'white' }}>{stat.val}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{stat.label}</div>
+        </div>
+      ))}
+    </div>
+
+    {/* Action buttons */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <Link
+        to={`/events/${id}/attendees`}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)',
+          color: 'white', borderRadius: 10, padding: '11px 16px',
+          textDecoration: 'none', fontSize: 13, fontWeight: 700,
+        }}
+      >
+        👥 View Attendees ({event.ticketsSold || 0} booked)
+      </Link>
+
+      <Link
+        to="/scan-ticket"
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          background: 'linear-gradient(135deg,#00b09b,#96c93d)',
+          color: 'white', borderRadius: 10, padding: '11px 16px',
+          textDecoration: 'none', fontSize: 13, fontWeight: 700,
+          boxShadow: '0 4px 14px rgba(0,176,155,0.3)',
+        }}
+      >
+        📷 Open Door Scanner
+      </Link>
+
+      <Link
+        to={`/events/edit/${id}`}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+          color: 'rgba(255,255,255,0.7)', borderRadius: 10, padding: '11px 16px',
+          textDecoration: 'none', fontSize: 13, fontWeight: 700,
+        }}
+      >
+        ✏️ Edit Event
+      </Link>
+    </div>
+  </div>
+)}
 
           {/* ── Ticket section ──────────────────────────────── */}
-
-
           {event.ticketsEnabled && (
-
-
             <div className="edd-ticket-card">
-
-
               <div className="edd-ticket-title">🎟 Tickets</div>
-
-
               <div className="edd-ticket-sub">
-
-
                 {event.capacity > 0 ? `${event.capacity - (event.ticketsSold || 0)} spots remaining` : 'Open attendance'}
-
-
               </div>
-
-
               {ticketTypes.length > 0 ? (
-
-
                 <div className="edd-tt-grid">
-
-
                   {ticketTypes.map(tt => (
-
-
                     <div key={tt._id} className="edd-tt-row">
-
-
                       <div>
-
-
                         <div className="edd-tt-name">{tt.name}</div>
-
-
                         {tt.description && <div className="edd-tt-desc">{tt.description}</div>}
-
-
                       </div>
-
-
                       <div style={{ textAlign: 'right' }}>
-
-
                         <div className="edd-tt-price">{tt.price === 0 ? 'Free' : `$${tt.price}`}</div>
-
-
                         {tt.quantity > 0 && <div className="edd-tt-remaining">{tt.isSoldOut ? 'Sold out' : `${tt.remaining} left`}</div>}
 
-
                       </div>
-
-
                     </div>
-
-
                   ))}
-
-
                 </div>
-
-
               ) : (
-
-
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginBottom: 16 }}>Ticket types loading...</p>
-
-
               )}
-
-
               {!isPast && (
-
-
                 <Link to={`/events/${id}/get-ticket`} className="edd-ticket-btn">
-
-
                   🎟 Get a Ticket
-
-
                 </Link>
-
-
               )}
-
-
-              {isOrganizer && (
-
-
-                <Link to={`/events/${id}/attendees`} className="edd-organizer-link">
-
-
-                  📋 View attendees ({event.ticketsSold || 0} booked)
-
-
-                </Link>
-
-
-              )}
-
-
+              
             </div>
 
-
           )}
-
 
           <div className="edd-card">
             <div className="edd-card-header">Event Details</div>

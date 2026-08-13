@@ -16,10 +16,14 @@ export default function GetTicket() {
   const [loading, setLoading]       = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError]           = useState("")
+  const [paymentMethod, setPaymentMethod]       = useState("ecocash")
+  const [paymentReference, setPaymentReference] = useState("")
+  const [paymentProofNote, setPaymentProofNote] = useState("")
+  const [bookedTicket, setBookedTicket]         = useState(null)
 
   useEffect(() => {
     if (!authReady) return
-    if (!user) { navigate("/login"); return }
+   
     const fetch = async () => {
       try {
         const [evRes, ttRes] = await Promise.all([
@@ -39,27 +43,77 @@ export default function GetTicket() {
   }, [id, authReady, user])
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!selected)      { setError("Please select a ticket type."); return }
-    if (!attendeeName)  { setError("Please enter your name."); return }
-    if (!attendeePhone) { setError("Please enter your phone number."); return }
-    setSubmitting(true)
-    setError("")
-    try {
-      const res = await api.post("/tickets", {
-        ticketTypeId: selected,
-        attendeeName,
-        attendeePhone,
-      })
-      navigate(`/tickets/${res.data._id}`)
-    } catch (err) {
-      setError(err.response?.data?.message || "Booking failed. Please try again.")
-    } finally {
-      setSubmitting(false)
-    }
+  e.preventDefault()
+  if (!selected)      { setError("Please select a ticket type."); return }
+  if (!attendeeName)  { setError("Please enter your name."); return }
+  if (!attendeePhone) { setError("Please enter your phone number."); return }
+
+  // For paid tickets require a reference number
+  const selectedType = ticketTypes.find(tt => tt._id === selected)
+  if (selectedType?.price > 0 && !paymentReference) {
+    setError("Please enter your payment reference number.")
+    return
   }
 
+  setSubmitting(true)
+  setError("")
+  try {
+    const res = await api.post("/tickets", {
+      ticketTypeId:     selected,
+      attendeeName,
+      attendeePhone,
+      paymentMethod,
+      paymentReference,
+      paymentProofNote,
+    })
+    setBookedTicket(res.data)
+  } catch (err) {
+    setError(err.response?.data?.message || "Booking failed. Please try again.")
+  } finally {
+    setSubmitting(false)
+  }
+}
+
   if (!authReady || loading) return <div style={s.center}>Loading...</div>
+  // Success screen after booking
+if (bookedTicket) {
+  const isFree = !bookedTicket.organizerWhatsApp
+  return (
+    <div style={s.page}>
+      <div style={s.card}>
+        <div style={{ textAlign: "center", padding: "32px 24px" }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>{isFree ? "🎟" : "⏳"}</div>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1a1a2e", marginBottom: 8 }}>
+            {isFree ? "Ticket Confirmed!" : "Booking Received!"}
+          </h2>
+          <p style={{ fontSize: 13, color: "#666", marginBottom: 24 }}>
+            {isFree
+              ? "Your ticket is ready. Tap below to view your QR code."
+              : "Your ticket is pending. Tap below to notify the organizer on WhatsApp and they will confirm after verifying your payment."}
+          </p>
+
+          {bookedTicket.organizerWhatsApp && (
+            
+              href={bookedTicket.organizerWhatsApp}
+              target="_blank"
+              rel="noreferrer"
+              style={{ ...s.btn, display: "block", textDecoration: "none", marginBottom: 12, background: "linear-gradient(135deg,#25d366,#128c7e)" }}
+            >
+              📲 Notify Organizer on WhatsApp
+            </a>
+          )}
+
+          <button
+            style={s.btn}
+            onClick={() => navigate(`/tickets/${bookedTicket._id}`)}
+          >
+            View My Ticket
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+ }
 
   if (!event?.ticketsEnabled) return (
     <div style={s.center}>
@@ -122,6 +176,90 @@ export default function GetTicket() {
               onChange={e => setPhone(e.target.value)}
             />
           </div>
+
+          {/* Payment section — only shown for paid tickets */}
+ {ticketTypes.find(tt => tt._id === selected)?.price > 0 && (() => {
+  const hasCash  = event.ecocashNumber
+  const hasUpi   = event.upiId
+  return (
+    <div style={{ background: "#f0fdfb", border: "1.5px solid #00b09b", borderRadius: 12, padding: "16px 14px", marginBottom: 16 }}>
+      <p style={{ fontSize: 13, fontWeight: 700, color: "#00b09b", marginBottom: 12 }}>
+        💳 Payment Required
+      </p>
+
+      {/* Method tabs */}
+      {hasCash && hasUpi && (
+        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+          {["ecocash", "upi"].map(m => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setPaymentMethod(m)}
+              style={{
+                flex: 1, padding: "8px", borderRadius: 8, border: "1.5px solid",
+                borderColor: paymentMethod === m ? "#00b09b" : "#e5e7eb",
+                background:  paymentMethod === m ? "#00b09b" : "#fff",
+                color:       paymentMethod === m ? "#fff" : "#555",
+                fontWeight: 600, fontSize: 12, cursor: "pointer",
+              }}
+            >
+              {m === "ecocash" ? "📱 EcoCash" : "🏦 UPI"}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* EcoCash details */}
+      {(paymentMethod === "ecocash" || !hasUpi) && hasCash && (
+        <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
+          <p style={{ fontSize: 11, color: "#888", marginBottom: 4 }}>Send payment to:</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e" }}>{event.ecocashNumber}</p>
+          <p style={{ fontSize: 12, color: "#555" }}>{event.ecocashName}</p>
+        </div>
+      )}
+
+      {/* UPI details */}
+      {(paymentMethod === "upi" || !hasCash) && hasUpi && (
+        <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
+          <p style={{ fontSize: 11, color: "#888", marginBottom: 4 }}>Send payment to:</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e" }}>{event.upiId}</p>
+          <p style={{ fontSize: 12, color: "#555" }}>{event.upiName}</p>
+        </div>
+      )}
+
+      {/* Payment instructions */}
+      {event.paymentInstructions && (
+        <p style={{ fontSize: 12, color: "#555", marginBottom: 12, fontStyle: "italic" }}>
+          ℹ️ {event.paymentInstructions}
+        </p>
+      )}
+
+      {/* Reference number */}
+      <div style={{ marginBottom: 10 }}>
+        <label style={s.label}>
+          {paymentMethod === "upi" ? "UPI UTR / Transaction ID *" : "EcoCash Reference Number *"}
+        </label>
+        <input
+          style={s.input}
+          placeholder={paymentMethod === "upi" ? "e.g. 427612345678" : "e.g. FT26123ABC456"}
+          value={paymentReference}
+          onChange={e => setPaymentReference(e.target.value)}
+        />
+      </div>
+
+      {/* Optional note */}
+      <div>
+        <label style={s.label}>Note to organizer (optional)</label>
+        <input
+          style={s.input}
+          placeholder="e.g. Paid at 2pm"
+          value={paymentProofNote}
+          onChange={e => setPaymentProofNote(e.target.value)}
+        />
+      </div>
+    </div>
+  )
+})()}
 
           {error && <p style={s.error}>{error}</p>}
 

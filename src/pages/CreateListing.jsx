@@ -25,55 +25,31 @@ export default function CreateListing() {
     priceType: 'per month',
   })
 
-
   // ── Ticket state (new) ────────────────────────────────
-
-
   const [ticketsEnabled, setTicketsEnabled] = useState(false)
-
-
   const [capacity, setCapacity]             = useState('')
-
-
+  const [ecocashNumber, setEcocashNumber]           = useState('')
+  const [ecocashName, setEcocashName]               = useState('')
+  const [upiId, setUpiId]                           = useState('')
+  const [upiName, setUpiName]                       = useState('')
+  const [paymentInstructions, setPaymentInstructions] = useState('')
   const [ticketTypes, setTicketTypes]       = useState([
-
-
     { name: 'General', price: '0', quantity: '', description: '' }
-
-
   ])
-
-
-
   const addTicketType = () => {
-
 
     setTicketTypes(prev => [...prev, { name: '', price: '0', quantity: '', description: '' }])
 
-
   }
-
-
-
   const removeTicketType = (i) => {
-
-
     setTicketTypes(prev => prev.filter((_, idx) => idx !== i))
 
-
   }
-
-
-
   const updateTicketType = (i, field, val) => {
-
 
     setTicketTypes(prev => prev.map((tt, idx) => idx === i ? { ...tt, [field]: val } : tt))
 
-
   }
-
-
   const handleChange   = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const handleLocation = (e) => setForm({ ...form, location: { ...form.location, [e.target.name]: e.target.value } })
   const handleImages   = (e) => setImages(e.target.files)
@@ -139,60 +115,33 @@ export default function CreateListing() {
 
         fd.append('ticketsEnabled', ticketsEnabled)
 
-
         fd.append('capacity', capacity || '0')
+        fd.append('ecocashNumber',       ecocashNumber)
+        fd.append('ecocashName',         ecocashName)
+        fd.append('upiId',               upiId)
+        fd.append('upiName',             upiName)
+        fd.append('paymentInstructions', paymentInstructions)
 
         Array.from(images).forEach(img => fd.append('images', img))
 
         const evRes = await api.post('/events', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
 
-
         createdEventId = evRes.data._id
 
-
-
         // Create ticket types if tickets are enabled
-
-
         if (ticketsEnabled && createdEventId) {
-
-
           await Promise.all(
-
-
             ticketTypes
-
-
               .filter(tt => tt.name.trim())
-
-
               .map(tt => api.post('/ticket-types', {
-
-
                 eventId:     createdEventId,
-
-
                 name:        tt.name,
-
-
                 price:       parseFloat(tt.price) || 0,
-
-
                 quantity:    parseInt(tt.quantity) || 0,
-
-
                 description: tt.description,
-
-
               }))
-
-
           )
-
-
         }
-
-
       } else if (type === 'accommodation') {
         const fd = new FormData()
         fd.append('title', form.title)
@@ -422,41 +371,17 @@ export default function CreateListing() {
                     onChange={handleImages} style={{ padding: '8px' }} />
                 </div>
 
-
                 {/* ── Ticketing toggle ─────────────────────── */}
-
-
                 <div className="cl-toggle-row" onClick={() => setTicketsEnabled(!ticketsEnabled)}>
-
-
                   <div>
-
-
                     <div className="cl-toggle-label">🎟 Enable Ticketing</div>
-
-
                     <div className="cl-toggle-sub">Let people book tickets for this event</div>
-
-
                   </div>
-
-
                   <div className="cl-toggle-switch" style={{ background: ticketsEnabled ? '#10b981' : 'rgba(255,255,255,0.2)' }}>
-
-
                     <div style={{ position:'absolute', top:3, left: ticketsEnabled ? 21 : 3, width:18, height:18, borderRadius:'50%', background:'white', transition:'left 0.2s' }} />
-
-
                   </div>
-
-
                 </div>
-
-
-
                 {ticketsEnabled && (<>
-
-
                   <div className="cl-field">
 
 
@@ -467,120 +392,86 @@ export default function CreateListing() {
 
 
                       value={capacity} onChange={e => setCapacity(e.target.value)}
-
-
                       placeholder="e.g. 200 (leave 0 for unlimited)" />
-
-
                   </div>
-
-
 
                   <p className="cl-section-label">Ticket Types</p>
 
-
                   {ticketTypes.map((tt, i) => (
-
-
                     <div key={i} className="cl-tt-card">
-
 
                       {ticketTypes.length > 1 && (
 
-
                         <button type="button" className="cl-tt-remove" onClick={() => removeTicketType(i)}>
-
-
                           Remove
-
-
                         </button>
 
-
                       )}
-
-
                       <div className="cl-tt-row">
-
-
                         <div>
-
-
                           <label className="cl-label">Name *</label>
-
-
                           <input className="cl-input" placeholder="e.g. General, VIP"
-
-
                             value={tt.name} onChange={e => updateTicketType(i, 'name', e.target.value)} />
                         </div>
-
                         <div>
-
                           <label className="cl-label">Price ($) — 0 = Free</label>
-
-
                           <input className="cl-input" type="number" min="0" placeholder="0"
-
-
                             value={tt.price} onChange={e => updateTicketType(i, 'price', e.target.value)} />
-
-
                         </div>
-
-
                       </div>
-
-
                       <div className="cl-tt-row">
-
-
                         <div>
-
-
                           <label className="cl-label">Quantity (0 = unlimited)</label>
-
-
                           <input className="cl-input" type="number" min="0" placeholder="0"
-
-
                             value={tt.quantity} onChange={e => updateTicketType(i, 'quantity', e.target.value)} />
-
-
                         </div>
-
-
                         <div>
-
-
                           <label className="cl-label">Description (optional)</label>
-
-
                           <input className="cl-input" placeholder="e.g. Includes food"
-
-
                             value={tt.description} onChange={e => updateTicketType(i, 'description', e.target.value)} />
-
-
                         </div>
-
-
                       </div>
-
-
                     </div>
-
-
                   ))}
-
-
                   <button type="button" className="cl-add-tt" onClick={addTicketType}>
-
-
                     + Add another ticket type
-
-
                   </button>
+                  <p className="cl-section-label">Payment Details</p>
+                  <p className="cl-hint">How buyers pay for paid tickets. Leave blank if all tickets are free.</p>
+
+                  <div className="cl-tt-row">
+                  <div>
+                  <label className="cl-label">EcoCash Number</label>
+                  <input className="cl-input" placeholder="e.g. 0771234567"
+                    value={ecocashNumber} onChange={e => setEcocashNumber(e.target.value)} />
+                  </div>
+                 <div>
+                <label className="cl-label">EcoCash Name</label>
+                  <input className="cl-input" placeholder="e.g. David Sibanda"
+                   value={ecocashName} onChange={e => setEcocashName(e.target.value)} />
+                </div>
+                </div>
+
+                 <div className="cl-tt-row">
+                 <div>
+                  <label className="cl-label">UPI ID</label>
+                 <input className="cl-input" placeholder="e.g. david@upi"
+                    value={upiId} onChange={e => setUpiId(e.target.value)} />
+                 </div>
+                   <div>
+                    <label className="cl-label">UPI Name</label>
+                  <input className="cl-input" placeholder="e.g. David Sibanda"
+                   value={upiName} onChange={e => setUpiName(e.target.value)} />
+                 </div>
+                  </div>
+
+                  <div className="cl-field">
+                    <label className="cl-label">Payment Instructions (optional)</label>
+                    <input className="cl-input"
+                   placeholder="e.g. Send exact amount, include your name as reference"
+                    value={paymentInstructions}
+                      onChange={e => setPaymentInstructions(e.target.value)} />
+                 </div>
 
 
                 </>)}
