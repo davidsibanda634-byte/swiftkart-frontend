@@ -318,22 +318,22 @@ export default function CreateListing() {
     </div>
   </div>
 
-  <div className="cl-field">
-    <label className="cl-label">Condition *</label>
-    <div className="cl-cat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-      {['New', 'Used'].map(c => (
-        <button
-          key={c}
-          type="button"
-          className={'cl-cat-btn' + (form.condition === c ? ' active' : '')}
-          onClick={() => setForm({ ...form, condition: c })}
-        >
-          {c === 'New' ? '🟢 New' : '🟡 Used'}
-        </button>
-      ))}
-    </div>
-  </div>
-                
+                <div className="cl-field">
+                  <label className="cl-label">Condition *</label>
+                  <div className="cl-cat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                    {['New', 'Used'].map(c => (
+                      <button
+                        key={c}
+                        type="button"
+                        className={'cl-cat-btn' + (form.condition === c ? ' active' : '')}
+                        onClick={() => setForm({ ...form, condition: c })}
+                      >
+                        {c === 'New' ? '🟢 New' : '🟡 Used'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="cl-field">
                   <label className="cl-label">Price ($) *</label>
                   <input className="cl-input" type="number" name="price"
