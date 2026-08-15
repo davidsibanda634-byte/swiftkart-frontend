@@ -307,32 +307,33 @@ export default function CreateListing() {
               </div>
 
               {type === 'listing' && (<>
-                <div className="cl-field">
-                  <label className="cl-label">Category *</label>
-                  <div className="cl-cat-grid">
-                    {CATEGORIES.map(cat => (
-                      <button key={cat} type="button"
-                        className={'cl-cat-btn' + (form.category === cat ? ' active' : '')}
-                        onClick={() => setForm({ ...form, category: cat })}>{cat}</button>
-                    ))}
-                  </div>
-                </div>
-                 <div className="cl-field">
-                   <label className="cl-label">Condition *</label>
-                 <div className="cl-cat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                    {['New', 'Used'].map(c => (
-                     <button
-                     key={c}
-                   type="button"
-                    className={'cl-cat-btn' + (form.condition === c ? ' active' : '')}
-                   onClick={() => setForm({ ...form, condition: c })}
-                  >
-                   {c === 'New' ? '🟢 New' : '🟡 Used'}
-                    </button>
-                 ))}
-                 </div>
-                 </div>
+  <div className="cl-field">
+    <label className="cl-label">Category *</label>
+    <div className="cl-cat-grid">
+      {CATEGORIES.map(cat => (
+        <button key={cat} type="button"
+          className={'cl-cat-btn' + (form.category === cat ? ' active' : '')}
+          onClick={() => setForm({ ...form, category: cat })}>{cat}</button>
+      ))}
+    </div>
+  </div>
 
+  <div className="cl-field">
+    <label className="cl-label">Condition *</label>
+    <div className="cl-cat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+      {['New', 'Used'].map(c => (
+        <button
+          key={c}
+          type="button"
+          className={'cl-cat-btn' + (form.condition === c ? ' active' : '')}
+          onClick={() => setForm({ ...form, condition: c })}
+        >
+          {c === 'New' ? '🟢 New' : '🟡 Used'}
+        </button>
+      ))}
+    </div>
+  </div>
+                
                 <div className="cl-field">
                   <label className="cl-label">Price ($) *</label>
                   <input className="cl-input" type="number" name="price"
