@@ -15,14 +15,15 @@ export default function EditListing() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    price: '',
-    category: 'Other',
-    phone: '',
-    location: { country: '', city: '', area: '' }
-  })
+ const [form, setForm] = useState({
+  title:       '',
+  description: '',
+  price:       '',
+  category:    'Other',
+  condition:   'Used',
+  phone:       '',
+  location:    { country: '', city: '', area: '' }
+})
 
   useEffect(function() {
     if (!authReady) return
@@ -33,18 +34,18 @@ export default function EditListing() {
         const ownerId = data.user?._id || data.user
         if (ownerId !== user._id) { navigate('/'); return }
         setForm({
-          title: data.title || '',
-          description: data.description || '',
-          price: data.price || '',
-          category: data.category || 'Other',
-          phone: data.phone || '',
-          location: {
-            country: data.location?.country || '',
-            city: data.location?.city || '',
-            area: data.location?.area || ''
-          }
-        })
-      })
+  title:       data.title       || '',
+  description: data.description || '',
+  price:       data.price       || '',
+  category:    data.category    || 'Other',
+  condition:   data.condition   || 'Used',
+  phone:       data.phone       || '',
+  location: {
+    country: data.location?.country || '',
+    city:    data.location?.city    || '',
+    area:    data.location?.area    || ''
+  }
+})
       .catch(function() { navigate('/') })
       .finally(function() { setLoading(false) })
   }, [id, authReady])
@@ -262,7 +263,21 @@ export default function EditListing() {
                   ))}
                 </div>
               </div>
-
+              <div className="el-field">
+                <label className="el-label">Condition *</label>
+                <div className="el-cat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                  {['New', 'Used'].map(c => (
+                <button
+                    key={c}
+                    type="button"
+                     className={'el-cat-btn' + (form.condition === c ? ' active' : '')}
+                     onClick={() => setForm({ ...form, condition: c })}
+                  >
+                      {c === 'New' ? '🟢 New' : '🟡 Used'}
+                   </button>
+                  ))}
+                </div>
+              </div>
               <div className="el-field">
                 <label className="el-label">Price ($) *</label>
                 <input className="el-input" type="number" name="price"

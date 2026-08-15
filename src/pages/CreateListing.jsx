@@ -17,7 +17,7 @@ export default function CreateListing() {
   const [success, setSuccess] = useState('')
   const [images, setImages]   = useState([])
   const [form, setForm]       = useState({
-    title: '', description: '', price: '', category: 'Other', jobCategory: 'Internship',
+    title: '', description: '', price: '', category: 'Other', condition: 'Used', jobCategory: 'Internship',
     pricePerHour: '', company: '', date: '', phone: '',
     location: { country: '', city: '', area: '' },
     listingType: 'For Rent', propertyType: 'Room', bedrooms: '1', bathrooms: '1',
@@ -77,6 +77,7 @@ export default function CreateListing() {
         fd.append('description', form.description)
         fd.append('price', form.price)
         fd.append('category', form.category)
+        fd.append('condition', form.condition)
         fd.append('phone', form.phone)
         fd.append('location[country]', form.location.country)
         fd.append('location[city]', form.location.city)
@@ -316,6 +317,22 @@ export default function CreateListing() {
                     ))}
                   </div>
                 </div>
+                 <div className="cl-field">
+                   <label className="cl-label">Condition *</label>
+                 <div className="cl-cat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                    {['New', 'Used'].map(c => (
+                     <button
+                     key={c}
+                   type="button"
+                    className={'cl-cat-btn' + (form.condition === c ? ' active' : '')}
+                   onClick={() => setForm({ ...form, condition: c })}
+                  >
+                   {c === 'New' ? '🟢 New' : '🟡 Used'}
+                    </button>
+                 ))}
+                 </div>
+                 </div>
+
                 <div className="cl-field">
                   <label className="cl-label">Price ($) *</label>
                   <input className="cl-input" type="number" name="price"
@@ -472,8 +489,6 @@ export default function CreateListing() {
                     value={paymentInstructions}
                       onChange={e => setPaymentInstructions(e.target.value)} />
                  </div>
-
-
                 </>)}
 
               </>)}

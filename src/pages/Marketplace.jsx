@@ -30,6 +30,7 @@ export default function Marketplace() {
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
   const [showMoreFilters, setShowMoreFilters] = useState(false)
+  const [condition, setCondition] = useState('All')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,15 +41,14 @@ export default function Marketplace() {
 
   useEffect(() => { fetchListings() }, [])
   useEffect(() => {
-    applyFilters(allListings, category, search, city, sort, minPrice, maxPrice)
-  }, [category, sort])
-
+  applyFilters(allListings, category, search, city, sort, minPrice, maxPrice, condition)
+}, [category, sort])
   const fetchListings = async () => {
     setLoading(true)
     try {
       const { data } = await api.get('/listings')
       setAllListings(data)
-      applyFilters(data, category, search, city, sort, minPrice, maxPrice)
+      applyFilters(data, category, search, city, sort, minPrice, maxPrice, condition)
     } catch {
       setAllListings([]); setListings([])
     } finally { setLoading(false) }
@@ -59,32 +59,35 @@ export default function Marketplace() {
     return [...new Set(cities)].sort()
   }, [allListings])
 
-  const applyFilters = (data, cat, q, c, s, min, max) => {
-    let result = [...data]
-    if (cat && cat !== 'All') result = result.filter(l => l.category === cat)
-    if (q) result = result.filter(l => l.title?.toLowerCase().includes(q.toLowerCase()) || l.description?.toLowerCase().includes(q.toLowerCase()))
-    if (c) result = result.filter(l => l.location?.city?.toLowerCase() === c.toLowerCase())
-    if (min !== '' && min !== undefined) result = result.filter(l => (l.price || 0) >= Number(min))
-    if (max !== '' && max !== undefined) result = result.filter(l => (l.price || 0) <= Number(max))
-    if (s === 'price_low') result.sort((a, b) => (a.price || 0) - (b.price || 0))
-    else if (s === 'price_high') result.sort((a, b) => (b.price || 0) - (a.price || 0))
-    else result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    setListings(result)
-  }
+  const applyFilters = (data, cat, q, c, s, min, max, cond) => {
+  let result = [...data]
+  if (cat && cat !== 'All') result = result.filter(l => l.category === cat)
+  if (cond && cond !== 'All') result = result.filter(l => l.condition === cond)
+  if (q) result = result.filter(l => l.title?.toLowerCase().includes(q.toLowerCase()) || l.description?.toLowerCase().includes(q.toLowerCase()))
+  if (c) result = result.filter(l => l.location?.city?.toLowerCase() === c.toLowerCase())
+  if (min !== '' && min !== undefined) result = result.filter(l => (l.price || 0) >= Number(min))
+  if (max !== '' && max !== undefined) result = result.filter(l => (l.price || 0) <= Number(max))
+  if (s === 'price_low') result.sort((a, b) => (a.price || 0) - (b.price || 0))
+  else if (s === 'price_high') result.sort((a, b) => (b.price || 0) - (a.price || 0))
+  else result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  setListings(result)
+}
 
-  const handleSearch = () => applyFilters(allListings, category, search, city, sort, minPrice, maxPrice)
-  const handleCategory = (cat) => { setCategory(cat); applyFilters(allListings, cat, search, city, sort, minPrice, maxPrice) }
-  const handleSort = (s) => { setSort(s); applyFilters(allListings, category, search, city, s, minPrice, maxPrice) }
-  const handleCityChange = (c) => { setCity(c); applyFilters(allListings, category, search, c, sort, minPrice, maxPrice) }
-  const handlePriceApply = () => applyFilters(allListings, category, search, city, sort, minPrice, maxPrice)
-  const clearAllFilters = () => {
-    setSearch(''); setCity(''); setMinPrice(''); setMaxPrice(''); setCategory('All'); setSort('newest')
-    applyFilters(allListings, 'All', '', '', 'newest', '', '')
-  }
+const handleSearch    = () => applyFilters(allListings, category, search, city, sort, minPrice, maxPrice, condition)
+const handleCategory  = (cat) => { setCategory(cat); applyFilters(allListings, cat, search, city, sort, minPrice, maxPrice, condition) }
+const handleSort      = (s) => { setSort(s); applyFilters(allListings, category, search, city, s, minPrice, maxPrice, condition) }
+const handleCityChange = (c) => { setCity(c); applyFilters(allListings, category, search, c, sort, minPrice, maxPrice, condition) }
+const handlePriceApply = () => applyFilters(allListings, category, search, city, sort, minPrice, maxPrice, condition)
+const clearAllFilters = () => {
+  setSearch(''); setCity(''); setMinPrice(''); setMaxPrice('')
+  setCategory('All'); setSort('newest'); setCondition('All')
+  applyFilters(allListings, 'All', '', '', 'newest', '', '', 'All')
+}
 
-  const activeFilterCount = [category !== 'All', city !== '', minPrice !== '', maxPrice !== ''].filter(Boolean).length
+const activeFilterCount = [category !== 'All', city !== '', minPrice !== '', maxPrice !== '', condition !== 'All'].filter(Boolean).length
 
-  return (
+return (
+ 
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -363,6 +366,15 @@ export default function Marketplace() {
                   <button onClick={() => handleCityChange('')}>✕</button>
                 </div>
               )}
+              {condition !== 'All' && (
+                <div className="mp-active-filter">
+                   {condition === 'New' ? '🟢' : '🟡'} {condition}
+                     <button onClick={() => {
+                    setCondition('All')
+                    applyFilters(allListings, category, search, city, sort, minPrice, maxPrice, 'All')
+                  }}>✕</button>
+                  </div>
+              )}
               {(minPrice || maxPrice) && (
                 <div className="mp-active-filter">
                   💰 ${minPrice || '0'} – ${maxPrice || '∞'}
@@ -423,6 +435,29 @@ export default function Marketplace() {
                 </div>
               </div>
 
+                <div className="mp-filter-group">
+                 <label className="mp-filter-label">Condition</label>
+                   <div style={{ display: 'flex', gap: 6 }}>
+                     {['All', 'New', 'Used'].map(c => (
+                      <button
+                        key={c}
+                        onClick={() => {
+                        setCondition(c)
+                        applyFilters(allListings, category, search, city, sort, minPrice, maxPrice, c)
+                      }}
+                         style={{
+                          padding: '7px 14px', borderRadius: 8, border: '1.5px solid',
+                          borderColor: condition === c ? '#00C896' : '#e2e8f0',
+                          background:  condition === c ? '#ecfdf5' : 'white',
+                          color:       condition === c ? '#059669' : '#374151',
+                          fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+                        }}
+                      >
+                          {c === 'New' ? '🟢 New' : c === 'Used' ? '🟡 Used' : 'All'}
+                          </button>
+                            ))}
+                           </div>
+                 </div>
               <button className="mp-apply-btn" onClick={handlePriceApply}>Apply</button>
               <button className="mp-clear-btn" onClick={clearAllFilters}>Clear All</button>
             </div>
