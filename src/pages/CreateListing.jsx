@@ -306,17 +306,18 @@ export default function CreateListing() {
                   rows={3} style={{ resize: 'vertical' }} />
               </div>
 
-              {type === 'listing' && (<>
-  <div className="cl-field">
-    <label className="cl-label">Category *</label>
-    <div className="cl-cat-grid">
-      {CATEGORIES.map(cat => (
-        <button key={cat} type="button"
-          className={'cl-cat-btn' + (form.category === cat ? ' active' : '')}
-          onClick={() => setForm({ ...form, category: cat })}>{cat}</button>
-      ))}
-    </div>
-  </div>
+             {type === 'listing' && (<>
+                <div className="cl-field">
+                  <label className="cl-label">Category *</label>
+                  <div className="cl-cat-grid">
+                    {CATEGORIES.map(cat => (
+                      <button key={cat} type="button"
+                        className={'cl-cat-btn' + (form.category === cat ? ' active' : '')}
+                        onClick={() => setForm({ ...form, category: cat })}>{cat}</button>
+                    ))}
+                  </div>
+                </div>
+
 
                 <div className="cl-field">
                   <label className="cl-label">Condition *</label>
