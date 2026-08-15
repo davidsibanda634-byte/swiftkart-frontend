@@ -318,28 +318,27 @@ export default function CreateListing() {
                   </div>
                 </div>
 
-
                 <div className="cl-field">
-                  <label className="cl-label">Condition *</label>
-                  <div className="cl-cat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                    {['New', 'Used'].map(c => (
-                      <button
-                        key={c}
-                        type="button"
-                        className={'cl-cat-btn' + (form.condition === c ? ' active' : '')}
-                        onClick={() => setForm({ ...form, condition: c })}
-                      >
-                        {c === 'New' ? '🟢 New' : '🟡 Used'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+  <label className="cl-label">Condition *</label>
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
+    <button
+      type="button"
+      style={{ padding: '9px 10px', borderRadius: 9, border: '1.5px solid', borderColor: form.condition === 'New' ? '#10b981' : 'rgba(255,255,255,0.13)', background: form.condition === 'New' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.07)', color: form.condition === 'New' ? '#34d399' : 'rgba(255,255,255,0.6)', fontWeight: 500, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
+      onClick={() => setForm({ ...form, condition: 'New' })}
+    >🟢 New</button>
+    <button
+      type="button"
+      style={{ padding: '9px 10px', borderRadius: 9, border: '1.5px solid', borderColor: form.condition === 'Used' ? '#10b981' : 'rgba(255,255,255,0.13)', background: form.condition === 'Used' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.07)', color: form.condition === 'Used' ? '#34d399' : 'rgba(255,255,255,0.6)', fontWeight: 500, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
+      onClick={() => setForm({ ...form, condition: 'Used' })}
+    >🟡 Used</button>
+  </div>
+</div>
 
-                <div className="cl-field">
-                  <label className="cl-label">Price ($) *</label>
-                  <input className="cl-input" type="number" name="price"
-                    value={form.price} onChange={handleChange} placeholder="0.00" required />
-                </div>
+<div className="cl-field">
+  <label className="cl-label">Price ($) *</label>
+  <input className="cl-input" type="number" name="price"
+    value={form.price} onChange={handleChange} placeholder="0.00" required />
+</div>
                 <div className="cl-field">
                   <label className="cl-label">Images (up to 5)</label>
                   <input className="cl-input" type="file" multiple accept="image/*"
