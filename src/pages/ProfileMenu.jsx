@@ -1,137 +1,81 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
-  ArrowLeft, ChevronRight, ChevronDown, BadgeCheck, User, ShoppingBag, Heart,
-  PlusCircle, Compass, Briefcase, PartyPopper, Home, Settings, LifeBuoy,
-  HelpCircle, Store, ShieldCheck, MessageCircle, Bug, Scale, FileText, Lock,
-  Building2, Cookie, ShieldAlert, LayoutDashboard, Users, Flag, BarChart3,
-  History, LogOut, Wrench,
+  ArrowLeft, BadgeCheck, User, ShoppingBag, Heart, PlusCircle,
+  Briefcase, PartyPopper, Home, HelpCircle, Store, ShieldCheck,
+  MessageCircle, Bug, Scale, FileText, Lock, Building2, Cookie, ShieldAlert,
+  LayoutDashboard, Users, Flag, BarChart3, History, LogOut, Wrench, Ticket,
+  BarChart2, TrendingUp, Zap, Star, Package, CreditCard, Bell, MapPin,
+  Trash2, ChevronRight,
 } from 'lucide-react'
-
-// ---------- Menu config ----------
-// Each group is an accordion row; its `items` render as flat sub-rows when open.
-// Add `badge: 'New'` to any item to show a highlight pill, like the reference design.
-function buildGroups(user) {
-  return [
-    {
-      key: 'account',
-      icon: Settings,
-      color: '#00C896',
-      bg: '#ecfdf5',
-      title: 'Manage Account',
-      sub: 'Profile, listings, saved items',
-      items: [
-        { icon: User, label: 'My Profile', to: user ? '/profile/' + user._id : '/login' },
-        { icon: ShoppingBag, label: 'My Listings', to: '/my-listings' },
-        { icon: Heart, label: 'Saved Items', to: '/saved' },
-        { icon: PlusCircle, label: 'Post a Listing', to: '/create', badge: 'New' },
-      ],
-    },
-    {
-      key: 'explore',
-      icon: Compass,
-      color: '#2563EB',
-      bg: '#eff6ff',
-      title: 'Explore Platform',
-      sub: 'Marketplace, jobs, events & more',
-      items: [
-        { icon: ShoppingBag, label: 'Marketplace', to: '/marketplace' },
-        { icon: Wrench, label: 'Services', to: '/services' },
-        { icon: Briefcase, label: 'Jobs', to: '/jobs' },
-        { icon: PartyPopper, label: 'Events', to: '/events' },
-        { icon: Home, label: 'Accommodation', to: '/accommodation' },
-      ],
-    },
-    ...(user?.isAdmin ? [{
-      key: 'admin',
-      icon: ShieldAlert,
-      color: '#7C3AED',
-      bg: '#f5f3ff',
-      title: 'Administration',
-      sub: 'Manage the platform',
-      items: [
-        { icon: LayoutDashboard, label: 'Dashboard', to: '/admin' },
-        { icon: Users, label: 'Manage Users', to: '/admin/users' },
-        { icon: ShoppingBag, label: 'Manage Listings', to: '/admin/listings' },
-        { icon: Flag, label: 'Reports', to: '/admin/reports' },
-        { icon: BarChart3, label: 'Analytics', to: '/admin/analytics' },
-        { icon: History, label: 'Activity Feed', to: '/admin/activity' },
-      ],
-    }] : []),
-    {
-      key: 'help',
-      icon: LifeBuoy,
-      color: '#d97706',
-      bg: '#fffbeb',
-      title: 'Help Centre',
-      sub: 'Guides, safety tips, support',
-      items: [
-        { icon: HelpCircle, label: 'How to Buy', to: '/help/how-to-buy' },
-        { icon: Store, label: 'How to Sell', to: '/help/how-to-sell' },
-        { icon: ShieldCheck, label: 'Staying Safe', to: '/help/safety' },
-        { icon: MessageCircle, label: 'Contact Support', to: '/help/contact' },
-        { icon: Bug, label: 'Report a Bug', to: '/help/bug' },
-      ],
-    },
-    {
-      key: 'legal',
-      icon: Scale,
-      color: '#6b7280',
-      bg: '#f3f4f6',
-      title: 'Legal & Policies',
-      sub: 'Terms, privacy, about us',
-      items: [
-        { icon: FileText, label: 'Terms of Use', to: '/legal/terms' },
-        { icon: Lock, label: 'Privacy Policy', to: '/legal/privacy' },
-        { icon: ShieldCheck, label: 'Privacy Centre', to: '/legal/privacy-centre' },
-        { icon: Building2, label: 'About Us', to: '/about' },
-        { icon: Cookie, label: 'Cookie Policy', to: '/legal/cookies' },
-        { icon: Scale, label: 'Community Guidelines', to: '/legal/guidelines' },
-      ],
-    },
-  ]
-}
-
-const GUEST_EXPLORE = [
-  { icon: ShoppingBag, label: 'Marketplace', to: '/marketplace' },
-  { icon: Wrench, label: 'Services', to: '/services' },
-  { icon: Briefcase, label: 'Jobs', to: '/jobs' },
-  { icon: PartyPopper, label: 'Events', to: '/events' },
-  { icon: Home, label: 'Accommodation', to: '/accommodation' },
-]
 
 function memberSince(dateStr) {
   if (!dateStr) return null
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 
-function hexToRgba(hex, alpha) {
-  const h = hex.replace('#', '')
-  const r = parseInt(h.substring(0, 2), 16)
-  const g = parseInt(h.substring(2, 4), 16)
-  const b = parseInt(h.substring(4, 6), 16)
-  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')'
+function SectionLabel({ children }) {
+  return (
+    <p style={{
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
+      textTransform: 'uppercase', color: '#9ca3af', margin: '20px 4px 8px',
+    }}>
+      {children}
+    </p>
+  )
 }
 
-// Measures its real content height so open/close animates smoothly instead of
-// snapping — this is what makes the dropdown feel like part of the same
-// screen (no route change, nothing "exits" the page) rather than a jump-cut.
-function AccordionBody({ open, children }) {
-  const ref = useRef(null)
-  const [maxHeight, setMaxHeight] = useState(0)
+function Row({ icon: Icon, iconColor = '#00C896', iconBg = '#ecfdf5', label, sub, to, onClick, badge, danger, comingSoon }) {
+  const style = {
+    display: 'flex', alignItems: 'center', gap: 12,
+    padding: '13px 16px', borderBottom: '1px solid #f4f5f8',
+    textDecoration: 'none', background: 'white',
+    cursor: comingSoon ? 'default' : 'pointer',
+    width: '100%', border: 'none', fontFamily: 'inherit', textAlign: 'left',
+  }
 
-  useEffect(function () {
-    if (open && ref.current) {
-      setMaxHeight(ref.current.scrollHeight)
-    } else {
-      setMaxHeight(0)
-    }
-  }, [open, children])
+  const content = (
+    <>
+      <div style={{
+        width: 36, height: 36, borderRadius: 10,
+        background: danger ? '#fef2f2' : iconBg,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      }}>
+        <Icon size={16} color={danger ? '#ef4444' : iconColor} strokeWidth={2.2} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 600, color: danger ? '#dc2626' : '#111827', lineHeight: 1.3 }}>
+          {label}
+        </div>
+        {sub && <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{sub}</div>}
+      </div>
+      {comingSoon && (
+        <span style={{ fontSize: 9, fontWeight: 700, color: '#6366f1', background: '#eef2ff', padding: '2px 8px', borderRadius: 20, flexShrink: 0 }}>
+          SOON
+        </span>
+      )}
+      {badge && (
+        <span style={{ fontSize: 9.5, fontWeight: 800, color: 'white', background: '#ef4444', padding: '2px 8px', borderRadius: 20, flexShrink: 0 }}>
+          {badge}
+        </span>
+      )}
+      {!comingSoon && <ChevronRight size={14} color="#cbd0da" style={{ flexShrink: 0 }} />}
+    </>
+  )
 
+  if (comingSoon) return <div style={style}>{content}</div>
+  if (to) return <Link to={to} style={style}>{content}</Link>
+  return <button style={style} onClick={onClick}>{content}</button>
+}
+
+function Card({ children, style: extraStyle }) {
   return (
-    <div className={'pm-accordion-body' + (open ? ' pm-accordion-open' : '')} style={{ maxHeight }}>
-      <div ref={ref}>{children}</div>
+    <div style={{
+      background: 'white', borderRadius: 14, border: '1px solid #eef0f4',
+      overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', ...extraStyle,
+    }}>
+      {children}
     </div>
   )
 }
@@ -139,7 +83,8 @@ function AccordionBody({ open, children }) {
 export default function ProfileMenu() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [openSection, setOpenSection] = useState(null)
+  const [showDelete, setShowDelete] = useState(false)
+  const since = memberSince(user?.createdAt)
 
   function handleLogout() {
     if (!window.confirm('Log out of your account?')) return
@@ -147,281 +92,247 @@ export default function ProfileMenu() {
     navigate('/')
   }
 
-  function toggleSection(key) {
-    setOpenSection(function (prev) { return prev === key ? null : key })
-  }
-
-  const groups = buildGroups(user)
-  const since = memberSince(user?.createdAt)
-
   return (
-    <div className="pm-page">
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', background: '#f5f6f9' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
-        .pm-page { font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; background: #f5f6f9; }
-        .pm-wrap { max-width: 560px; margin: 0 auto; min-height: 100vh; background: #f5f6f9; }
-
-        /* ---------- Header ---------- */
-        .pm-header {
-          background: linear-gradient(160deg, #08162F 0%, #10275e 100%);
-          padding: 44px 18px 22px; position: relative; border-radius: 0 0 22px 22px;
-        }
-        .pm-back {
-          position: absolute; top: 14px; left: 14px;
-          background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.14);
-          color: rgba(255,255,255,0.85); width: 34px; height: 34px; border-radius: 50%;
-          cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .pm-back:hover { background: rgba(255,255,255,0.18); }
-
-        .pm-identity { display: flex; flex-direction: column; align-items: center; }
-        .pm-avatar {
-          width: 72px; height: 72px; border-radius: 50%;
-          background: linear-gradient(135deg, #00C896, #059669);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 27px; font-weight: 800; color: white;
-          border: 3px solid rgba(255,255,255,0.18); margin-bottom: 12px;
-          box-shadow: 0 8px 22px rgba(0,200,150,0.3);
-        }
-        .pm-avatar-guest {
-          width: 72px; height: 72px; border-radius: 50%;
-          background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.14);
-          display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
-        }
-        .pm-name { font-size: 18px; font-weight: 800; color: white; margin: 0 0 2px; text-align: center; }
-        .pm-email { font-size: 11.5px; color: rgba(255,255,255,0.45); text-align: center; font-weight: 500; margin: 0 0 12px; }
-        .pm-guest-label { font-size: 16px; color: rgba(255,255,255,0.85); font-weight: 700; text-align: center; margin: 0 0 4px; }
-
-        .pm-verified-badge {
-          display: inline-flex; align-items: center; gap: 5px;
-          background: rgba(0,200,150,0.15); border: 1px solid rgba(0,200,150,0.3);
-          color: #34d399; padding: 4px 11px; border-radius: 20px;
-          font-size: 10.5px; font-weight: 700; margin-bottom: 14px;
-        }
-
-        .pm-stats { display: flex; gap: 1px; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 400px; }
-        .pm-stat { flex: 1; padding: 10px 6px; text-align: center; }
-        .pm-stat + .pm-stat { border-left: 1px solid rgba(255,255,255,0.07); }
-        .pm-stat-num { font-size: 13px; font-weight: 800; color: #34d399; }
-        .pm-stat-label { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px; }
-
-        /* ---------- Content ---------- */
-        .pm-content { padding: 14px 12px 90px; }
-        .pm-section-label {
-          font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-          color: #9ca3af; margin: 16px 8px 6px;
-        }
-        .pm-section-label:first-child { margin-top: 2px; }
-
-        .pm-card { background: white; border-radius: 14px; border: 1px solid #eef0f4; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.03); }
-        .pm-card + .pm-card { margin-top: 10px; }
-
-        /* Row shared by group headers, sub-items, and direct links */
-        .pm-row {
-          display: flex; align-items: center; gap: 12px; width: 100%;
-          padding: 13px 14px; border: none; background: none; cursor: pointer;
-          font-family: inherit; text-align: left; text-decoration: none;
-          border-bottom: 1px solid #f4f5f8;
-        }
-        .pm-row:last-child { border-bottom: none; }
-        .pm-row:hover { background: #fafbfc; }
-        .pm-row-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .pm-row-text { flex: 1; min-width: 0; }
-        .pm-row-title { font-size: 13.5px; font-weight: 700; color: #111827; line-height: 1.3; }
-        .pm-row-sub { font-size: 11px; color: #9ca3af; font-weight: 500; margin-top: 1px; }
-        .pm-row-badge { font-size: 9.5px; font-weight: 800; color: white; background: #ef4444; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
-        .pm-row-chevron { color: #cbd0da; flex-shrink: 0; transition: transform 0.2s; }
-        .pm-row-chevron.open { transform: rotate(180deg); }
-
-        /* ---------- Accordion body: measured-height animation ---------- */
-        .pm-accordion-body { overflow: hidden; transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1); }
-        .pm-accordion-open { }
-
-        /* Sub-items: indented, tinted to match the parent group, connector line */
-        .pm-subrow-wrap { position: relative; padding-left: 20px; }
-        .pm-subrow-wrap::before {
-          content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 1px;
-          background: var(--connector, rgba(0,0,0,0.06));
-        }
-        .pm-subrow {
-          position: relative; padding-left: 10px; padding-right: 14px;
-          border-bottom: 1px solid rgba(0,0,0,0.03);
-        }
-        .pm-subrow:hover { filter: brightness(0.98); }
-        .pm-subrow .pm-row-icon { width: 28px; height: 28px; border-radius: 8px; }
-        .pm-subrow .pm-row-title { font-size: 12.5px; font-weight: 600; color: #374151; }
-
-        .pm-row.danger .pm-row-title { color: #dc2626; }
-        .pm-row.danger:hover { background: #fef2f2; }
-        .pm-row.admin .pm-row-title { color: #6d28d9; }
-
-        .pm-card.pm-open { box-shadow: 0 4px 16px rgba(8,22,47,0.08); }
-        .pm-card .pm-row[aria-expanded="true"] { background: #fafbfc; }
-
-        /* ---------- Guest auth buttons ---------- */
-        .pm-auth { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
-        .pm-auth-btn {
-          display: block; padding: 14px 16px; border-radius: 13px; font-weight: 700;
-          font-size: 14px; text-align: center; text-decoration: none;
-          font-family: inherit; cursor: pointer; border: none; transition: opacity 0.2s;
-        }
-        .pm-auth-btn:hover { opacity: 0.9; }
-
-        .pm-version { text-align: center; font-size: 11px; color: #c4c9d4; font-weight: 600; margin-top: 22px; }
-        .pm-version span { color: #00C896; }
-
-        /* ---------- Desktop ---------- */
-        @media (min-width: 769px) {
-          .pm-wrap { border-left: 1px solid #eef0f4; border-right: 1px solid #eef0f4; box-shadow: 0 0 40px rgba(0,0,0,0.04); }
-          .pm-content { padding: 16px 20px 70px; }
-        }
+        a { text-decoration: none; }
       `}</style>
 
-      <div className="pm-wrap">
+      <div style={{ maxWidth: 560, margin: '0 auto', minHeight: '100vh', background: '#f5f6f9' }}>
 
-        {/* Header */}
-        <div className="pm-header">
-          <button className="pm-back" onClick={function () { navigate(-1) }} aria-label="Go back"><ArrowLeft size={16} /></button>
-          <div className="pm-identity">
-            {user ? (
-              <>
-                <div className="pm-avatar">{(user.name || '?').charAt(0).toUpperCase()}</div>
-                <p className="pm-name">{user.name}</p>
-                <p className="pm-email">{user.email}</p>
-                {user.isVerified && (
-                  <div className="pm-verified-badge"><BadgeCheck size={12} /> Campus Member</div>
-                )}
-                <div className="pm-stats">
-                  <div className="pm-stat">
-                    <div className="pm-stat-num">{user.listingsCount ?? '—'}</div>
-                    <div className="pm-stat-label">Listings</div>
-                  </div>
-                  <div className="pm-stat">
-                    <div className="pm-stat-num">{user.location?.city || 'Campus'}</div>
-                    <div className="pm-stat-label">Location</div>
-                  </div>
-                  <div className="pm-stat">
-                    <div className="pm-stat-num">{user.rating ? user.rating.toFixed(1) : '—'}</div>
-                    <div className="pm-stat-label">Rating</div>
-                  </div>
-                  <div className="pm-stat">
-                    <div className="pm-stat-num">{since || '—'}</div>
-                    <div className="pm-stat-label">Member Since</div>
-                  </div>
+        {/* ── Header ── */}
+        <div style={{
+          background: 'linear-gradient(160deg, #08162F 0%, #10275e 100%)',
+          padding: '16px 16px 28px', borderRadius: '0 0 24px 24px',
+        }}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+              color: 'rgba(255,255,255,0.85)', padding: '7px 14px', borderRadius: 10,
+              fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 20,
+            }}
+          >
+            <ArrowLeft size={14} /> Back
+          </button>
+
+          {user ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{
+                width: 80, height: 80, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #00C896, #059669)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 30, fontWeight: 800, color: 'white',
+                border: '3px solid rgba(255,255,255,0.2)',
+                boxShadow: '0 8px 24px rgba(0,200,150,0.3)', marginBottom: 12,
+              }}>
+                {(user.name || '?').charAt(0).toUpperCase()}
+              </div>
+              <p style={{ fontSize: 19, fontWeight: 800, color: 'white', margin: '0 0 3px', textAlign: 'center' }}>{user.name}</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: '0 0 10px', textAlign: 'center' }}>{user.email}</p>
+              {user.isVerified && (
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  background: 'rgba(0,200,150,0.15)', border: '1px solid rgba(0,200,150,0.3)',
+                  color: '#34d399', padding: '4px 12px', borderRadius: 20,
+                  fontSize: 10.5, fontWeight: 700, marginBottom: 16,
+                }}>
+                  <BadgeCheck size={12} /> Verified Member
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="pm-avatar-guest"><User size={28} color="rgba(255,255,255,0.6)" /></div>
-                <p className="pm-guest-label">Welcome, Guest</p>
-                <p className="pm-email">Sign in to access your account</p>
-              </>
-            )}
-          </div>
+              )}
+              <div style={{
+                display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1,
+                background: 'rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.08)', width: '100%', maxWidth: 360,
+              }}>
+                {[
+                  { label: 'Location',     val: user.location?.city || 'Campus' },
+                  { label: 'Rating',       val: user.rating ? user.rating.toFixed(1) : '—' },
+                  { label: 'Member Since', val: since || '—' },
+                ].map((st, i) => (
+                  <div key={i} style={{
+                    padding: '10px 6px', textAlign: 'center',
+                    borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.07)' : 'none',
+                  }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#34d399' }}>{st.val}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                      {st.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{
+                width: 72, height: 72, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.08)', border: '2px solid rgba(255,255,255,0.14)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12,
+              }}>
+                <User size={28} color="rgba(255,255,255,0.5)" />
+              </div>
+              <p style={{ fontSize: 17, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Welcome, Guest</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0 }}>Sign in to access your account</p>
+            </div>
+          )}
         </div>
 
-        {/* Content */}
-        <div className="pm-content">
+        {/* ── Content ── */}
+        <div style={{ padding: '12px 14px 100px' }}>
           {user ? (
             <>
-              {groups.map(function (group) {
-                const GroupIcon = group.icon
-                const isOpen = openSection === group.key
-                return (
-                  <div className={'pm-card' + (isOpen ? ' pm-open' : '')} key={group.key}>
-                    <button
-                      className={'pm-row' + (group.key === 'admin' ? ' admin' : '')}
-                      onClick={function () { toggleSection(group.key) }}
-                      aria-expanded={isOpen}
-                    >
-                      <div className="pm-row-icon" style={{ background: group.bg }}>
-                        <GroupIcon size={16} color={group.color} strokeWidth={2.25} />
-                      </div>
-                      <div className="pm-row-text">
-                        <div className="pm-row-title" style={group.key === 'admin' ? { color: '#6d28d9' } : undefined}>{group.title}</div>
-                        <div className="pm-row-sub">{group.sub}</div>
-                      </div>
-                      <ChevronDown size={16} className={'pm-row-chevron' + (isOpen ? ' open' : '')} />
-                    </button>
+              <SectionLabel>My Activity</SectionLabel>
+              <Card>
+                <Row icon={ShoppingBag} iconColor="#00C896" iconBg="#ecfdf5" label="My Listings"    sub="Manage your posted items"             to="/my-listings" />
+                <Row icon={Ticket}      iconColor="#be185d" iconBg="#fdf2f8" label="My Tickets"     sub="Your event ticket bookings"           to="/my-tickets" />
+                <Row icon={Heart}       iconColor="#ef4444" iconBg="#fef2f2" label="Saved Items"    sub="Items you have saved"                 to="/saved" />
+                <Row icon={PlusCircle}  iconColor="#059669" iconBg="#ecfdf5" label="Post a Listing" sub="List an item, service or event"       to="/create" badge="New" />
+              </Card>
 
-                    <AccordionBody open={isOpen}>
-                      <div className="pm-subrow-wrap" style={{ '--connector': hexToRgba(group.color, 0.18) }}>
-                        {group.items.map(function (item) {
-                          const ItemIcon = item.icon
-                          return (
-                            <Link
-                              key={item.label}
-                              to={item.to}
-                              className="pm-row pm-subrow"
-                              style={{ background: hexToRgba(group.color, 0.035) }}
-                            >
-                              <div className="pm-row-icon" style={{ background: hexToRgba(group.color, 0.14) }}>
-                                <ItemIcon size={13} color={group.color} strokeWidth={2.25} />
-                              </div>
-                              <div className="pm-row-text">
-                                <div className="pm-row-title">{item.label}</div>
-                              </div>
-                              {item.badge && <span className="pm-row-badge">{item.badge}</span>}
-                              <ChevronRight size={13} color="#cbd0da" />
-                            </Link>
-                          )
-                        })}
-                      </div>
-                    </AccordionBody>
-                  </div>
-                )
-              })}
+              <SectionLabel>Seller Tools</SectionLabel>
+              <Card>
+                <Row icon={BarChart2}  iconColor="#6366f1" iconBg="#eef2ff" label="Listing Analytics"    sub="Views, clicks and saves per listing"       comingSoon />
+                <Row icon={CreditCard} iconColor="#0891b2" iconBg="#ecfeff" label="Earnings Dashboard"   sub="Track revenue from ticket events"          comingSoon />
+                <Row icon={TrendingUp} iconColor="#d97706" iconBg="#fffbeb" label="Seller Level"         sub="Bronze, Silver, Gold based on activity"    comingSoon />
+                <Row icon={Zap}        iconColor="#f59e0b" iconBg="#fffbeb" label="Boost Listing"        sub="Promote your listing to the top"           comingSoon />
+                <Row icon={Star}       iconColor="#eab308" iconBg="#fefce8" label="Reviews & Ratings"    sub="Feedback from your buyers"                 comingSoon />
+              </Card>
 
-              <div className="pm-card" style={{ marginTop: 10 }}>
-                <button className="pm-row danger" onClick={handleLogout}>
-                  <div className="pm-row-icon" style={{ background: '#fef2f2' }}>
-                    <LogOut size={16} color="#ef4444" strokeWidth={2.25} />
-                  </div>
-                  <div className="pm-row-text">
-                    <div className="pm-row-title">Logout</div>
-                  </div>
-                </button>
+              <SectionLabel>Account</SectionLabel>
+              <Card>
+                <Row icon={User}    iconColor="#2563eb" iconBg="#eff6ff" label="Personal Information"       sub="Name, phone and email"                    to={'/profile/' + user._id} />
+                <Row icon={Lock}    iconColor="#7c3aed" iconBg="#f5f3ff" label="Change Password"             sub="Update your password"                     comingSoon />
+                <Row icon={Bell}    iconColor="#d97706" iconBg="#fffbeb" label="Notification Preferences"   sub="Control what you are notified about"      comingSoon />
+                <Row icon={MapPin}  iconColor="#059669" iconBg="#ecfdf5" label="Default Location"           sub="Set your city for faster listing"         comingSoon />
+              </Card>
+
+              <SectionLabel>Trust & Safety</SectionLabel>
+              <Card>
+                <Row icon={BadgeCheck}  iconColor="#00C896" iconBg="#ecfdf5" label="Get Verified"       sub="Submit ID to earn a verified badge"   comingSoon />
+                <Row icon={ShieldCheck} iconColor="#6366f1" iconBg="#eef2ff" label="Privacy Settings"   sub="Control who sees your listings"       comingSoon />
+                <Row icon={Package}     iconColor="#0891b2" iconBg="#ecfeff" label="Blocked Users"      sub="Manage users you have blocked"        comingSoon />
+              </Card>
+
+              <SectionLabel>Explore Platform</SectionLabel>
+              <Card>
+                <Row icon={ShoppingBag} iconColor="#2563eb" iconBg="#eff6ff" label="Marketplace"    to="/marketplace" />
+                <Row icon={Wrench}      iconColor="#7c3aed" iconBg="#f5f3ff" label="Services"       to="/services" />
+                <Row icon={Briefcase}   iconColor="#d97706" iconBg="#fffbeb" label="Jobs"           to="/jobs" />
+                <Row icon={PartyPopper} iconColor="#be185d" iconBg="#fdf2f8" label="Events"         to="/events" />
+                <Row icon={Home}        iconColor="#0891b2" iconBg="#ecfeff" label="Accommodation"  to="/accommodation" />
+              </Card>
+
+              {user.isAdmin && (<>
+                <SectionLabel>Administration</SectionLabel>
+                <Card>
+                  <Row icon={LayoutDashboard} iconColor="#7c3aed" iconBg="#f5f3ff" label="Dashboard"       to="/admin" />
+                  <Row icon={Users}           iconColor="#7c3aed" iconBg="#f5f3ff" label="Manage Users"    to="/admin/users" />
+                  <Row icon={ShoppingBag}     iconColor="#7c3aed" iconBg="#f5f3ff" label="Manage Listings" to="/admin/listings" />
+                  <Row icon={Flag}            iconColor="#7c3aed" iconBg="#f5f3ff" label="Reports"         to="/admin/reports" />
+                  <Row icon={BarChart3}       iconColor="#7c3aed" iconBg="#f5f3ff" label="Analytics"       to="/admin/analytics" />
+                  <Row icon={History}         iconColor="#7c3aed" iconBg="#f5f3ff" label="Activity Feed"   to="/admin/activity" />
+                </Card>
+              </>)}
+
+              <SectionLabel>Support</SectionLabel>
+              <Card>
+                <Row icon={HelpCircle}    iconColor="#d97706" iconBg="#fffbeb" label="Help Centre"      to="/help/how-to-buy" />
+                <Row icon={Store}         iconColor="#d97706" iconBg="#fffbeb" label="How to Sell"      to="/help/how-to-sell" />
+                <Row icon={ShieldCheck}   iconColor="#d97706" iconBg="#fffbeb" label="Staying Safe"     to="/help/safety" />
+                <Row icon={MessageCircle} iconColor="#d97706" iconBg="#fffbeb" label="Contact Support"  to="/help/contact" />
+                <Row icon={Bug}           iconColor="#d97706" iconBg="#fffbeb" label="Report a Bug"     to="/help/bug" />
+                <Row icon={Star}          iconColor="#eab308" iconBg="#fefce8" label="Rate the App"     comingSoon />
+              </Card>
+
+              <SectionLabel>Legal & Policies</SectionLabel>
+              <Card>
+                <Row icon={FileText}    iconColor="#6b7280" iconBg="#f3f4f6" label="Terms of Use"          to="/legal/terms" />
+                <Row icon={Lock}        iconColor="#6b7280" iconBg="#f3f4f6" label="Privacy Policy"        to="/legal/privacy" />
+                <Row icon={ShieldCheck} iconColor="#6b7280" iconBg="#f3f4f6" label="Privacy Centre"        to="/legal/privacy-centre" />
+                <Row icon={Cookie}      iconColor="#6b7280" iconBg="#f3f4f6" label="Cookie Policy"         to="/legal/cookies" />
+                <Row icon={Scale}       iconColor="#6b7280" iconBg="#f3f4f6" label="Community Guidelines"  to="/legal/guidelines" />
+                <Row icon={Building2}   iconColor="#6b7280" iconBg="#f3f4f6" label="About Us"              to="/about" />
+              </Card>
+
+              <SectionLabel>Account Actions</SectionLabel>
+              <Card>
+                <Row icon={LogOut} label="Log Out" sub="Sign out of your account" danger onClick={handleLogout} />
+              </Card>
+
+              <div style={{ marginTop: 10 }}>
+                {!showDelete ? (
+                  <button
+                    onClick={() => setShowDelete(true)}
+                    style={{
+                      background: 'none', border: 'none', color: '#9ca3af',
+                      fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+                      padding: '8px 4px', display: 'block', width: '100%', textAlign: 'center',
+                    }}
+                  >
+                    Delete Account
+                  </button>
+                ) : (
+                  <Card style={{ border: '1px solid #fecaca' }}>
+                    <div style={{ padding: 16, textAlign: 'center' }}>
+                      <Trash2 size={22} color="#ef4444" style={{ marginBottom: 8 }} />
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>Delete your account?</p>
+                      <p style={{ fontSize: 11, color: '#9ca3af', margin: '0 0 14px' }}>
+                        This will permanently remove all your listings, tickets and data. This cannot be undone.
+                      </p>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={() => setShowDelete(false)}
+                          style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => alert('Delete account feature coming soon.')}
+                          style={{ flex: 1, padding: 10, borderRadius: 8, border: 'none', background: '#ef4444', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </Card>
+                )}
               </div>
             </>
           ) : (
             <>
-              <div className="pm-card">
-                <div className="pm-row" style={{ cursor: 'default' }}>
-                  <div className="pm-row-icon" style={{ background: '#eff6ff' }}>
-                    <Compass size={16} color="#2563EB" strokeWidth={2.25} />
-                  </div>
-                  <div className="pm-row-text">
-                    <div className="pm-row-title">Explore Platform</div>
-                    <div className="pm-row-sub">Browse without an account</div>
-                  </div>
-                </div>
-                {GUEST_EXPLORE.map(function (item) {
-                  const ItemIcon = item.icon
-                  return (
-                    <Link key={item.label} to={item.to} className="pm-row pm-subrow">
-                      <div className="pm-row-icon" style={{ background: '#eff6ff' }}>
-                        <ItemIcon size={14} color="#2563EB" strokeWidth={2.25} />
-                      </div>
-                      <div className="pm-row-text"><div className="pm-row-title">{item.label}</div></div>
-                      <ChevronRight size={14} color="#cbd0da" />
-                    </Link>
-                  )
-                })}
-              </div>
-
-              <div className="pm-auth">
-                <Link to="/login" className="pm-auth-btn" style={{ background: 'white', color: '#08162F', border: '1px solid #e5e7eb' }}>
+              <SectionLabel>Explore Platform</SectionLabel>
+              <Card>
+                <Row icon={ShoppingBag} iconColor="#2563eb" iconBg="#eff6ff" label="Marketplace"   to="/marketplace" />
+                <Row icon={Wrench}      iconColor="#7c3aed" iconBg="#f5f3ff" label="Services"      to="/services" />
+                <Row icon={Briefcase}   iconColor="#d97706" iconBg="#fffbeb" label="Jobs"          to="/jobs" />
+                <Row icon={PartyPopper} iconColor="#be185d" iconBg="#fdf2f8" label="Events"        to="/events" />
+                <Row icon={Home}        iconColor="#0891b2" iconBg="#ecfeff" label="Accommodation" to="/accommodation" />
+              </Card>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
+                <Link to="/login" style={{
+                  display: 'block', padding: '14px 16px', borderRadius: 13,
+                  background: 'white', color: '#08162F', border: '1px solid #e5e7eb',
+                  fontWeight: 700, fontSize: 14, textAlign: 'center',
+                }}>
                   Login to Your Account
                 </Link>
-                <Link to="/register" className="pm-auth-btn" style={{ background: 'linear-gradient(135deg,#00C896,#059669)', color: 'white' }}>
+                <Link to="/register" style={{
+                  display: 'block', padding: '14px 16px', borderRadius: 13,
+                  background: 'linear-gradient(135deg,#00C896,#059669)', color: 'white',
+                  fontWeight: 700, fontSize: 14, textAlign: 'center',
+                }}>
                   Register Free — Join the Community
                 </Link>
               </div>
             </>
           )}
 
-          <p className="pm-version">Scalable<span>nexus</span> v1.0 · Built for Campus Zimbabwe</p>
+          <p style={{ textAlign: 'center', fontSize: 11, color: '#c4c9d4', fontWeight: 600, marginTop: 24 }}>
+            Scalable<span style={{ color: '#00C896' }}>nexus</span> v1.0 · Built for Campus Zimbabwe
+          </p>
         </div>
       </div>
     </div>
