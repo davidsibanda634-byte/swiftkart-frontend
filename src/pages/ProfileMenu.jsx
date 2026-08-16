@@ -19,7 +19,7 @@ function SectionLabel({ children }) {
   return (
     <p style={{
       fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
-      textTransform: 'uppercase', color: '#9ca3af', margin: '20px 4px 8px',
+      textTransform: 'uppercase', color: '#6b7280', margin: '20px 4px 8px',
     }}>
       {children}
     </p>
@@ -72,8 +72,8 @@ function Row({ icon: Icon, iconColor = '#00C896', iconBg = '#ecfdf5', label, sub
 function Card({ children, style: extraStyle }) {
   return (
     <div style={{
-      background: 'white', borderRadius: 14, border: '1px solid #eef0f4',
-      overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', ...extraStyle,
+      background: 'white', borderRadius: 14, border: '1px solid #e2e5ec',
+      overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', ...extraStyle,
     }}>
       {children}
     </div>
@@ -93,14 +93,14 @@ export default function ProfileMenu() {
   }
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', background: '#f5f6f9' }}>
+   <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', background: '#eef0f5' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
         a { text-decoration: none; }
       `}</style>
 
-      <div style={{ maxWidth: 560, margin: '0 auto', minHeight: '100vh', background: '#f5f6f9' }}>
+     <div style={{ maxWidth: 560, margin: '0 auto', minHeight: '100vh', background: '#eef0f5' }}>
 
         {/* ── Header ── */}
         <div style={{
@@ -207,13 +207,6 @@ export default function ProfileMenu() {
                 <Row icon={Lock}    iconColor="#7c3aed" iconBg="#f5f3ff" label="Change Password"             sub="Update your password"                     comingSoon />
                 <Row icon={Bell}    iconColor="#d97706" iconBg="#fffbeb" label="Notification Preferences"   sub="Control what you are notified about"      comingSoon />
                 <Row icon={MapPin}  iconColor="#059669" iconBg="#ecfdf5" label="Default Location"           sub="Set your city for faster listing"         comingSoon />
-              </Card>
-
-              <SectionLabel>Trust & Safety</SectionLabel>
-              <Card>
-                <Row icon={BadgeCheck}  iconColor="#00C896" iconBg="#ecfdf5" label="Get Verified"       sub="Submit ID to earn a verified badge"   comingSoon />
-                <Row icon={ShieldCheck} iconColor="#6366f1" iconBg="#eef2ff" label="Privacy Settings"   sub="Control who sees your listings"       comingSoon />
-                <Row icon={Package}     iconColor="#0891b2" iconBg="#ecfeff" label="Blocked Users"      sub="Manage users you have blocked"        comingSoon />
               </Card>
 
               <SectionLabel>Explore Platform</SectionLabel>
