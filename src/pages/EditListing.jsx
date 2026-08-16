@@ -29,26 +29,27 @@ export default function EditListing() {
     if (!authReady) return
     if (!user) { navigate('/login'); return }
     api.get('/listings/' + id)
-      .then(function(res) {
-        const data = res.data
-        const ownerId = data.user?._id || data.user
-        if (ownerId !== user._id) { navigate('/'); return }
-        setForm({
-  title:       data.title       || '',
-  description: data.description || '',
-  price:       data.price       || '',
-  category:    data.category    || 'Other',
-  condition:   data.condition   || 'Used',
-  phone:       data.phone       || '',
-  location: {
-    country: data.location?.country || '',
-    city:    data.location?.city    || '',
-    area:    data.location?.area    || ''
-  }
-})
-      .catch(function() { navigate('/') })
-      .finally(function() { setLoading(false) })
-  }, [id, authReady])
+  .then(function(res) {
+    const data = res.data
+    const ownerId = data.user?._id || data.user
+    if (ownerId !== user._id) { navigate('/'); return }
+    setForm({
+      title:       data.title       || '',
+      description: data.description || '',
+      price:       data.price       || '',
+      category:    data.category    || 'Other',
+      condition:   data.condition   || 'Used',
+      phone:       data.phone       || '',
+      location: {
+        country: data.location?.country || '',
+        city:    data.location?.city    || '',
+        area:    data.location?.area    || ''
+      }
+    })
+  })
+  .catch(function() { navigate('/') })
+  .finally(function() { setLoading(false) })
+}, [id, authReady])
 
   function handleChange(e) {
     setForm(Object.assign({}, form, { [e.target.name]: e.target.value }))
