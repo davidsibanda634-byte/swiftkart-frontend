@@ -209,15 +209,6 @@ export default function ProfileMenu() {
                 <Row icon={MapPin}  iconColor="#059669" iconBg="#ecfdf5" label="Default Location"           sub="Set your city for faster listing"         comingSoon />
               </Card>
 
-              <SectionLabel>Explore Platform</SectionLabel>
-              <Card>
-                <Row icon={ShoppingBag} iconColor="#2563eb" iconBg="#eff6ff" label="Marketplace"    to="/marketplace" />
-                <Row icon={Wrench}      iconColor="#7c3aed" iconBg="#f5f3ff" label="Services"       to="/services" />
-                <Row icon={Briefcase}   iconColor="#d97706" iconBg="#fffbeb" label="Jobs"           to="/jobs" />
-                <Row icon={PartyPopper} iconColor="#be185d" iconBg="#fdf2f8" label="Events"         to="/events" />
-                <Row icon={Home}        iconColor="#0891b2" iconBg="#ecfeff" label="Accommodation"  to="/accommodation" />
-              </Card>
-
               {user.isAdmin && (<>
                 <SectionLabel>Administration</SectionLabel>
                 <Card>
