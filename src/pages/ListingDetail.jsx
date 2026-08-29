@@ -160,11 +160,51 @@ export default function ListingDetail() {
       .finally(function() { setReportLoading(false) })
   }
 
-  function handleShareWA() {
-    const url = window.location.href
-    const text = 'Check out this listing on Scalablenexus: *' + listing.title + '* - $' + listing.price + '\n' + url
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+ async function handleShareWA() {
+  const url = window.location.href
+  const text = 'Check out this listing on Scalablenexus: *' + listing.title + '* - $' + listing.price + '\n' + url
+
+  // Try native share with image first (works on Android Chrome, Samsung Internet)
+  if (navigator.share) {
+    try {
+      const imageUrl = listing.images && listing.images.length > 0 ? getImg(listing.images[0]) : null
+
+      if (imageUrl && navigator.canShare) {
+        // Fetch the image as a blob so we can attach it as a file
+        const response = await fetch(imageUrl)
+        const blob = await response.blob()
+        const file = new File([blob], 'listing.jpg', { type: blob.type })
+
+        if (navigator.canShare({ files: [file] })) {
+          // Native share with image attached — user picks WhatsApp from share sheet
+          await navigator.share({
+            title: listing.title,
+            text: listing.title + ' — $' + listing.price + '\n' + url,
+            files: [file],
+          })
+          return
+        }
+      }
+
+      // Native share without image if file share not supported
+      await navigator.share({
+        title: listing.title,
+        text: text,
+        url: url,
+      })
+      return
+
+    } catch (err) {
+      // User cancelled share sheet — do nothing
+      if (err.name === 'AbortError') return
+      // Any other error — fall through to WhatsApp fallback below
+    }
   }
+
+  // Fallback — open WhatsApp directly with text + link
+  // WhatsApp will show the listing image in the link preview automatically
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+}
 
   function handleCopyLink() {
     navigator.clipboard.writeText(window.location.href)
