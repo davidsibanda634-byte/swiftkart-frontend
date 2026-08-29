@@ -5,6 +5,26 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/listings/:id",
+      "destination": "/api/og-listing?id=:id&type=listing"
+    },
+    {
+      "source": "/services/:id",
+      "destination": "/api/og-listing?id=:id&type=service"
+    },
+    {
+      "source": "/events/:id",
+      "destination": "/api/og-listing?id=:id&type=event"
+    },
+    {
+      "source": "/accommodation/:id",
+      "destination": "/api/og-listing?id=:id&type=accommodation"
+    },
+    {
+      "source": "/jobs/:id",
+      "destination": "/api/og-listing?id=:id&type=job"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

@@ -30,10 +30,35 @@ export default function ServiceDetail() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  function handleShareWA() {
-    const text = 'Check out this service on Scalablenexus: *' + (service?.title || '') + '*\n' + window.location.href
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+  async function handleShareWA() {
+  const url = window.location.href
+  const text = 'Check out this service on Scalablenexus: *' + (service?.title || '') + '*\n' + url
+
+  if (navigator.share) {
+    try {
+      const imageUrl = service?.images?.length > 0 ? service.images[0] : null
+      if (imageUrl && navigator.canShare) {
+        const response = await fetch(imageUrl)
+        const blob = await response.blob()
+        const file = new File([blob], 'service.jpg', { type: blob.type })
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: service?.title || 'Service on Scalablenexus',
+            text: (service?.title || '') + '\n' + url,
+            files: [file],
+          })
+          return
+        }
+      }
+      await navigator.share({ title: service?.title || '', text, url })
+      return
+    } catch (err) {
+      if (err.name === 'AbortError') return
+    }
   }
+
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+}
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f7fb' }}>

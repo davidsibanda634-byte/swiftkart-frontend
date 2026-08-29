@@ -42,11 +42,26 @@ export default function JobDetail() {
     setTimeout(function() { setCopied(false) }, 2000)
   }
 
-  function handleShareWA() {
-    const text = 'Check out this job on Scalablenexus: *' + job.title + '*\n' + window.location.href
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+ async function handleShareWA() {
+  const url = window.location.href
+  const text = 'Check out this job on Scalablenexus: *' + job.title + '*\n' + url
+
+  if (navigator.share) {
+    try {
+      // Jobs have no images so go straight to text share
+      await navigator.share({
+        title: job.title || 'Job on Scalablenexus',
+        text,
+        url,
+      })
+      return
+    } catch (err) {
+      if (err.name === 'AbortError') return
+    }
   }
 
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+}
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f7fb' }}>
       <p style={{ color: '#9ca3af', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '14px' }}>Loading...</p>
