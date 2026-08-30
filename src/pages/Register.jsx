@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
@@ -12,13 +12,20 @@ const ZIM_CITIES = [
 
 export default function Register() {
   const { login } = useAuth()
-  const navigate = useNavigate()
-  const [form, setForm] = useState({
-    name: '', email: '', password: '', phone: '',
-    location: { country: 'Zimbabwe', city: '', area: '' }
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+const navigate = useNavigate()
+const [searchParams] = useSearchParams()
+const [refCode, setRefCode] = useState('')
+const [form, setForm] = useState({
+  name: '', email: '', password: '', phone: '',
+  location: { country: 'Zimbabwe', city: '', area: '' }
+})
+const [loading, setLoading] = useState(false)
+const [error, setError] = useState('')
+
+useEffect(() => {
+  const ref = searchParams.get('ref')
+  if (ref) setRefCode(ref)
+}, [])
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value })
   const handleLocation = e => setForm({
@@ -31,7 +38,7 @@ export default function Register() {
     setError('')
     setLoading(true)
     try {
-      const res = await api.post('/auth/register', form)
+      const res = await api.post('/auth/register', { ...form, refCode })
       login(res.data)
       navigate('/')
     } catch (err) {

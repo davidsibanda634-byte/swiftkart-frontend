@@ -7,7 +7,7 @@ import {
   MessageCircle, Bug, Scale, FileText, Lock, Building2, Cookie, ShieldAlert,
   LayoutDashboard, Users, Flag, BarChart3, History, LogOut, Wrench, Ticket,
   BarChart2, TrendingUp, Zap, Star, Package, CreditCard, Bell, MapPin,
-  Trash2, ChevronRight,
+  Trash2, ChevronRight, Gift, Copy, CheckCheck,
 } from 'lucide-react'
 
 function memberSince(dateStr) {
@@ -84,8 +84,19 @@ export default function ProfileMenu() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [showDelete, setShowDelete] = useState(false)
-  const since = memberSince(user?.createdAt)
+const [copied, setCopied]         = useState(false)
+const since = memberSince(user?.createdAt)
 
+const referralLink = user?.referralCode
+  ? `scalablenexus.vercel.app/register?ref=${user.referralCode}`
+  : null
+
+function copyReferralLink() {
+  if (!referralLink) return
+  navigator.clipboard.writeText(referralLink)
+  setCopied(true)
+  setTimeout(() => setCopied(false), 2500)
+}
   function handleLogout() {
     if (!window.confirm('Log out of your account?')) return
     logout()
@@ -185,12 +196,121 @@ export default function ProfileMenu() {
           {user ? (
             <>
               <SectionLabel>My Activity</SectionLabel>
-              <Card>
-                <Row icon={ShoppingBag} iconColor="#00C896" iconBg="#ecfdf5" label="My Listings"    sub="Manage your posted items"             to="/my-listings" />
-                <Row icon={Ticket}      iconColor="#be185d" iconBg="#fdf2f8" label="My Tickets"     sub="Your event ticket bookings"           to="/my-tickets" />
-                <Row icon={Heart}       iconColor="#ef4444" iconBg="#fef2f2" label="Saved Items"    sub="Items you have saved"                 to="/saved" />
-                <Row icon={PlusCircle}  iconColor="#059669" iconBg="#ecfdf5" label="Post a Listing" sub="List an item, service or event"       to="/create" badge="New" />
-              </Card>
+<Card>
+  <Row icon={ShoppingBag} iconColor="#00C896" iconBg="#ecfdf5" label="My Listings"    sub="Manage your posted items"       to="/my-listings" />
+  <Row icon={Ticket}      iconColor="#be185d" iconBg="#fdf2f8" label="My Tickets"     sub="Your event ticket bookings"     to="/my-tickets" />
+  <Row icon={Heart}       iconColor="#ef4444" iconBg="#fef2f2" label="Saved Items"    sub="Items you have saved"           to="/saved" />
+  <Row icon={PlusCircle}  iconColor="#059669" iconBg="#ecfdf5" label="Post a Listing" sub="List an item, service or event" to="/create" badge="New" />
+</Card>
+
+{/* ── Referral Card ── */}
+{user?.referralCode && (
+  <>
+    <SectionLabel>Referral Program</SectionLabel>
+    <Card>
+      {/* Points strip */}
+      <div style={{
+        background:  'linear-gradient(135deg, #08162F, #10275e)',
+        padding:     '16px',
+        display:     'flex',
+        alignItems:  'center',
+        gap:         14,
+      }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 12,
+          background: 'rgba(0,200,150,0.2)',
+          border:     '1px solid rgba(0,200,150,0.3)',
+          display:    'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <Gift size={20} color="#34d399" />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginBottom: 2 }}>
+            YOUR POINTS
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#34d399' }}>
+            {user.points || 0}
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginLeft: 6 }}>
+              pts
+            </span>
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>Per referral</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#fbbf24' }}>+10 pts</div>
+        </div>
+      </div>
+
+      {/* Referral link */}
+      <div style={{ padding: '14px 16px' }}>
+        <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 10, fontWeight: 500 }}>
+          Share your link — earn 10 points for every person who joins using it.
+        </p>
+        <div style={{
+          display:      'flex',
+          alignItems:   'center',
+          gap:          8,
+          background:   '#f9fafb',
+          border:       '1.5px solid #e5e7eb',
+          borderRadius: 10,
+          padding:      '10px 12px',
+        }}>
+          <div style={{ flex: 1, fontSize: 11.5, color: '#374151', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {referralLink}
+          </div>
+          <button
+            onClick={copyReferralLink}
+            style={{
+              display:      'flex',
+              alignItems:   'center',
+              gap:          5,
+              background:   copied ? '#ecfdf5' : '#08162F',
+              color:        copied ? '#059669' : 'white',
+              border:       'none',
+              borderRadius: 8,
+              padding:      '7px 12px',
+              fontSize:     11.5,
+              fontWeight:   700,
+              cursor:       'pointer',
+              fontFamily:   'inherit',
+              flexShrink:   0,
+              transition:   'all 0.2s',
+            }}
+          >
+            {copied
+              ? <><CheckCheck size={13} /> Copied!</>
+              : <><Copy size={13} /> Copy</>
+            }
+          </button>
+        </div>
+
+        {/* WhatsApp share */}
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(`Join Scalablenexus — Zimbabwe's campus marketplace! Register free using my link: https://${referralLink}`)}`}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            gap:            8,
+            marginTop:      10,
+            padding:        '10px',
+            background:     'linear-gradient(135deg,#25d366,#128c7e)',
+            color:          'white',
+            borderRadius:   10,
+            fontSize:       13,
+            fontWeight:     700,
+            textDecoration: 'none',
+          }}
+        >
+          📲 Share on WhatsApp
+        </a>
+      </div>
+    </Card>
+  </>
+)}
 
               <SectionLabel>Seller Tools</SectionLabel>
               <Card>
@@ -218,6 +338,7 @@ export default function ProfileMenu() {
                   <Row icon={Flag}            iconColor="#7c3aed" iconBg="#f5f3ff" label="Reports"         to="/admin/reports" />
                   <Row icon={BarChart3}       iconColor="#7c3aed" iconBg="#f5f3ff" label="Analytics"       to="/admin/analytics" />
                   <Row icon={History}         iconColor="#7c3aed" iconBg="#f5f3ff" label="Activity Feed"   to="/admin/activity" />
+                  <Row icon={Gift} iconColor="#7c3aed" iconBg="#f5f3ff" label="Referral Program" to="/admin/referrals" />
                 </Card>
               </>)}
 
